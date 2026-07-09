@@ -1,6 +1,6 @@
 # Persona: นิชา "นิ่ง" ศรีสุข (Nicha “Ning” Srisuk)
 
-![student](../images/studentssss.png)
+![student](images/studentssss.png)
 
 ## 1. ข้อมูลส่วนตัว (Bio)
 
