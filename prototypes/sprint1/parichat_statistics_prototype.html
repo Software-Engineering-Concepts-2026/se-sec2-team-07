@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Learning Statistics Dashboard</title>
+
+  <link rel="stylesheet" href="parichat_statistic_style.css">
+</head>
+
+
+<body>
+
+
+<div class="dashboard-container">
+
+
+<header>
+
+<h1>Learning Statistics</h1>
+
+<button id="refreshBtn">
+  Refresh Statistics
+</button>
+
+<p id="updateMessage"></p>
+
+</header>
+
+
+
+
+<!-- Filter Buttons -->
+
+<div class="filter-buttons">
+
+<button class="filter-btn active">
+This Week
+</button>
+
+<button class="filter-btn">
+This Month
+</button>
+
+<button class="filter-btn">
+All Time
+</button>
+
+</div>
+
+
+
+
+
+<!-- Summary Cards -->
+
+
+<section class="stats-summary-row">
+
+
+<div class="stat-card">
+<h3>Today's Cards</h3>
+<p class="stat-value">32 cards</p>
+<p class="stat-sub">
+Study Time: 48 mins
+</p>
+</div>
+
+
+
+<div class="stat-card">
+<h3>This Week</h3>
+<p class="stat-value">185 cards</p>
+<p class="stat-sub">
+Target: 200 cards
+</p>
+</div>
+
+
+
+<div class="stat-card">
+<h3>Accuracy</h3>
+<p class="stat-value">91%</p>
+<p class="stat-sub">
+Highest: 95%
+</p>
+</div>
+
+
+
+<div class="stat-card">
+<h3>Study Time</h3>
+<p class="stat-value">48 mins</p>
+<p class="stat-sub">
+Daily Avg: 40 mins
+</p>
+</div>
+
+
+</section>
+
+
+
+
+
+
+<!-- Weekly Chart -->
+
+
+<section class="chart-section">
+
+
+<h2>
+Weekly Activity
+</h2>
+
+
+
+<div class="bar-chart-placeholder">
+
+
+<div class="bar-container">
+<div class="bar" style="height:60%"></div>
+<span>Sun</span>
+</div>
+
+
+<div class="bar-container">
+<div class="bar" style="height:90%"></div>
+<span>Mon</span>
+</div>
+
+
+
+<div class="bar-container">
+<div class="bar" style="height:40%"></div>
+<span>Tue</span>
+</div>
+
+
+
+<div class="bar-container">
+<div class="bar" style="height:75%"></div>
+<span>Wed</span>
+</div>
+
+
+
+<div class="bar-container">
+<div class="bar" style="height:50%"></div>
+<span>Thu</span>
+</div>
+
+
+
+<div class="bar-container">
+<div class="bar" style="height:20%"></div>
+<span>Fri</span>
+</div>
+
+
+
+<div class="bar-container">
+<div class="bar" style="height:80%"></div>
+<span>Sat</span>
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+<!-- Streak + Progress -->
+
+
+<div class="two-column-grid">
+
+
+<section class="info-box">
+
+
+<h2>
+Current Streak
+</h2>
+
+
+<p class="streak-value">
+🔥 21 Days
+</p>
+
+
+<p class="sub-text">
+Longest : 43 Days
+</p>
+
+
+</section>
+
+
+
+
+
+<section class="info-box">
+
+
+<h2>
+Total Progress
+</h2>
+
+
+<ul class="progress-list">
+
+
+<li>
+Cards Learned: 1,250
+</li>
+
+
+<li>
+Reviews Done: 5,680
+</li>
+
+
+<li>
+Decks Completed: 8
+</li>
+
+
+</ul>
+
+
+</section>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- Accuracy -->
+
+<section class="chart-section">
+
+
+<h2>
+Accuracy Trend
+</h2>
+
+
+<div class="line-chart-placeholder">
+
+
+<div class="line-y-axis">
+
+<span>
+100%
+</span>
+
+<span>
+90%
+</span>
+
+<span>
+80%
+</span>
+
+
+</div>
+
+
+
+<div class="line-content">
+
+
+<div class="chart-line-fallback">
+
+───●────●────●────●───
+
+</div>
+
+
+<div class="line-x-axis">
+
+<span>
+Week 1
+</span>
+
+<span>
+Week 2
+</span>
+
+<span>
+Week 3
+</span>
+
+<span>
+Week 4
+</span>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<!-- Distribution -->
+
+
+<section class="chart-section">
+
+
+<h2>
+Review Distribution
+</h2>
+
+
+
+<div class="dist-container">
+
+
+
+<div class="dist-row">
+
+<span class="dist-label">
+Easy
+</span>
+
+
+<div class="dist-bar-bg">
+
+<div class="dist-bar-fill"
+style="width:52%">
+</div>
+
+</div>
+
+
+<span class="dist-pct">
+52%
+</span>
+
+
+</div>
+
+
+
+
+
+<div class="dist-row">
+
+<span class="dist-label">
+Medium
+</span>
+
+
+<div class="dist-bar-bg">
+
+<div class="dist-bar-fill"
+style="width:28%">
+</div>
+
+</div>
+
+
+<span class="dist-pct">
+28%
+</span>
+
+
+</div>
+
+
+
+
+
+
+<div class="dist-row">
+
+<span class="dist-label">
+Hard
+</span>
+
+
+<div class="dist-bar-bg">
+
+<div class="dist-bar-fill"
+style="width:20%">
+</div>
+
+</div>
+
+
+<span class="dist-pct">
+20%
+</span>
+
+
+</div>
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- Achievement -->
+
+
+<section class="achievements-box">
+
+
+<h2>
+Recent Achievements
+</h2>
+
+
+
+<ul>
+
+<li>
+✓ 7-day streak
+</li>
+
+
+<li>
+✓ Reviewed 500 cards
+</li>
+
+
+<li>
+✓ Accuracy above 90%
+</li>
+
+
+</ul>
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- Navigation -->
+
+
+<nav class="bottom-nav">
+
+
+<a href="#" class="nav-item">
+Home
+</a>
+
+
+<a href="#" class="nav-item">
+Decks
+</a>
+
+
+<a href="#" class="nav-item">
+Review
+</a>
+
+
+<a href="#" class="nav-item active">
+Statistics
+</a>
+
+
+<a href="#" class="nav-item">
+Profile
+</a>
+
+
+</nav>
+
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<script>
+
+
+// Refresh Button
+
+const refreshBtn =
+document.getElementById("refreshBtn");
+
+
+const message =
+document.getElementById("updateMessage");
+
+
+
+refreshBtn.addEventListener("click", function(){
+
+
+message.innerHTML =
+"Statistics updated successfully! (Prototype)";
+
+
+});
+
+
+
+
+
+
+
+// Filter Buttons
+
+
+const filterButtons =
+document.querySelectorAll(".filter-btn");
+
+
+
+filterButtons.forEach(function(button){
+
+
+button.addEventListener("click", function(){
+
+
+
+filterButtons.forEach(function(btn){
+
+btn.classList.remove("active");
+
+});
+
+
+
+button.classList.add("active");
+
+
+
+alert(
+"Showing statistics for: "
++
+button.innerText
+);
+
+
+
+});
+
+
+});
+
+
+
+
+
+
+
+// Bottom Navigation
+
+
+const navItems =
+document.querySelectorAll(".nav-item");
+
+
+
+navItems.forEach(function(item){
+
+
+item.addEventListener("click", function(event){
+
+
+event.preventDefault();
+
+
+alert(
+"You clicked "
++
+item.innerText
++
+" (Prototype)"
+);
+
+
+
+});
+
+
+});
+
+
+
+</script>
+
+
+
+</body>
+
+</html>
