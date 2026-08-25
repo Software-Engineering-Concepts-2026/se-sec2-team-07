@@ -19,6 +19,12 @@
 
 - **Tool:** Gemini / ChatGPT (Web Interface)
 - **Role:** Co-pilot ช่วยร่างโครงสร้าง Persona, Scenario, User Stories (INVEST) และ Non-Functional Requirements (NFR)
+# AI Usage Disclosure (Lab 4)
+
+### 1. Tools Used
+
+- **Tool:** ChatGPT / Gemini (Web Interface)
+- **Role:** Co-pilot ช่วยขึ้นโครงร่าง Semantic HTML Structure และออกแบบ CSS Grid Layout สำหรับ Dashboard
 
 ---
 
@@ -63,6 +69,13 @@
 #### Prompt 2 (ADR Trade-off Challenge)
 
 > **Prompt:** "ช่วยวิเคราะห์ผลกระทบ (Consequences) ทั้งข้อดีและข้อเสียของการเลือก Modular Monolith เทียบกับ Microservices สำหรับโปรเจกต์นักศึกษา 4 คน เวลา 8 สัปดาห์ ในรูปแบบ ADR Michael Nygard"
+#### Prompt 1 (HTML/CSS Structure)
+
+> **Prompt:** "สร้าง semantic HTML และ pure CSS สำหรับหน้า Learning Statistics Dashboard โทนสีเข้ม มีการ์ดสรุปตัวเลข 4 ใบ, กราฟแท่งจำลองรายสัปดาห์, และแถบแสดงการกระจายความยาก Easy/Medium/Hard ไม่ใช้ framework ภายนอก"
+
+#### Prompt 2 (Interactive Behavior)
+
+> **Prompt:** "เขียน Vanilla JavaScript จัดการ event click สำหรับปุ่ม filter ช่วงเวลา (This Week/Month/All Time) ให้สลับ active class และปุ่ม refresh ข้อมูลที่แสดงข้อความยืนยันเมื่อกด"
 
 ---
 
@@ -70,3 +83,6 @@
 
 - **ส่วนที่รับจาก AI ตรงๆ (~40%):** โครงสร้าง Mermaid Syntax boilerplate และหัวข้อเทมเพลต ADR
 - **ส่วนที่เขียน/ปรับแต่งเองโดยนิสิต (≥ 60%):** ปรับแก้ความสัมพันธ์ของ Component ให้ตรงกับ User Stories ของทีม (SRS Review, Learning Statistics) และกำหนด Rationale ใน Tech Stack ให้สะท้อนข้อจำกัดจริงของโปรเจกต์
+- 
+- **ส่วนที่รับจาก AI ตรงๆ (~40%):** โครงร่าง CSS Grid, Reset Styles, และ Layout Skeleton ของกราฟ
+- **ส่วนที่เขียน/ปรับแต่งเองโดยนิสิต (≥ 60%):** ปรับแก้ Class names, จัดการ Event Listeners บนปุ่มและ Navigation, เขียนข้อความ Domain-specific ให้ตรงกับ User Story US-04
