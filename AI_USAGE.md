@@ -19,6 +19,7 @@
 
 - **Tool:** Gemini / ChatGPT (Web Interface)
 - **Role:** Co-pilot ช่วยร่างโครงสร้าง Persona, Scenario, User Stories (INVEST) และ Non-Functional Requirements (NFR)
+
 # AI Usage Disclosure (Lab 4)
 
 ### 1. Tools Used
@@ -69,6 +70,7 @@
 #### Prompt 2 (ADR Trade-off Challenge)
 
 > **Prompt:** "ช่วยวิเคราะห์ผลกระทบ (Consequences) ทั้งข้อดีและข้อเสียของการเลือก Modular Monolith เทียบกับ Microservices สำหรับโปรเจกต์นักศึกษา 4 คน เวลา 8 สัปดาห์ ในรูปแบบ ADR Michael Nygard"
+
 #### Prompt 1 (HTML/CSS Structure)
 
 > **Prompt:** "สร้าง semantic HTML และ pure CSS สำหรับหน้า Learning Statistics Dashboard โทนสีเข้ม มีการ์ดสรุปตัวเลข 4 ใบ, กราฟแท่งจำลองรายสัปดาห์, และแถบแสดงการกระจายความยาก Easy/Medium/Hard ไม่ใช้ framework ภายนอก"
@@ -83,6 +85,74 @@
 
 - **ส่วนที่รับจาก AI ตรงๆ (~40%):** โครงสร้าง Mermaid Syntax boilerplate และหัวข้อเทมเพลต ADR
 - **ส่วนที่เขียน/ปรับแต่งเองโดยนิสิต (≥ 60%):** ปรับแก้ความสัมพันธ์ของ Component ให้ตรงกับ User Stories ของทีม (SRS Review, Learning Statistics) และกำหนด Rationale ใน Tech Stack ให้สะท้อนข้อจำกัดจริงของโปรเจกต์
+-
+- **ส่วนที่รับจาก AI ตรงๆ (~40%):** โครงร่าง CSS Grid, Reset Styles, และ Layout Skeleton ของกราฟ
+- **ส่วนที่เขียน/ปรับแต่งเองโดยนิสิต (≥ 60%):** ปรับแก้ Class names, จัดการ Event Listeners บนปุ่มและ Navigation, เขียนข้อความ Domain-specific ให้ตรงกับ User Story US-04
+
+# AI Usage Disclosure
+
+## Tools Used
+
+- Gemini / ChatGPT
+
+## Prompts Used
+
+1. "ช่วยเช็คไฟล์ .dockerignore ว่าทำไมถึง error response 404 พร้อมบอกวิธีการแก้ให้ครอบคลุม"
+2. "ช่วยเขียน Dockerfile แบบ Multi-stage build สำหรับโปรเจกต์ Python/Web ให้มี Non-root user และ Base image ขนาดเล็ก"
+
+## Direct Outputs Received
+
+1. ไฟล์ .dockerignore ที่ Root Directory มีอยู่แล้ว แต่เพื่อให้ครอบคลุมตามเกณฑ์ Lab 6
+
+# Git
+
+.git
+.gitignore
+
+# Environment & Secrets
+
+.env
+.env.\*
+
+# Python Virtual Environment & Cache
+
+.venv/
+venv/
+env/
+.supercharged/
+**pycache**/
+_.pyc
+_.pyo
+\*.pyd
+
+# Dependencies & Logs
+
+\*.log
+tests/
+coverage/
+
+# IDE / OS specific
+
+.vscode/
+.idea/
+\*.DS_Store
+
+# Documentation
+
+docs/
+\*.md
+
+2.  FROM python:3.12-slim
+
+WORKDIR /app
+COPY requirements.txt\* ./
+RUN if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi
+
+COPY . .
+RUN chown -R nobody:nogroup /app
+EXPOSE 8000
+USER nobody
+CMD ["python", "-m", "http.server", "8000", "--directory", "prototypes/sprint1"]
 - 
 - **ส่วนที่รับจาก AI ตรงๆ (~40%):** โครงร่าง CSS Grid, Reset Styles, และ Layout Skeleton ของกราฟ
 - **ส่วนที่เขียน/ปรับแต่งเองโดยนิสิต (≥ 60%):** ปรับแก้ Class names, จัดการ Event Listeners บนปุ่มและ Navigation, เขียนข้อความ Domain-specific ให้ตรงกับ User Story US-04
