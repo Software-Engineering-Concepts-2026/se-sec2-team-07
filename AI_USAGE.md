@@ -153,3 +153,6 @@ RUN chown -R nobody:nogroup /app
 EXPOSE 8000
 USER nobody
 CMD ["python", "-m", "http.server", "8000", "--directory", "prototypes/sprint1"]
+- 
+- **ส่วนที่รับจาก AI ตรงๆ (~40%):** โครงร่าง CSS Grid, Reset Styles, และ Layout Skeleton ของกราฟ
+- **ส่วนที่เขียน/ปรับแต่งเองโดยนิสิต (≥ 60%):** ปรับแก้ Class names, จัดการ Event Listeners บนปุ่มและ Navigation, เขียนข้อความ Domain-specific ให้ตรงกับ User Story US-04
