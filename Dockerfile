@@ -1,11 +1,22 @@
-FROM python:3.12-slim
-
+FROM node:24-bookworm-slim AS build
 WORKDIR /app
-COPY requirements.txt* ./
-RUN if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY vite.config.js ./
+COPY src/frontend ./src/frontend
+RUN npm run build
 
-COPY . .
-RUN chown -R nobody:nogroup /app
+FROM node:24-bookworm-slim AS runtime
+WORKDIR /app
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=8000
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+COPY src/backend ./src/backend
+COPY scripts/migrate.js ./scripts/migrate.js
+COPY scripts/import-sqlite.js ./scripts/import-sqlite.js
+COPY --from=build /app/dist ./dist
+USER node
 EXPOSE 8000
-USER nobody
-CMD ["python", "-m", "http.server", "8000", "--directory", "prototypes/sprint1"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
+  CMD node -e "fetch('http://127.0.0.1:'+process.env.PORT+'/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+CMD ["node", "src/backend/server.js"]

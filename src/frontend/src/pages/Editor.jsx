@@ -1,0 +1,60 @@
+import { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { api } from '../api';
+import { useApp } from '../context';
+import { useUnsavedChanges } from '../hooks/useUnsavedChanges';
+import { Icon, PageTitle, Empty, ErrorPanel } from '../components/UI';
+
+const newDeck = () => ({ name: '', category: 'ทั่วไป', description: '', color: 'purple', cards: [] });
+export default function Editor() {
+  const { id } = useParams(); const navigate = useNavigate(); const { ai, notify, confirm } = useApp();
+  const [deck, setDeck] = useState(newDeck); const [loading, setLoading] = useState(Boolean(id));
+  const [error, setError] = useState(''); const [busy, setBusy] = useState(false);
+  const [source, setSource] = useState(''); const [fileName, setFileName] = useState('');
+  const [mode, setMode] = useState('local'); const [count, setCount] = useState(10); const [language, setLanguage] = useState('Thai');
+  const [dragging, setDragging] = useState(false); const dirty = useRef(false); const cardsSection = useRef(null); const inFlight = useRef(false);
+  useUnsavedChanges(dirty);
+  useEffect(() => {
+    const controller = new AbortController();
+    dirty.current = false; setError('');
+    if (id) { setLoading(true); api(`/decks/${id}`, 'GET', undefined, controller.signal).then(setDeck).catch(e => { if (!controller.signal.aborted) setError(e.message); }).finally(() => { if (!controller.signal.aborted) setLoading(false); }); }
+    else { setDeck(newDeck()); setSource(''); setLoading(false); }
+    return () => controller.abort();
+  }, [id]);
+  function change(key, value) { dirty.current = true; setDeck(d => ({ ...d, [key]: value })); }
+  async function run(action) { if (inFlight.current) return; inFlight.current = true; setBusy(true); try { await action(); } catch (e) { notify(e.message); } finally { inFlight.current = false; setBusy(false); } }
+  async function readFile(file) {
+    if (!file) return;
+    await run(async () => {
+      if (file.size > 20 * 1024 * 1024) throw Error('ไฟล์ต้องมีขนาดไม่เกิน 20 MB');
+      setFileName('กำลังอ่านข้อความ…');
+      const content = await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result.split(',')[1]); reader.onerror = () => reject(Error('อ่านไฟล์ไม่สำเร็จ')); reader.readAsDataURL(file); });
+      try {
+        const result = await api('/extract', 'POST', { name: file.name, content });
+        setSource(result.text); setFileName(file.name); dirty.current = true;
+        setDeck(d => ({ ...d, name: d.name || file.name.replace(/\.[^.]+$/, '') })); notify('อ่านข้อความแล้ว พร้อมสร้างการ์ด');
+      } catch (e) { setFileName('เลือกไฟล์ใหม่ หรือลองวางข้อความ'); throw e; }
+    });
+  }
+  async function generateCards() { await run(async () => {
+    if (!source.trim()) throw Error('กรุณาเลือกไฟล์หรือวางข้อความ');
+    const result = await api('/generate', 'POST', { text: source, count, mode, language });
+    change('cards', [...deck.cards, ...result.cards]); notify(`เพิ่ม ${result.cards.length} การ์ดแล้ว กรุณาตรวจและแก้ไขก่อนบันทึก`);
+    cardsSection.current?.scrollIntoView({ behavior: 'smooth' });
+  }); }
+  async function save() { await run(async () => {
+    if (!deck.name.trim()) throw Error('กรุณาตั้งชื่อชุดการ์ด');
+    if (!deck.cards.length || deck.cards.some(c => !c.front.trim() || !c.back.trim())) throw Error('กรุณาเพิ่มการ์ดและกรอกคำถามกับคำตอบให้ครบ');
+    await api(`/decks${id ? `/${id}` : ''}`, id ? 'PUT' : 'POST', { ...deck, category: deck.category.trim() || 'ทั่วไป' });
+    dirty.current = false; notify('บันทึกชุดการ์ดเรียบร้อย'); navigate('/decks');
+  }); }
+  async function remove() { if (await confirm('ลบชุดการ์ดนี้?', 'การ์ดและประวัติการทบทวนของชุดนี้จะถูกลบถาวร')) await run(async () => { await api(`/decks/${id}`, 'DELETE', {}); dirty.current = false; notify('ลบชุดการ์ดแล้ว'); navigate('/decks'); }); }
+  function exportDeck() {
+    const data = { name: deck.name, description: deck.description, category: deck.category, cards: deck.cards.map(({ front, back }) => ({ front, back })) };
+    const href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+    const a = document.createElement('a'); a.href = href; a.download = `${deck.name.replace(/[^\p{L}\p{N} _-]/gu, '') || 'flashcards'}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(href), 1000);
+  }
+  if (loading) return <div className="loading">กำลังเปิดชุดการ์ด…</div>;
+  if (error) return <ErrorPanel error={error} />;
+  return <><PageTitle eyebrow="TURN YOUR NOTES INTO KNOWLEDGE" title={id ? 'แก้ไขชุดการ์ด' : 'สร้างชุดการ์ดใหม่'} subtitle="ทีละคำถาม ทีละความเข้าใจ"><Link className="btn secondary" to="/decks">กลับไปคลังการ์ด</Link></PageTitle><div className="editor-layout"><div className="stack">{!id && <section className="panel stack"><h2>01 / เพิ่มเนื้อหาที่อยากเรียนรู้</h2><label className={`dropzone ${dragging ? 'drag' : ''}`} onDragOver={e => { e.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={e => { e.preventDefault(); setDragging(false); readFile(e.dataTransfer.files[0]); }}><Icon name="upload" /><strong>{fileName || 'เลือกไฟล์ หรือลากมาวางที่นี่'}</strong><small>PDF, PPTX, TXT, MD · ไม่เกิน 20 MB</small><input type="file" aria-label="อัปโหลดเอกสาร" accept=".pdf,.pptx,.txt,.md" disabled={busy} onChange={e => { readFile(e.target.files[0]); e.target.value = ''; }} hidden /></label><label className="field">หรือวางข้อความจากโน้ต<textarea rows={6} maxLength={60000} disabled={busy} value={source} onChange={e => { dirty.current = true; setSource(e.target.value); }} placeholder={'Stack: โครงสร้างข้อมูลแบบเข้าทีหลังออกก่อน\nQueue: โครงสร้างข้อมูลแบบเข้าก่อนออกก่อน'} /></label><div className="form-grid"><label className="field">วิธีสร้าง<select value={mode} onChange={e => setMode(e.target.value)} disabled={busy}><option value="local">แยกข้อความ (ไม่ใช้ AI)</option><option value="ai" disabled={!ai}>AI {ai ? '' : '— ยังไม่ได้ตั้งค่า'}</option></select></label><label className="field">จำนวนการ์ดสูงสุด<select value={count} onChange={e => setCount(Number(e.target.value))} disabled={busy}>{[5, 10, 20, 30].map(n => <option key={n}>{n}</option>)}</select></label></div>{mode === 'ai' && <label className="field">ภาษาของการ์ด AI<select value={language} onChange={e => setLanguage(e.target.value)}><option value="Thai">ไทย</option><option value="English">English</option><option value="Japanese">日本語</option></select></label>}<div className="notice">{mode === 'ai' ? 'เมื่อกดสร้าง เนื้อหานี้จะถูกส่งไปยัง OpenAI เพื่อสร้างคำถาม–คำตอบ กรุณาตรวจเนื้อหาก่อนบันทึก' : 'โหมดแยกข้อความใช้รูปแบบ “คำศัพท์: ความหมาย” หรือสร้างช่องว่างจากประโยค ไม่ได้วิเคราะห์ด้วย AI กรุณาตรวจการ์ดก่อนบันทึก'}</div><button className="btn" disabled={busy} onClick={generateCards}>{busy ? 'กำลังดำเนินการ…' : '✧ สร้างการ์ดจากเนื้อหา'}</button></section>}<div className="section-heading row between" ref={cardsSection}><h2>{id ? '' : '02 / '}ตรวจและแก้ไขการ์ด <span className="small muted">({deck.cards.length} ใบ)</span></h2><button className="btn secondary" disabled={busy || deck.cards.length >= 500} onClick={() => change('cards', [...deck.cards, { front: '', back: '' }])}><Icon name="plus" />เพิ่มเอง</button></div><div className="stack">{deck.cards.length ? deck.cards.map((card, index) => <article className="draft-card" key={card.id || `new-${index}`}><div className="row between"><span className="draft-number">CARD {String(index + 1).padStart(2, '0')}</span><button className="icon-btn" disabled={busy} aria-label={`ลบการ์ด ${index + 1}`} onClick={() => change('cards', deck.cards.filter((_, i) => i !== index))}><Icon name="trash" /></button></div>{[['front', 'ด้านหน้า · คำถาม', 2000], ['back', 'ด้านหลัง · คำตอบ', 8000]].map(([side, label, max]) => <label className="field" key={side}>{label}<textarea value={card[side]} maxLength={max} disabled={busy} onChange={e => change('cards', deck.cards.map((c, i) => i === index ? { ...c, [side]: e.target.value } : c))} /></label>)}</article>) : <Empty title="การ์ดของคุณจะแสดงที่นี่"><p>สร้างจากเนื้อหาด้านบน หรือกด “เพิ่มเอง”</p></Empty>}</div></div><aside className="panel stack sticky"><h2>รายละเอียดชุดการ์ด</h2><label className="field">ชื่อชุดการ์ด<input value={deck.name} maxLength={120} disabled={busy} onChange={e => change('name', e.target.value)} placeholder="เช่น Data Structures บทที่ 1" /></label><label className="field">หมวดหมู่ / แท็ก<input value={deck.category} maxLength={60} disabled={busy} onChange={e => change('category', e.target.value)} /></label><label className="field">คำอธิบาย<textarea value={deck.description} maxLength={1000} disabled={busy} onChange={e => change('description', e.target.value)} placeholder="ชุดการ์ดนี้เกี่ยวกับอะไร" /></label><label className="field">สีประจำชุด<select value={deck.color} disabled={busy} onChange={e => change('color', e.target.value)}>{[['purple', 'ม่วงลาเวนเดอร์'], ['blue', 'ฟ้า'], ['green', 'เขียวเซจ'], ['orange', 'ส้มพีช']].map(([v, l]) => <option value={v} key={v}>{l}</option>)}</select></label><div className="notice">✧ การ์ดที่ดีมีหนึ่งประเด็นต่อใบ<br />ตอบให้กระชับ และตรวจเนื้อหาก่อนบันทึก</div><button className="btn" disabled={busy} onClick={save}><Icon name="check" />บันทึกชุดการ์ด</button>{id && <><button className="btn secondary" disabled={busy} onClick={exportDeck}>ดาวน์โหลดชุดการ์ด JSON</button><button className="btn danger" disabled={busy} onClick={remove}>ลบชุดการ์ด</button></>}</aside></div></>;
+}

@@ -1,5 +1,16 @@
 # AI Usage
 
+## Application implementation and Tech Stack migration — 2026-09-11
+
+- **Tool:** Codex.
+- **User request:** พัฒนาแอปให้ใช้งานได้ และปรับตาม `docs/architecture/tech_stack.md`.
+- **Work produced:** React/Vite UI, Express modules, PostgreSQL migrations/repositories, JWT cookies, document extraction workers, optional OpenAI integration, SQLite import, Docker/CI configuration and development documentation.
+- **Verification performed:** 6 service/unit tests, 7 PostgreSQL integration tests (including migration), 2 Chrome end-to-end workflows at desktop/mobile sizes, Vite production build, Compose configuration validation.
+- **Limits:** No live AI request or cloud deployment; Docker image execution remains unverified because the local Engine was unavailable. Functional tests do not certify NFR load, uptime or encryption-at-rest targets.
+- **Human review:** Implementation was produced by Codex at the user's request. Team code review/PR approval is still required before merging under the project's workflow; no claim of human-authored percentages is made for this change.
+
+---
+
 ## LAB 2: AI Usage Summary
 
 | หัวข้อหลัก                      | ข้อมูล / ขอบเขตการทำงาน            | รายละเอียดการดำเนินการ                                                             |

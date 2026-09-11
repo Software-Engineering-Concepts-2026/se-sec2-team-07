@@ -29,3 +29,15 @@ coverage/
 # Documentation
 docs/
 *.md
+
+# Local application data and installed packages
+data/
+.vendor/
+.tools/
+.local/
+node_modules/
+dist/
+test-results/
+playwright-report/
+prototypes/
+team/

@@ -1,5 +1,7 @@
 # Docker Container Documentation
 
+> The active Dockerfile now builds React/Vite and runs Node.js/Express with PostgreSQL via `compose.yaml`. See [current build/run instructions](../docs/development.md). The Python image details below are historical Sprint 1 prototype documentation and do not describe the current application.
+
 ## Image Details
 
 - **Image Name / Tag:** `nattapon5/se-team07-app:v0.1.0`

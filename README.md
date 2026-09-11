@@ -145,33 +145,26 @@ refactor/xxx — ปรับโครงสร้าง Code
 
 _เอกสารนี้ทบทวนและปรับปรุงได้ในทุก Sprint Retrospective โดยต้องได้รับความเห็นชอบจากทุกคนในทีม_
 
-## 🚀 Getting Started
+## 🚀 Getting Started — Current Application
 
-This section explains how to get a local copy of the project up and running for development and testing purposes.
+แอปปัจจุบันใช้ **React + Vite + Plain CSS / Node.js + Express / PostgreSQL / JWT HttpOnly cookies** ตาม [Tech Stack](docs/architecture/tech_stack.md)
 
-### Prerequisites
+```bash
+npm ci
+npm run db:local
+# Leave the database terminal open. In another terminal:
+npm run dev
+```
 
-- Git
-- Python 3.10+
-- Docker & Docker Compose
+เปิด http://127.0.0.1:5173 เพื่อพัฒนา หรือ `npm run build` ตามด้วย `npm start` แล้วเปิด http://127.0.0.1:8000
 
-### Running the Application (with Docker)
+`db:local` เริ่ม PostgreSQL แยกในโฟลเดอร์ `.local` และสร้าง `.env` หากยังไม่มี หากใช้ PostgreSQL ที่มีอยู่ ให้ตั้งค่าตาม `.env.example` แทน
 
-1.  **Clone the repository:**
-
-    ```bash
-    git clone [your-repository-url]
-    cd [your-project-folder]
-    ```
-
-2.  **Run the services:**
-    _(This section will be updated in later weeks when using Docker Compose)_
-    ```bash
-    # Example for a single service
-    cd services/stats-service
-    docker build -t your-team/stats-service .
-    docker run -p 5001:5000 your-team/stats-service
-    ```
+- สร้างบัญชีและเพิ่มชุดการ์ดจาก PDF/PPTX/TXT/MD หรือข้อความ
+- แก้ไขและบันทึกการ์ด ทบทวนตาม SRS และดูสถิติจริง
+- AI เปิดใช้เมื่อกำหนด `OPENAI_API_KEY` และ `OPENAI_MODEL` ฝั่งเซิร์ฟเวอร์ โหมดแยกข้อความและเพิ่มเองใช้ได้โดยไม่มีคีย์
+- Docker: ตั้ง `POSTGRES_PASSWORD`/`JWT_SECRET` แล้ว `docker compose up --build`
+- รายละเอียดการรัน การย้ายข้อมูลเดิม การทดสอบ และ deploy: **[Development guide](docs/development.md)**
 
 ---
 

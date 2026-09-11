@@ -18,3 +18,13 @@ dist/
 # OS Header files
 .DS_Store
 Thumbs.db
+
+# Local application data and dependencies
+data/
+.vendor/
+.venv/
+*.log
+.tools/
+.local/
+test-results/
+playwright-report/
