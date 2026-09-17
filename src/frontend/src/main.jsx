@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Library from './pages/Library';
 import Editor from './pages/Editor';
 import Review from './pages/Review';
+import Schedule from './pages/Schedule';
 import Statistics from './pages/Statistics';
 import './style.css';
 
@@ -17,6 +18,7 @@ const router = createHashRouter([{ element: <App />, children: [{ element: <Layo
   { path: '/edit/:id', element: <Editor /> },
   { path: '/review', element: <Review key="all" /> },
   { path: '/review/:id', element: <Review /> },
+  { path: '/schedule', element: <Schedule /> },
   { path: '/stats', element: <Statistics /> },
   { path: '*', element: <Navigate to="/" replace /> },
 ] }] }]);

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useApp } from '../context';
 import { api } from '../api';
 import { Brand, Icon } from './UI';
-const links = [['/', 'home', 'ภาพรวม'], ['/decks', 'decks', 'ชุดการ์ดของฉัน'], ['/review', 'review', 'ทบทวนการ์ด'], ['/stats', 'stats', 'สถิติการเรียน']];
+const links = [['/', 'home', 'ภาพรวม'], ['/decks', 'decks', 'ชุดการ์ดของฉัน'], ['/review', 'review', 'ทบทวนการ์ด'], ['/schedule', 'review', 'ตารางทบทวน'], ['/stats', 'stats', 'สถิติการเรียน']];
 export default function Layout() {
   const { user, setUser, notify } = useApp();
   const { pathname } = useLocation();

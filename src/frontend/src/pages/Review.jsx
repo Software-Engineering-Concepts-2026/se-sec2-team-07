@@ -10,11 +10,12 @@ export default function Review() {
   const [cards, setCards] = useState(null); const [error, setError] = useState(''); const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false); const [answers, setAnswers] = useState([]); const [remaining, setRemaining] = useState(600);
   const [paused, setPaused] = useState(false); const [finished, setFinished] = useState(false); const [busy, setBusy] = useState(false);
+  const [plan, setPlan] = useState(null);
   const saving = useRef(false); const requestId = useRef(crypto.randomUUID()); const elapsed = useRef(0); const pending = useRef(null);
   useEffect(() => {
     const controller = new AbortController();
-    setCards(null); setError(''); setIndex(0); setAnswers([]); setFinished(false); setRemaining(600); setFlipped(false); pending.current = null;
-    api(`/review${id ? `?deck=${id}` : ''}`, 'GET', undefined, controller.signal).then(r => setCards(r.cards)).catch(e => { if (!controller.signal.aborted) setError(e.message); });
+    setCards(null); setError(''); setIndex(0); setAnswers([]); setFinished(false); setRemaining(600); setFlipped(false); setPaused(false); setPlan(null); elapsed.current = 0; pending.current = null; requestId.current = crypto.randomUUID();
+    api(`/review${id ? `?deck=${id}` : ''}`, 'GET', undefined, controller.signal).then(r => { setCards(r.cards); setPlan(r); setRemaining(r.remaining_seconds); }).catch(e => { if (!controller.signal.aborted) setError(e.message); });
     return () => controller.abort();
   }, [id]);
   useEffect(() => {
@@ -25,16 +26,17 @@ export default function Review() {
   }, [cards, paused, finished, busy]);
   useEffect(() => { if (remaining === 0 && !busy) setFinished(true); }, [remaining, busy]);
   async function rate(rating) {
-    if (saving.current || !flipped || finished || paused) return;
+    if (saving.current || !flipped || finished || paused || remaining <= 0) return;
     saving.current = true; setBusy(true);
     const body = pending.current || { id: requestId.current, card_id: cards[index].id, rating, seconds: Math.min(3600, Math.round(elapsed.current)) };
     pending.current = body;
     try {
-      await api('/review', 'POST', body);
+      const result = await api('/review', 'POST', body);
+      if (result.remaining_seconds !== undefined) setRemaining(value => Math.min(value, result.remaining_seconds));
       setAnswers(value => [...value, body.rating]); setFlipped(false); setIndex(value => value + 1);
       pending.current = null; requestId.current = crypto.randomUUID(); elapsed.current = 0;
       if (index + 1 >= cards.length) setFinished(true);
-    } catch (e) { notify(`${e.message} — กดระดับเดิมเพื่อลองบันทึกอีกครั้ง`); }
+    } catch (e) { if (e.status === 409) { setError(e.message); } else notify(`${e.message} — กดระดับเดิมเพื่อลองบันทึกอีกครั้ง`); }
     finally { saving.current = false; setBusy(false); }
   }
   useEffect(() => {
@@ -45,10 +47,10 @@ export default function Review() {
     };
     window.addEventListener('keydown', handler); return () => window.removeEventListener('keydown', handler);
   });
-  if (error) return <ErrorPanel error={error} />;
+  if (error) return <><ErrorPanel error={error} /><Link to="/schedule" className="btn">ดูตารางทบทวน</Link></>;
   if (!cards) return <div className="loading">กำลังเตรียมการ์ด…</div>;
-  if (!cards.length) return <section className="panel finish"><div className="success-circle">✓</div><h1>ทบทวนครบสำหรับตอนนี้แล้ว</h1><p className="muted">กลับมาทบทวนเมื่อถึงรอบถัดไป<br />การ์ดที่เลือก “จำไม่ได้” จะกลับมาในอีก 10 นาที</p><Link to="/decks" className="btn">กลับไปคลังการ์ด</Link></section>;
-  if (finished) { const good = answers.filter(r => ['good', 'easy'].includes(r)).length; return <section className="review-wrap panel finish"><div className="success-circle">✧</div><div className="eyebrow">A LITTLE BETTER THAN BEFORE</div><h1>วันนี้คุณก้าวไปอีกขั้นแล้ว</h1><p className="muted">ทบทวน {answers.length} ใบ · จำได้ {answers.length ? Math.round(good / answers.length * 100) : 0}%<br />บันทึกผลและกำหนดรอบทบทวนถัดไปเรียบร้อย</p><div className="row wrap" style={{ justifyContent: 'center' }}><Link to="/stats" className="btn">ดูความก้าวหน้า<Icon name="arrow" /></Link><Link to="/" className="btn secondary">กลับหน้าหลัก</Link></div></section>; }
+  if (!cards.length) return <section className="panel finish"><div className="success-circle">✓</div><h1>{plan?.due_count ? "พักก่อน แล้วค่อยทบทวนต่อ" : "ทบทวนครบสำหรับตอนนี้แล้ว"}</h1><p className="muted">{plan?.due_count ? "เวลาที่เหลือวันนี้ไม่พอสำหรับการ์ดหนึ่งใบ ดูแผนหรือปรับเวลาได้" : "กลับมาทบทวนเมื่อถึงรอบถัดไป"}</p><Link to="/schedule" className="btn">ดูตารางทบทวน</Link></section>;
+  if (finished) { const good = answers.filter(r => ['good', 'easy'].includes(r)).length; return <section className="review-wrap panel finish"><div className="success-circle">✧</div><div className="eyebrow">A LITTLE BETTER THAN BEFORE</div><h1>วันนี้คุณก้าวไปอีกขั้นแล้ว</h1><p className="muted">ทบทวน {answers.length} ใบ · จำได้ {answers.length ? Math.round(good / answers.length * 100) : 0}%<br />บันทึกผลและกำหนดรอบทบทวนถัดไปเรียบร้อย</p><div className="row wrap" style={{ justifyContent: 'center' }}><Link to="/stats" className="btn">ดูความก้าวหน้า<Icon name="arrow" /></Link><Link to="/schedule" className="btn secondary">ดูตารางทบทวน</Link></div></section>; }
   const card = cards[index]; const seconds = Math.ceil(remaining);
-  return <div className="review-wrap"><PageTitle eyebrow="ONE CARD CLOSER TO YOUR GOAL" title="เวลาของความรู้" subtitle={card.deck_name} /><div className="row between review-top"><span className="small muted">การ์ด {index + 1} จาก {cards.length} ใบ</span><div className="row"><span className="timer" aria-label="เวลาที่เหลือ">{String(Math.floor(seconds / 60)).padStart(2, '0')}:{String(seconds % 60).padStart(2, '0')}</span><button className="btn ghost" disabled={busy} onClick={() => setPaused(v => !v)}>{paused ? 'เริ่มเวลาต่อ' : 'พักเวลา'}</button><button className="btn secondary" disabled={busy} onClick={() => setFinished(true)}>จบรอบนี้</button></div></div><div className="progress"><div style={{ width: `${index / cards.length * 100}%` }} /></div><button className="review-card" disabled={busy || paused} onClick={() => setFlipped(v => !v)}><span className="face-label">{paused ? 'PAUSED' : flipped ? 'ANSWER' : 'QUESTION'}</span><span className="card-text">{paused ? 'พักสักครู่ แล้วค่อยกลับมาเรียนรู้' : flipped ? card.back : card.front}</span><span className="hint">{flipped ? 'จำได้แค่ไหน? เลือกระดับด้านล่าง' : 'คลิกเพื่อเปิดคำตอบ · Space'}</span></button>{flipped && !paused && <div className="ratings">{ratings.map(([value, label, time], i) => <button className="rating" key={value} disabled={busy} onClick={() => rate(value)}><strong>{i + 1} · {label}</strong><small>{time}</small></button>)}</div>}<p className="session-note">ลองนึกคำตอบก่อนพลิกการ์ด แล้วประเมินความจำอย่างตรงไปตรงมา</p></div>;
+  return <div className="review-wrap"><PageTitle eyebrow="ONE CARD CLOSER TO YOUR GOAL" title="เวลาของความรู้" subtitle={card.deck_name} /><div className="row between review-top"><span className="small muted">การ์ด {index + 1} จาก {cards.length} ใบ</span><div className="row"><span className="timer" aria-label="เวลาที่เหลือ">{String(Math.floor(seconds / 60)).padStart(2, '0')}:{String(seconds % 60).padStart(2, '0')}</span><button className="btn ghost" disabled={busy} onClick={() => setPaused(v => !v)}>{paused ? 'เริ่มเวลาต่อ' : 'พักเวลา'}</button><button className="btn secondary" disabled={busy} onClick={() => setFinished(true)}>จบรอบนี้</button></div></div><div className="progress"><div style={{ width: `${index / cards.length * 100}%` }} /></div><button className="review-card" disabled={busy || paused} onClick={() => setFlipped(v => !v)}><span className="face-label">{paused ? 'PAUSED' : flipped ? 'ANSWER' : 'QUESTION'}</span><span className="card-text">{paused ? 'พักสักครู่ แล้วค่อยกลับมาเรียนรู้' : flipped ? card.back : card.front}</span><span className="hint">{flipped ? 'จำได้แค่ไหน? เลือกระดับด้านล่าง' : 'คลิกเพื่อเปิดคำตอบ · Space'}</span></button>{flipped && !paused && <div className="ratings">{ratings.map(([value, label, time], i) => <button className="rating" key={value} disabled={busy} onClick={() => rate(value)}><strong>{i + 1} · {label}</strong><small>{time}</small></button>)}</div>}<p className="session-note">เลือกการ์ดตามเวลาที่เหลือวันนี้แล้ว · <Link to="/schedule">ดูหรือปรับตาราง</Link></p><p className="session-note">ลองนึกคำตอบก่อนพลิกการ์ด แล้วประเมินความจำอย่างตรงไปตรงมา</p></div>;
 }
