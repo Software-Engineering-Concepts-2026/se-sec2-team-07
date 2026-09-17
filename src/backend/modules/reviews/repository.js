@@ -1,15 +1,24 @@
 import { transaction } from '../../db/pool.js';
 import { HttpError, notFound } from '../../shared/errors.js';
 import { schedule } from './service.js';
+import { planReviews, bangkokDate } from './planner.js';
 export function reviewRepository(pool) {
   return {
-    async due(uid, deckId) {
-      return (await pool.query(`SELECT c.*,d.name deck_name FROM cards c JOIN decks d ON d.id=c.deck_id
-        WHERE d.user_id=$1 AND c.due<=extract(epoch from now()) AND ($2::int IS NULL OR d.id=$2)
-        ORDER BY c.due,c.id LIMIT 100`, [uid, deckId])).rows;
+    async plan(uid, deckId = null) {
+      const now = Date.now() / 1000;
+      const user = (await pool.query('SELECT review_minutes FROM users WHERE id=$1', [uid])).rows[0];
+      const usage = (await pool.query('SELECT seconds FROM review_days WHERE user_id=$1 AND day=$2', [uid, bangkokDate(now)])).rows[0];
+      const average = (await pool.query('SELECT avg(seconds) value FROM (SELECT seconds FROM reviews WHERE user_id=$1 AND seconds>0 ORDER BY created DESC LIMIT 100) recent', [uid])).rows[0].value;
+      const cards = (await pool.query(`SELECT c.*, d.name deck_name FROM cards c JOIN decks d ON d.id=c.deck_id
+        WHERE d.user_id=$1 AND ($2::int IS NULL OR d.id=$2)`, [uid, deckId])).rows;
+      return planReviews(cards, user.review_minutes, usage?.seconds || 0, average, now);
+    },
+    async setMinutes(uid, minutes) {
+      await pool.query('UPDATE users SET review_minutes=$1 WHERE id=$2', [minutes, uid]);
     },
     async record(uid, input) {
       return transaction(pool, async client => {
+        const user = (await client.query('SELECT review_minutes FROM users WHERE id=$1 FOR UPDATE', [uid])).rows[0];
         // Serialize a review with deck edits/deletions, then lock this card against parallel ratings.
         const deck = (await client.query('SELECT d.id FROM decks d JOIN cards c ON c.deck_id=d.id WHERE c.id=$1 AND d.user_id=$2 FOR UPDATE OF d', [input.card_id, uid])).rows[0];
         if (!deck) throw notFound();
@@ -21,11 +30,18 @@ export function reviewRepository(pool) {
           return { ok: true, duplicate: true };
         }
         const now = Date.now() / 1000;
+        const day = bangkokDate(now);
+        const spent = (await client.query('SELECT seconds FROM review_days WHERE user_id=$1 AND day=$2', [uid, day])).rows[0]?.seconds || 0;
+        const remaining = Math.max(0, user.review_minutes * 60 - spent);
+        if (!remaining) throw new HttpError(409, 'ครบเวลาทบทวนวันนี้แล้ว ดูตารางหรือปรับเวลาที่สะดวกได้');
+        const seconds = Math.min(remaining, Math.max(1, input.seconds));
         if (card.due > now + 1) throw new HttpError(409, 'การ์ดนี้ถูกทบทวนแล้วหรือยังไม่ถึงกำหนด กรุณาโหลดใหม่');
         const interval = schedule(card.interval, input.rating);
-        await client.query('INSERT INTO reviews(id,user_id,card_id,rating,seconds,created) VALUES($1,$2,$3,$4,$5,$6)', [input.id, uid, input.card_id, input.rating, input.seconds, now]);
+        await client.query('INSERT INTO reviews(id,user_id,card_id,rating,seconds,created) VALUES($1,$2,$3,$4,$5,$6)', [input.id, uid, input.card_id, input.rating, seconds, now]);
         await client.query('UPDATE cards SET interval=$1,due=$2,reviews=reviews+1 WHERE id=$3', [interval, now + interval * 86400, card.id]);
-        return { ok: true, interval };
+        await client.query(`INSERT INTO review_days(user_id,day,seconds) VALUES($1,$2,$3)
+          ON CONFLICT(user_id,day) DO UPDATE SET seconds=review_days.seconds+excluded.seconds`, [uid, day, seconds]);
+        return { ok: true, interval, due: now + interval * 86400, remaining_seconds: remaining - seconds };
       });
     },
   };
