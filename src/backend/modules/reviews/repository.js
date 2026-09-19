@@ -4,13 +4,15 @@ import { schedule } from './service.js';
 import { planReviews, bangkokDate } from './planner.js';
 export function reviewRepository(pool) {
   return {
-    async plan(uid, deckId = null) {
+    async plan(uid, deckId = null, courseId = null) {
+      if (courseId && !(await pool.query('SELECT id FROM courses WHERE id=$1 AND user_id=$2', [courseId, uid])).rowCount) throw notFound();
       const now = Date.now() / 1000;
       const user = (await pool.query('SELECT review_minutes FROM users WHERE id=$1', [uid])).rows[0];
       const usage = (await pool.query('SELECT seconds FROM review_days WHERE user_id=$1 AND day=$2', [uid, bangkokDate(now)])).rows[0];
       const average = (await pool.query('SELECT avg(seconds) value FROM (SELECT seconds FROM reviews WHERE user_id=$1 AND seconds>0 ORDER BY created DESC LIMIT 100) recent', [uid])).rows[0].value;
       const cards = (await pool.query(`SELECT c.*, d.name deck_name FROM cards c JOIN decks d ON d.id=c.deck_id
-        WHERE d.user_id=$1 AND ($2::int IS NULL OR d.id=$2)`, [uid, deckId])).rows;
+        WHERE d.user_id=$1 AND ($2::int IS NULL OR d.id=$2)
+        AND ($3::int IS NULL OR EXISTS(SELECT 1 FROM course_cards cc WHERE cc.card_id=c.id AND cc.course_id=$3))`, [uid, deckId, courseId])).rows;
       return planReviews(cards, user.review_minutes, usage?.seconds || 0, average, now);
     },
     async setMinutes(uid, minutes) {

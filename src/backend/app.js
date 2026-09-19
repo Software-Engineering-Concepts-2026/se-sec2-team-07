@@ -15,6 +15,8 @@ import { reviewController } from './modules/reviews/controller.js';
 import { statsRepository } from './modules/stats/repository.js';
 import { statsController } from './modules/stats/controller.js';
 import { generationController } from './modules/generation/controller.js';
+import { courseRepository, noteRepository } from './modules/courses/repository.js';
+import { courseController, noteController } from './modules/courses/controller.js';
 
 export function createApp(pool, config) {
   const app = express();
@@ -47,6 +49,8 @@ export function createApp(pool, config) {
   });
   app.post('/api/logout', async (req, res) => { await auth.logout(res, req.user); res.json({ ok: true }); });
   app.use('/api/decks', deckController(deckRepository(pool)));
+  app.use('/api/courses', courseController(courseRepository(pool)));
+  app.use('/api/notes', noteController(noteRepository(pool)));
   app.use('/api/review', reviewController(reviewRepository(pool)));
   app.use('/api/stats', statsController(statsRepository(pool)));
   const generation = generationController(config);

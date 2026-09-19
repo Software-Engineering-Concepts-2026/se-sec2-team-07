@@ -1,5 +1,6 @@
 import { transaction } from '../../db/pool.js';
 import { HttpError, notFound } from '../../shared/errors.js';
+import { assertCardsUnlinked, cardCoursesSql } from '../courses/repository.js';
 
 export function deckRepository(pool) {
   return {
@@ -12,7 +13,7 @@ export function deckRepository(pool) {
     async get(uid, id) {
       const deck = (await pool.query('SELECT * FROM decks WHERE id=$1 AND user_id=$2', [id, uid])).rows[0];
       if (!deck) throw notFound();
-      deck.cards = (await pool.query('SELECT * FROM cards WHERE deck_id=$1 ORDER BY id', [id])).rows;
+      deck.cards = (await pool.query(`SELECT c.*,${cardCoursesSql} courses FROM cards c WHERE deck_id=$1 ORDER BY id`, [id])).rows;
       return deck;
     },
     async save(uid, id, input) {
@@ -32,12 +33,20 @@ export function deckRepository(pool) {
           } else await client.query('INSERT INTO cards(deck_id,front,back,due) VALUES($1,$2,$3,extract(epoch from now()))', [id, card.front, card.back]);
         }
         const removed = [...oldIds].filter(cid => !kept.has(cid));
-        if (removed.length) await client.query('DELETE FROM cards WHERE id=ANY($1::int[])', [removed]);
+        if (removed.length) {
+          await assertCardsUnlinked(client, removed);
+          await client.query('DELETE FROM cards WHERE id=ANY($1::int[])', [removed]);
+        }
         return id;
       });
     },
     async remove(uid, id) {
-      if (!(await pool.query('DELETE FROM decks WHERE id=$1 AND user_id=$2', [id, uid])).rowCount) throw notFound();
+      return transaction(pool, async client => {
+        if (!(await client.query('SELECT id FROM decks WHERE id=$1 AND user_id=$2 FOR UPDATE', [id, uid])).rowCount) throw notFound();
+        const ids = (await client.query('SELECT id FROM cards WHERE deck_id=$1', [id])).rows.map(c => c.id);
+        await assertCardsUnlinked(client, ids);
+        await client.query('DELETE FROM decks WHERE id=$1', [id]);
+      });
     },
   };
 }
