@@ -6,3 +6,7 @@
 
 .schedule-heading { margin-top: 28px; }
 @media(max-width:760px){.nav a{flex:1;min-width:0;padding:8px 2px;font-size:9px;white-space:nowrap}.schedule-heading p{margin-top:10px}}
+
+/* Keep seven primary destinations reachable on narrow screens. */
+@media(max-width:760px){.nav{justify-content:flex-start;overflow-x:auto}.nav a{flex:0 0 68px}.sidebar{padding-left:5px;padding-right:5px}}
+.shared-content{overflow-wrap:anywhere;margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}.shared-text{white-space:pre-wrap;overflow-wrap:anywhere;max-height:20rem;overflow:auto}.shared-content .toolbar{flex-wrap:wrap;margin-bottom:0}.note-editor{display:grid;gap:12px;margin-bottom:24px}.note-editor label{font-size:12px}.page-title{flex-wrap:wrap}.page-title>div{min-width:0;overflow-wrap:anywhere}.deck-card h2{overflow-wrap:anywhere}

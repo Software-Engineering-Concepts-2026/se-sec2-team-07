@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
 import { useApp } from '../context';
 import { PageTitle, ErrorPanel, Icon } from '../components/UI';
 
 const ratings = [['again', 'จำไม่ได้', '10 นาที'], ['hard', 'ยาก', '≥ 1 วัน'], ['good', 'จำได้', '≥ 2 วัน'], ['easy', 'ง่าย', '≥ 4 วัน']];
 export default function Review() {
-  const { id } = useParams(); const { notify } = useApp();
+  const { id } = useParams(); const [params] = useSearchParams(); const course = params.get('course'); const { notify } = useApp();
   const [cards, setCards] = useState(null); const [error, setError] = useState(''); const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false); const [answers, setAnswers] = useState([]); const [remaining, setRemaining] = useState(600);
   const [paused, setPaused] = useState(false); const [finished, setFinished] = useState(false); const [busy, setBusy] = useState(false);
@@ -15,9 +15,9 @@ export default function Review() {
   useEffect(() => {
     const controller = new AbortController();
     setCards(null); setError(''); setIndex(0); setAnswers([]); setFinished(false); setRemaining(600); setFlipped(false); setPaused(false); setPlan(null); elapsed.current = 0; pending.current = null; requestId.current = crypto.randomUUID();
-    api(`/review${id ? `?deck=${id}` : ''}`, 'GET', undefined, controller.signal).then(r => { setCards(r.cards); setPlan(r); setRemaining(r.remaining_seconds); }).catch(e => { if (!controller.signal.aborted) setError(e.message); });
+    api(`/review${course ? `?course=${encodeURIComponent(course)}` : id ? `?deck=${id}` : ''}`, 'GET', undefined, controller.signal).then(r => { setCards(r.cards); setPlan(r); setRemaining(r.remaining_seconds); }).catch(e => { if (!controller.signal.aborted) setError(e.message); });
     return () => controller.abort();
-  }, [id]);
+  }, [id, course]);
   useEffect(() => {
     if (!cards?.length || paused || finished || busy) return;
     let last = Date.now();
