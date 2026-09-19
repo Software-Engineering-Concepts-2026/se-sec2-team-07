@@ -3,12 +3,61 @@ import { useState } from 'react';
 import { useApp } from '../context';
 import { api } from '../api';
 import { Brand, Icon } from './UI';
-const links = [['/', 'home', 'ภาพรวม'], ['/decks', 'decks', 'ชุดการ์ดของฉัน'], ['/courses', 'decks', 'รายวิชา'], ['/notes', 'decks', 'โน้ต'], ['/review', 'review', 'ทบทวนการ์ด'], ['/schedule', 'review', 'ตารางทบทวน'], ['/stats', 'stats', 'สถิติการเรียน']];
+
+const links = [
+  ['/', 'home', 'ภาพรวม'],
+  ['/decks', 'decks', 'ชุดการ์ดของฉัน'],
+  ['/courses', 'courses', 'รายวิชา'],
+  ['/notes', 'notes', 'โน้ต'],
+  ['/review', 'review', 'ทบทวนการ์ด'],
+  ['/schedule', 'schedule', 'ตารางทบทวน'],
+  ['/stats', 'stats', 'สถิติการเรียน'],
+];
+
+function getPageTitle(pathname) {
+  if (pathname === '/') return 'ภาพรวม';
+  if (pathname === '/create') return 'สร้างชุดการ์ด';
+  if (/^\/edit\/[^/]+$/.test(pathname)) return 'แก้ไขชุดการ์ด';
+  if (/^\/courses\/[^/]+$/.test(pathname)) return 'รายละเอียดรายวิชา';
+  if (/^\/review\/[^/]+$/.test(pathname)) return 'ทบทวนชุดการ์ด';
+  return links.find(([path]) => pathname === path)?.[2] || 'พื้นที่เรียนรู้';
+}
+
 export default function Layout() {
   const { user, setUser, notify } = useApp();
   const { pathname } = useLocation();
   const [busy, setBusy] = useState(false);
   async function logout() { setBusy(true); try { await api('/logout', 'POST', {}); setUser(null); } catch (e) { notify(e.message); } finally { setBusy(false); } }
   const logoutButton = <button className="logout" disabled={busy} onClick={logout} aria-label="ออกจากระบบ" title="ออกจากระบบ"><Icon name="logout" /></button>;
-  return <><aside className="sidebar"><Brand /><div className="brand-note">MAKE KNOWLEDGE STICK</div><nav className="nav" aria-label="เมนูหลัก">{links.map(([path, icon, label]) => <NavLink key={path} to={path} end={path === '/'} className={({ isActive }) => isActive ? 'active' : ''}><Icon name={icon} />{label}</NavLink>)}</nav><div className="sidebar-bottom"><div className="sidebar-tip">✧ ทีละใบ ทีละความรู้<br />ความสม่ำเสมอเล็ก ๆ<br />สร้างการเปลี่ยนแปลงที่ยิ่งใหญ่</div><div className="user row"><div className="avatar">{user.name[0]}</div><div><div className="user-name">{user.name}</div><span className="small muted">พื้นที่เรียนรู้ของคุณ</span></div>{logoutButton}</div></div></aside><main className="main"><header className="topbar"><span className="desktop-label">พื้นที่เรียนรู้ / <b>{links.find(([path]) => path === pathname)?.[2] || 'ชุดการ์ด'}</b></span><div className="mobile-brand"><Brand /></div><div className="row"><span className="status">บันทึกความก้าวหน้าอัตโนมัติ</span><span>{new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })}</span>{logoutButton}</div></header><div className="content"><Outlet /></div></main></>;
+  const pageTitle = getPageTitle(pathname);
+  const now = new Date();
+  const today = now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+  const localDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const skipToContent = event => {
+    event.preventDefault();
+    document.getElementById('main-content')?.focus();
+  };
+
+  return <>
+    <a className="skip-link" href="#main-content" onClick={skipToContent}>ข้ามไปยังเนื้อหาหลัก</a>
+    <aside className="sidebar">
+      <Brand />
+      <div className="brand-note">MAKE KNOWLEDGE STICK</div>
+      <nav className="nav" aria-label="เมนูหลัก">
+        {links.map(([path, icon, label]) => <NavLink key={path} to={path} end={path === '/'} className={({ isActive }) => isActive ? 'active' : ''}><Icon name={icon} />{label}</NavLink>)}
+      </nav>
+      <div className="sidebar-bottom">
+        <div className="sidebar-tip">✧ ทีละใบ ทีละความรู้<br />ความสม่ำเสมอเล็ก ๆ<br />สร้างการเปลี่ยนแปลงที่ยิ่งใหญ่</div>
+        <div className="user row"><div className="avatar" aria-hidden="true">{user.name[0]}</div><div><div className="user-name">{user.name}</div><span className="small muted">พื้นที่เรียนรู้ของคุณ</span></div>{logoutButton}</div>
+      </div>
+    </aside>
+    <main className="main" id="main-content" tabIndex="-1">
+      <header className="topbar">
+        <span className="desktop-label">พื้นที่เรียนรู้ / <b>{pageTitle}</b></span>
+        <div className="mobile-brand"><Brand /></div>
+        <div className="row topbar-meta"><span className="status">พื้นที่เรียนรู้ของคุณ</span><time dateTime={localDate}>วันนี้ {today}</time>{logoutButton}</div>
+      </header>
+      <div className="content"><Outlet /></div>
+    </main>
+  </>;
 }

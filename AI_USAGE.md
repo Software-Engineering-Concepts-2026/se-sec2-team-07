@@ -1,5 +1,12 @@
 # AI Usage
 
+## UI design refinement — 2026-09-20
+
+- **Assistance:** Frontend/design agents reviewed and refined typography, spacing, navigation, page actions, and schedule presentation; the coordinating session integrated changes and handled verification.
+- **Scope:** Presentation and navigation clarity only. Existing API contracts, database migrations, and Issue #4/#6/#11 behavior remain the regression targets. No agent guide files were added.
+- **Verification:** Production build passed. All 10 existing browser cases passed on desktop/mobile, including Issues #4/#6/#11; after final CSS corrections the two main-flow browser cases passed again. Inspected dashboard, schedule, and course screenshots. Backend tests were not rerun for presentation-only changes.
+- **Review status:** Local implementation; human review, merge, deployment, and live AI-provider verification are not claimed.
+
 ## Issue #11 — shared course content — 2026-09-19
 
 - **Assistance:** AI-assisted implementation and review of course/note storage, reusable card/note links, deletion guards, shared review filtering, and React screens. Separate backend and frontend reviewers inspected assigned files; the coordinating session integrated and tested the changes.
