@@ -1,5 +1,11 @@
 # AI Usage
 
+## Issue #11 — shared course content — 2026-09-19
+
+- **Assistance:** AI-assisted implementation and review of course/note storage, reusable card/note links, deletion guards, shared review filtering, and React screens. Separate backend and frontend reviewers inspected assigned files; the coordinating session integrated and tested the changes.
+- **Verification:** 9 unit tests, 16 integration tests, 10 browser cases on desktop/mobile, production build, screenshot review, and diff formatting checks passed. Browser coverage includes Issues #4 and #6.
+- **Limits:** No live AI-provider call, deployment, push, human approval, or merge is claimed. Agent workflow guides were not added to the repository.
+
 ## Application implementation and Tech Stack migration — 2026-09-11
 
 - **Tool:** Codex.
