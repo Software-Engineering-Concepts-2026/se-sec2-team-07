@@ -1,5 +1,12 @@
 # AI Usage
 
+## Development workflow adoption — 2026-09-19
+
+- **Assistance:** An AI coding assistant read the user-supplied `setup.md`, preserved it as `docs/agents.md`, and added repository-level workflow instructions in `AGENTS.md` at the user's request.
+- **Scope:** Role assignments, file ownership for delegated work, issue-linked commits, regression expectations, handoffs, and human review. No application code, application AI model setting, or deployment configuration changed.
+- **Verification:** Compared the guide with the existing project charter and Definition of Done; retained the unresolved `develop` versus `main` PR-base decision for the team. Checked source-copy integrity and documentation diff formatting. No application tests rerun for this documentation-only change.
+- **Execution:** This update was handled in the current session; no six-agent run or model switch is claimed. Human PR review and merge remain pending.
+
 ## Application implementation and Tech Stack migration — 2026-09-11
 
 - **Tool:** Codex.
