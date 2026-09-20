@@ -5,6 +5,7 @@ import { useApp } from '../context';
 import { useUnsavedChanges } from '../hooks/useUnsavedChanges';
 import { PageTitle, Empty, ErrorPanel } from '../components/UI';
 import CourseLinks from '../components/CourseLinks';
+import Documents from '../components/Documents';
 
 const blank = () => ({ title: '', body: '' });
 export default function Notes() {
@@ -56,14 +57,15 @@ export default function Notes() {
     });
   }
   const filtered = notes.filter(note => `${note.title} ${note.body}`.toLowerCase().includes(query.toLowerCase()));
-  return <><PageTitle eyebrow="SHARED NOTES" title="คลังโน้ต" subtitle="บันทึกข้อความต้นฉบับ แล้วเชื่อมใช้งานได้หลายรายวิชา"><Link to="/courses" className="btn secondary">รายวิชาของฉัน</Link></PageTitle>
+  return <><PageTitle eyebrow="SHARED NOTES" title="คลังโน้ต" subtitle="เอกสารและโน้ตในที่เดียว ค้นหาและเปิดอ่านได้ทุกเมื่อ"><Link to="/courses" className="btn secondary">รายวิชาของฉัน</Link></PageTitle>
+    <div className="toolbar"><input aria-label="ค้นหาโน้ต" placeholder="ค้นหาเอกสารหรือโน้ตจากชื่อและเนื้อหา…" value={query} onChange={e => setQuery(e.target.value)} /></div>
+    <Documents query={query} />
     <form className="panel note-editor" onSubmit={save}><h2>{editing ? 'แก้ไขโน้ตต้นฉบับ' : 'สร้างโน้ต'}</h2>{editing && <><CourseLinks courses={editing.courses} />{editing.courses?.length > 0 && <p role="note">การแก้ไขมีผลกับทุกวิชาที่เชื่อม ระบบจะให้ยืนยันก่อนบันทึก</p>}</>}
       <label htmlFor="note-title">ชื่อโน้ต</label><input id="note-title" value={draft.title} maxLength={120} required disabled={busy || loading} onChange={e => change('title', e.target.value)} />
       <label htmlFor="note-body">เนื้อหาโน้ต</label><textarea id="note-body" rows={10} value={draft.body} maxLength={60000} required disabled={busy || loading} onChange={e => change('body', e.target.value)} />
       <label htmlFor="note-file">อ่านข้อความจากไฟล์ PDF, PPTX, TXT หรือ Markdown (ไม่เก็บไฟล์ต้นฉบับ)</label><input id="note-file" type="file" accept=".pdf,.pptx,.txt,.md" disabled={busy || loading} onChange={e => { const file = e.target.files[0]; e.target.value = ''; readFile(file); }} />
       {actionError && <p role="alert">{actionError}</p>}<div className="toolbar"><button className="btn" disabled={busy || loading || !draft.title.trim() || !draft.body.trim()}>{busy ? 'กำลังดำเนินการ…' : 'บันทึกโน้ต'}</button><button type="button" className="btn secondary" disabled={busy || loading} onClick={() => select(null)}>เริ่มโน้ตใหม่</button></div>
     </form>
-    <div className="toolbar"><input aria-label="ค้นหาโน้ต" placeholder="ค้นหาโน้ต…" value={query} onChange={e => setQuery(e.target.value)} /></div>
     {loading ? <p className="loading">กำลังเปิดคลังโน้ต…</p> : error ? <ErrorPanel error={error} retry={() => setVersion(v => v + 1)} /> : filtered.length ? filtered.map(note => <article key={note.id} className="panel shared-content"><h2>{note.title}</h2><p className="shared-text">{note.body}</p><CourseLinks courses={note.courses} /><div className="toolbar"><button className="btn secondary" disabled={busy || loading} onClick={() => select(note)}>แก้ไขโน้ต</button><button className="btn danger" disabled={busy || note.courses?.length > 0} onClick={() => remove(note)}>ลบโน้ต</button></div>{note.courses?.length > 0 && <p className="small muted">นำโน้ตออกจากรายวิชาที่เชื่อมทั้งหมดก่อนลบต้นฉบับ</p>}</article>) : <Empty title="ไม่พบโน้ต"><p>สร้างโน้ตใหม่หรือเปลี่ยนคำค้นหา</p></Empty>}
   </>;
 }
