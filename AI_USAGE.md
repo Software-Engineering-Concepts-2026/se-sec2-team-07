@@ -312,3 +312,10 @@ CMD ["python", "-m", "http.server", "8000", "--directory", "prototypes/sprint1"]
 ใช้ AI ช่วยพัฒนาคลังเอกสารต้นฉบับในหน้าคลังโน้ต แบ่งเจ้าของไฟล์ backend/migration, frontend และ browser tests เก็บไฟล์และข้อความใน PostgreSQL ตรวจสิทธิ์เจ้าของ ดาวน์โหลดต้นฉบับ ค้นหาร่วมกับโน้ต เปลี่ยนชื่อและลบ
 
 ตรวจสอบ unit 16/16, integration 19/19, browser 14/14 รวม #3 #4 #6 #11 และ production build ผ่าน รายการข้อจำกัดและสิ่งที่ยังไม่ทดสอบบันทึกใน docs/testing/issue-5.md; ทีมต้องรีวิวก่อนรวมงาน
+
+
+## Issue #7 — 2026-09-21
+
+ใช้ AI ช่วยพัฒนาสถิติการ์ดไม่ซ้ำ สถิติรายชุด คำแนะนำตามเกณฑ์ 3 ครั้ง/ต่ำกว่า70% และประวัติ30วัน แบ่งเจ้าของไฟล์ backend/frontend/tests โดยไม่เปลี่ยนตารางทบทวน ตรวจภาพ desktop/mobile แล้ว
+
+Unit19/19 เมื่อรันแยก, integration20/20, browser14/16 ในรอบแรก แก้ selector ที่กำกวมใน workflow เดิมแล้วรันซ้ำอีก2/2ผ่าน, production build ผ่าน บันทึก PDF timeout เมื่อรันทดสอบหลายชุดพร้อมกันใน docs/testing/issue-3.md และผลละเอียดใน issue-7.md ทีมต้องรีวิวก่อนรวมงาน

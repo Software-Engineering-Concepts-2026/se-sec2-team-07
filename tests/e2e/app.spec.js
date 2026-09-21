@@ -45,8 +45,8 @@ test('register → upload → edit → review → statistics → delete → logi
     await page.getByRole('button', { name: /4 · ง่าย/ }).click();
     await expect(page.getByRole('heading', { name: 'วันนี้คุณก้าวไปอีกขั้นแล้ว' })).toBeVisible();
     await page.getByRole('link', { name: 'ดูความก้าวหน้า' }).click();
-    await expect(page.getByText('100%', { exact: true })).toBeVisible();
-    await expect(page.getByText('2 ครั้ง', { exact: true })).toBeVisible();
+    await expect(page.locator('.metric').filter({ hasText: 'ความจำแม่นยำ' }).getByText('100%', { exact: true })).toBeVisible();
+    await expect(page.locator('.metric').filter({ hasText: 'ทบทวนทั้งหมด' }).getByText('2 ครั้ง', { exact: true })).toBeVisible();
     await page.getByRole('link', { name: 'ภาพรวม', exact: true }).click();
     await expect(page.getByRole('heading', { name: /สวัสดี/ })).toBeVisible();
     await page.screenshot({ path: `.local/${testInfo.project.name}-dashboard.png`, fullPage: true });
