@@ -319,3 +319,10 @@ CMD ["python", "-m", "http.server", "8000", "--directory", "prototypes/sprint1"]
 ใช้ AI ช่วยพัฒนาสถิติการ์ดไม่ซ้ำ สถิติรายชุด คำแนะนำตามเกณฑ์ 3 ครั้ง/ต่ำกว่า70% และประวัติ30วัน แบ่งเจ้าของไฟล์ backend/frontend/tests โดยไม่เปลี่ยนตารางทบทวน ตรวจภาพ desktop/mobile แล้ว
 
 Unit19/19 เมื่อรันแยก, integration20/20, browser14/16 ในรอบแรก แก้ selector ที่กำกวมใน workflow เดิมแล้วรันซ้ำอีก2/2ผ่าน, production build ผ่าน บันทึก PDF timeout เมื่อรันทดสอบหลายชุดพร้อมกันใน docs/testing/issue-3.md และผลละเอียดใน issue-7.md ทีมต้องรีวิวก่อนรวมงาน
+
+
+## Issue #8 — 2026-09-23
+
+ใช้ AI ช่วยเพิ่มระดับ beginner/intermediate/advanced พร้อม rubric และคำสั่งตรวจความยากโดยยึดเอกสาร ผู้ใช้เลือกระดับใน Editor และรักษาร่างเดิมเมื่อล้มเหลว แบ่งเจ้าของ backend กับ browser tests ตรวจแนวทาง OpenAI Structured Outputs โดยไม่เปลี่ยนโมเดลหรือเรียกบริการจริง
+
+Unit26ผ่าน (generationตรวจซ้ำ9ผ่านหลังแก้ข้อความผลว่าง), integration21ผ่าน, browser16ผ่านและอีก2ผ่านหลังแก้ชื่อช่องเพื่อการเข้าถึง, buildผ่าน รายละเอียดและ ACด้านคุณภาพที่ยังต้องทดสอบจริงอยู่ใน docs/testing/issue-8.md

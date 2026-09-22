@@ -44,7 +44,7 @@ test('Issue #3: extract notes, preserve drafts on file and AI errors, retry and 
 
     let attempts = 0;
     await page.route('**/api/generate', async route => {
-      expect(route.request().postDataJSON()).toEqual({ text: source, count: 10, mode: 'ai', language: 'Thai' });
+      expect(route.request().postDataJSON()).toEqual({ text: source, count: 10, mode: 'ai', language: 'Thai', level: 'intermediate' });
       attempts += 1;
       if (attempts === 1) {
         await route.fulfill({ status: 502, json: { error: 'สร้างการ์ดด้วย AI ไม่สำเร็จ กรุณาลองใหม่' } });
