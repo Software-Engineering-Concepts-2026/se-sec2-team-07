@@ -1,8 +1,12 @@
+def is_multiple(n, divisor):
+    return n % divisor == 0
+
+
 def fizzbuzz(n):
-    if n == 15:
+    if is_multiple(n, 15):
         return "FizzBuzz"
-    if n == 3:
+    if is_multiple(n, 3):
         return "Fizz"
-    if n == 5:
+    if is_multiple(n, 5):
         return "Buzz"
     return str(n)
