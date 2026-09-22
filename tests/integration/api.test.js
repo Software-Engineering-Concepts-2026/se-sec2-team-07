@@ -87,3 +87,18 @@ test('validation, cross-origin writes, extraction, and AI-not-configured', async
   assert.equal((await agent.post('/api/generate').send({ text, mode: 'ai' })).status, 503);
   assert.equal((await agent.get('/data/focus.sqlite3')).status, 404);
 });
+
+
+test('Issue 8 rejects unknown learning levels and preserves local generation', async () => {
+  const { agent } = await account();
+  const input = { text: 'Stack: LIFO\nQueue: FIFO', count: 5 };
+  const invalid = await agent.post('/api/generate').send({ ...input, mode: 'ai', level: 'expert' });
+  assert.equal(invalid.status, 400);
+  assert.ok(invalid.body.fields.includes('level'));
+  for (const level of ['beginner', 'intermediate', 'advanced']) {
+    const local = await agent.post('/api/generate').send({ ...input, mode: 'local', level });
+    assert.equal(local.status, 200);
+    assert.deepEqual(local.body.cards, [{ front: 'Stack', back: 'LIFO' }, { front: 'Queue', back: 'FIFO' }]);
+  }
+  assert.deepEqual((await agent.get('/api/decks')).body.decks, []);
+});
