@@ -12,6 +12,7 @@ import Courses from './pages/Courses';
 import CourseDetail from './pages/CourseDetail';
 import Notes from './pages/Notes';
 import Statistics from './pages/Statistics';
+import PomodoroPage from './pomodoro';
 import './style.css';
 
 const router = createHashRouter([{ element: <App />, children: [{ element: <Layout />, children: [
@@ -25,6 +26,7 @@ const router = createHashRouter([{ element: <App />, children: [{ element: <Layo
   { path: '/courses', element: <Courses /> },
   { path: '/courses/:id', element: <CourseDetail /> },
   { path: '/notes', element: <Notes /> },
+  { path: '/pomodoro', element: <PomodoroPage /> },
   { path: '/stats', element: <Statistics /> },
   { path: '*', element: <Navigate to="/" replace /> },
 ] }] }]);

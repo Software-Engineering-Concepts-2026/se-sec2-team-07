@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useApp } from '../context';
 import { api } from '../api';
 import { Brand, Icon } from './UI';
+import { PomodoroProvider, PomodoroBanner } from '../pomodoro';
 
 const links = [
   ['/', 'home', 'ภาพรวม'],
@@ -10,6 +11,7 @@ const links = [
   ['/courses', 'courses', 'รายวิชา'],
   ['/notes', 'notes', 'โน้ต'],
   ['/review', 'review', 'ทบทวนการ์ด'],
+  ['/pomodoro', 'clock', 'Pomodoro'],
   ['/schedule', 'schedule', 'ตารางทบทวน'],
   ['/stats', 'stats', 'สถิติการเรียน'],
 ];
@@ -24,6 +26,10 @@ function getPageTitle(pathname) {
 }
 
 export default function Layout() {
+  return <PomodoroProvider><WorkspaceLayout /></PomodoroProvider>;
+}
+
+function WorkspaceLayout() {
   const { user, setUser, notify } = useApp();
   const { pathname } = useLocation();
   const [busy, setBusy] = useState(false);
@@ -57,7 +63,7 @@ export default function Layout() {
         <div className="mobile-brand"><Brand /></div>
         <div className="row topbar-meta"><span className="status">พื้นที่เรียนรู้ของคุณ</span><time dateTime={localDate}>วันนี้ {today}</time>{logoutButton}</div>
       </header>
-      <div className="content"><Outlet /></div>
+      <div className="content"><PomodoroBanner /><Outlet /></div>
     </main>
   </>;
 }
