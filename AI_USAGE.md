@@ -326,3 +326,7 @@ Unit19/19 เมื่อรันแยก, integration20/20, browser14/16 ใ�
 ใช้ AI ช่วยเพิ่มระดับ beginner/intermediate/advanced พร้อม rubric และคำสั่งตรวจความยากโดยยึดเอกสาร ผู้ใช้เลือกระดับใน Editor และรักษาร่างเดิมเมื่อล้มเหลว แบ่งเจ้าของ backend กับ browser tests ตรวจแนวทาง OpenAI Structured Outputs โดยไม่เปลี่ยนโมเดลหรือเรียกบริการจริง
 
 Unit26ผ่าน (generationตรวจซ้ำ9ผ่านหลังแก้ข้อความผลว่าง), integration21ผ่าน, browser16ผ่านและอีก2ผ่านหลังแก้ชื่อช่องเพื่อการเข้าถึง, buildผ่าน รายละเอียดและ ACด้านคุณภาพที่ยังต้องทดสอบจริงอยู่ใน docs/testing/issue-8.md
+
+## 2026-09-24 — Issue #9 Pomodoro verification
+
+AI reviewed the existing Pomodoro implementation at 10266e0, added responsive timer/banner styling and browser coverage, and recorded actual validation and remaining limitations in docs/testing/issue-9.md. Work was isolated on feat/pomodoro-review in .local/issue9 to preserve unrelated Lab 9 edits. Build passed; 8/8 Chrome desktop/mobile viewport tests passed for #9 and regressions #4/#6 using the real test API/database. No live AI calls, new API, migration, push, or merge. Real-device sleep/background notifications remain unverified; timer state resets on reload/logout. Human team review remains required.
