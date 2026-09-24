@@ -125,3 +125,11 @@ dialog p { color:#6f617c; font-size:14px; }
 .art-card { line-height:1.2; }
 .art-card strong { font-size:18px; line-height:1.2; }
 @media(max-width:760px){.chart-panel{padding-bottom:50px}.nav a{flex-basis:80px;min-width:80px}}
+
+/* Pomodoro remains readable on both desktop and narrow study screens. */
+.pomodoro-panel { max-width: 720px; margin-inline: auto; text-align: center; }
+.pomodoro-clock { font-size: clamp(4rem, 16vw, 7rem); font-weight: 750; font-variant-numeric: tabular-nums; line-height: 1.2; padding-block: 24px; }
+.pomodoro-actions { justify-content: center; flex-wrap: wrap; }
+.pomodoro-panel.is-break { border-color: #6f9d87; }
+.pomodoro-banner { margin-bottom: 20px; }
+.pomodoro-banner .row { flex-wrap: wrap; gap: 8px; }
