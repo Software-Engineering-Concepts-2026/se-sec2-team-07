@@ -52,6 +52,7 @@ test('atomic edit preserves schedule; invalid card ids roll back all changes', a
   assert.equal((await agent.put(`/api/decks/${d.id}`).send(d)).status, 200);
   const edited = (await agent.get(`/api/decks/${d.id}`)).body;
   assert.equal(edited.cards[0].reviews, 1); assert.equal(edited.cards[0].interval, 2);
+  d.revision = edited.revision;
   d.name = 'Rollback'; d.cards[0].id = 2147483647;
   assert.equal((await agent.put(`/api/decks/${d.id}`).send(d)).status, 400);
   assert.equal((await agent.get(`/api/decks/${d.id}`)).body.name, 'Data structures');

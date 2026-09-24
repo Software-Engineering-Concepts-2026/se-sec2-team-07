@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { idSchema } from '../../shared/validation.js';
+import { idSchema, syncFields, revisionSchema } from '../../shared/validation.js';
 const courseSchema = z.object({ name: z.string().trim().min(1).max(120) });
-const noteSchema = z.object({ title: z.string().trim().min(1).max(120), body: z.string().trim().min(1).max(60000) });
+const noteSchema = z.object({ ...syncFields, title: z.string().trim().min(1).max(120), body: z.string().trim().min(1).max(60000) });
 
 export function courseController(repo) {
   const router = Router();
@@ -26,6 +26,6 @@ export function noteController(repo) {
   router.get('/', async (req, res) => res.json({ notes: await repo.list(req.user.id) }));
   router.post('/', async (req, res) => res.status(201).json({ id: await repo.save(req.user.id, null, noteSchema.parse(req.body)) }));
   router.put('/:id', async (req, res) => res.json({ id: await repo.save(req.user.id, idSchema.parse(req.params.id), noteSchema.parse(req.body)) }));
-  router.delete('/:id', async (req, res) => { await repo.remove(req.user.id, idSchema.parse(req.params.id)); res.json({ ok: true }); });
+  router.delete('/:id', async (req, res) => { await repo.remove(req.user.id, idSchema.parse(req.params.id), revisionSchema.parse(req.body ?? {}).revision); res.json({ ok: true }); });
   return router;
 }

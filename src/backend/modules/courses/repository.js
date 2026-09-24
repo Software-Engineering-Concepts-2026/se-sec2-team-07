@@ -1,3 +1,4 @@
+import { assertRevision, saveOnce } from '../../shared/sync.js';
 import { transaction } from '../../db/pool.js';
 import { HttpError, notFound } from '../../shared/errors.js';
 
@@ -66,14 +67,22 @@ export function noteRepository(pool) {
     async list(uid) {
       return (await pool.query(`SELECT n.*,${noteCoursesSql} courses FROM notes n WHERE user_id=$1 ORDER BY id`, [uid])).rows;
     },
-    async save(uid, id, { title, body }) {
-      if (!id) return (await pool.query('INSERT INTO notes(user_id,title,body) VALUES($1,$2,$3) RETURNING id', [uid, title, body])).rows[0].id;
-      if (!(await pool.query('UPDATE notes SET title=$1,body=$2 WHERE id=$3 AND user_id=$4', [title, body, id, uid])).rowCount) throw notFound();
-      return id;
+    async save(uid, id, input) {
+      return transaction(pool, async client => saveOnce(client, uid, 'note', id, input, async () => {
+        const { title, body } = input;
+        if (!id) return (await client.query('INSERT INTO notes(user_id,title,body) VALUES($1,$2,$3) RETURNING id', [uid, title, body])).rows[0].id;
+        const current = (await client.query('SELECT revision FROM notes WHERE id=$1 AND user_id=$2 FOR UPDATE', [id, uid])).rows[0];
+        if (!current) throw notFound();
+        assertRevision(current, input.revision);
+        await client.query('UPDATE notes SET title=$1,body=$2,revision=revision+1 WHERE id=$3', [title, body, id]);
+        return id;
+      }));
     },
-    async remove(uid, id) {
+    async remove(uid, id, revision) {
       return transaction(pool, async client => {
-        if (!(await client.query('SELECT id FROM notes WHERE id=$1 AND user_id=$2 FOR UPDATE', [id, uid])).rowCount) throw notFound();
+        const current = (await client.query('SELECT revision FROM notes WHERE id=$1 AND user_id=$2 FOR UPDATE', [id, uid])).rows[0];
+        if (!current) throw notFound();
+        assertRevision(current, revision);
         const linked = (await client.query('SELECT co.name FROM course_notes cn JOIN courses co ON co.id=cn.course_id WHERE cn.note_id=$1 ORDER BY co.id', [id])).rows;
         if (linked.length) throw new HttpError(409, `ไม่สามารถลบโน้ตที่ใช้ในรายวิชา: ${linked.map(c => c.name).join(', ')} กรุณานำออกจากรายวิชาก่อน`);
         await client.query('DELETE FROM notes WHERE id=$1', [id]);

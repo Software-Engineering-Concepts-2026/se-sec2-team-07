@@ -1,3 +1,4 @@
+import { assertRevision, saveOnce } from '../../shared/sync.js';
 import { transaction } from '../../db/pool.js';
 import { HttpError, notFound } from '../../shared/errors.js';
 import { assertCardsUnlinked, cardCoursesSql } from '../courses/repository.js';
@@ -11,18 +12,25 @@ export function deckRepository(pool) {
         FROM decks d LEFT JOIN cards c ON c.deck_id=d.id WHERE d.user_id=$1 GROUP BY d.id ORDER BY d.created DESC`, [uid])).rows;
     },
     async get(uid, id) {
-      const deck = (await pool.query('SELECT * FROM decks WHERE id=$1 AND user_id=$2', [id, uid])).rows[0];
-      if (!deck) throw notFound();
-      deck.cards = (await pool.query(`SELECT c.*,${cardCoursesSql} courses FROM cards c WHERE deck_id=$1 ORDER BY id`, [id])).rows;
-      return deck;
+      return transaction(pool, async client => {
+        await client.query('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ');
+        const deck = (await client.query('SELECT * FROM decks WHERE id=$1 AND user_id=$2', [id, uid])).rows[0];
+        if (!deck) throw notFound();
+        deck.cards = (await client.query(`SELECT c.*,${cardCoursesSql} courses FROM cards c WHERE deck_id=$1 ORDER BY id`, [id])).rows;
+        return deck;
+      });
     },
     async save(uid, id, input) {
-      return transaction(pool, async client => {
-        if (id && !(await client.query('SELECT id FROM decks WHERE id=$1 AND user_id=$2 FOR UPDATE', [id, uid])).rowCount) throw notFound();
+      return transaction(pool, async client => saveOnce(client, uid, 'deck', id, input, async () => {
+        if (id) {
+          const current = (await client.query('SELECT revision FROM decks WHERE id=$1 AND user_id=$2 FOR UPDATE', [id, uid])).rows[0];
+          if (!current) throw notFound();
+          assertRevision(current, input.revision);
+        }
         const { name, description, category, color, cards } = input;
         if (!id) {
           id = (await client.query('INSERT INTO decks(user_id,name,description,category,color,created) VALUES($1,$2,$3,$4,$5,extract(epoch from now())) RETURNING id', [uid, name, description, category, color])).rows[0].id;
-        } else await client.query('UPDATE decks SET name=$1,description=$2,category=$3,color=$4 WHERE id=$5', [name, description, category, color, id]);
+        } else await client.query('UPDATE decks SET name=$1,description=$2,category=$3,color=$4,revision=revision+1 WHERE id=$5', [name, description, category, color, id]);
         const oldIds = new Set((await client.query('SELECT id FROM cards WHERE deck_id=$1', [id])).rows.map(c => c.id));
         const kept = new Set();
         for (const card of cards) {
@@ -38,11 +46,13 @@ export function deckRepository(pool) {
           await client.query('DELETE FROM cards WHERE id=ANY($1::int[])', [removed]);
         }
         return id;
-      });
+      }));
     },
-    async remove(uid, id) {
+    async remove(uid, id, revision) {
       return transaction(pool, async client => {
-        if (!(await client.query('SELECT id FROM decks WHERE id=$1 AND user_id=$2 FOR UPDATE', [id, uid])).rowCount) throw notFound();
+        const current = (await client.query('SELECT revision FROM decks WHERE id=$1 AND user_id=$2 FOR UPDATE', [id, uid])).rows[0];
+        if (!current) throw notFound();
+        assertRevision(current, revision);
         const ids = (await client.query('SELECT id FROM cards WHERE deck_id=$1', [id])).rows.map(c => c.id);
         await assertCardsUnlinked(client, ids);
         await client.query('DELETE FROM decks WHERE id=$1', [id]);

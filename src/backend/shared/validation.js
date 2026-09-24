@@ -5,7 +5,10 @@ export const cardSchema = z.object({
   front: z.string().trim().min(1).max(2000),
   back: z.string().trim().min(1).max(8000),
 });
+export const syncFields = { revision: z.number().int().positive().optional(), request_id: z.uuid().optional() };
+export const revisionSchema = z.object({ revision: syncFields.revision });
 export const deckSchema = z.object({
+  ...syncFields,
   name: z.string().trim().min(1).max(120),
   description: z.string().max(1000).default(''),
   category: z.string().trim().min(1).max(60).default('ทั่วไป'),
