@@ -1,16 +1,11 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import { api } from '../api';
+import { useRemoteSync } from './useRemoteSync';
 export function useOverview() {
-  const [state, setState] = useState({ loading: true });
-  const [revision, setRevision] = useState(0);
-  const reload = useCallback(() => setRevision(n => n + 1), []);
-  useEffect(() => {
-    const controller = new AbortController();
-    setState({ loading: true });
-    Promise.all([api('/decks', 'GET', undefined, controller.signal), api('/stats', 'GET', undefined, controller.signal)])
-      .then(([d, stats]) => setState({ decks: d.decks, stats, loading: false }))
-      .catch(e => { if (!controller.signal.aborted) setState({ error: e.message, loading: false }); });
-    return () => controller.abort();
-  }, [revision]);
-  return { ...state, reload };
+  const [data, setData] = useState(null);
+  const sync = useRemoteSync({ resource: 'overview',
+    load: signal => Promise.all([api('/decks', 'GET', undefined, signal), api('/stats', 'GET', undefined, signal)]),
+    apply: ([d, stats]) => setData({ decks: d.decks, stats }),
+  });
+  return { ...data, loading: sync.loading, error: data ? '' : sync.error, reload: sync.reload, sync };
 }

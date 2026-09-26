@@ -330,3 +330,7 @@ Unit26ผ่าน (generationตรวจซ้ำ9ผ่านหลังแ�
 ## 2026-09-24 — Issue #9 Pomodoro verification
 
 AI reviewed the existing Pomodoro implementation at 10266e0, added responsive timer/banner styling and browser coverage, and recorded actual validation and remaining limitations in docs/testing/issue-9.md. Work was isolated on feat/pomodoro-review in .local/issue9 to preserve unrelated Lab 9 edits. Build passed; 8/8 Chrome desktop/mobile viewport tests passed for #9 and regressions #4/#6 using the real test API/database. No live AI calls, new API, migration, push, or merge. Real-device sleep/background notifications remain unverified; timer state resets on reload/logout. Human team review remains required.
+
+## Issue #10 — 2026-09-26 continuation
+
+AI implemented centralized refresh, optimistic revision checks, owner-scoped durable retry receipts, draft-preserving sync failure handling, and cross-session browser tests. Backend commit f31c39e contains the schema/API work. Independent frontend audit found two route-change stale-draft risks; both were fixed and regression cases added. Previous full browser run reached the auth rate limit; only the isolated test-server allowance was increased, with production forced to retain 20 attempts per five minutes. Remaining deployment, real-device, offline, and retention limitations are recorded in docs/testing/issue-10.md. No push or merge.

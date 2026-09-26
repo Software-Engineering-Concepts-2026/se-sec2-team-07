@@ -1,9 +1,13 @@
 export async function api(path, method = 'GET', body, signal) {
-  const response = await fetch(`/api${path}`, {
+  let response;
+  try { response = await fetch(`/api${path}`, {
     method, credentials: 'same-origin', signal,
     headers: body === undefined ? {} : { 'Content-Type': 'application/json' },
     body: body === undefined ? undefined : JSON.stringify(body),
-  });
+  }); } catch (e) {
+    if (e.name === 'AbortError') throw e;
+    throw new Error('เชื่อมต่อไม่ได้ กรุณาตรวจอินเทอร์เน็ตแล้วลองอีกครั้ง');
+  }
   let data;
   try { data = await response.json(); }
   catch { throw new Error('เซิร์ฟเวอร์ไม่พร้อมใช้งาน กรุณาลองใหม่'); }

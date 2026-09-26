@@ -43,7 +43,7 @@ export function createApp(pool, config) {
   app.use(cookieParser());
   app.get('/api/health', async (req, res) => { await pool.query('SELECT 1'); res.json({ ok: true }); });
   const auth = authService(authRepository(pool), config);
-  app.use('/api', authController(auth));
+  app.use('/api', authController(auth, config.production ? 20 : (config.authRateLimit ?? 20)));
   app.use('/api', auth.authenticate);
   app.get('/api/me', (req, res) => {
     const { id, name, email } = req.user;

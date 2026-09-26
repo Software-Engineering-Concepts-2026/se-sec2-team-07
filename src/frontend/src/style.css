@@ -133,3 +133,7 @@ dialog p { color:#6f617c; font-size:14px; }
 .pomodoro-panel.is-break { border-color: #6f9d87; }
 .pomodoro-banner { margin-bottom: 20px; }
 .pomodoro-banner .row { flex-wrap: wrap; gap: 8px; }
+
+.sync-status { margin-bottom: 20px; }
+.sync-status .row { flex-wrap: wrap; gap: 12px; }
+.sync-status p { margin-block: 4px; }
