@@ -14,6 +14,7 @@ const links = [
   ['/pomodoro', 'clock', 'Pomodoro'],
   ['/schedule', 'schedule', 'ตารางทบทวน'],
   ['/stats', 'stats', 'สถิติการเรียน'],
+  ['/export', 'arrow', 'ส่งออกผลงาน'],
 ];
 
 function getPageTitle(pathname) {

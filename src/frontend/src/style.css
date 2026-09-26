@@ -137,3 +137,21 @@ dialog p { color:#6f617c; font-size:14px; }
 .sync-status { margin-bottom: 20px; }
 .sync-status .row { flex-wrap: wrap; gap: 12px; }
 .sync-status p { margin-block: 4px; }
+
+.export-layout { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:24px; align-items:start; }
+.export-section { min-width:0; margin:0; }
+.export-section legend { font-weight:700; font-size:18px; padding-inline:8px; }
+.export-section > .row { margin-bottom:16px; }
+.export-section > .row p { margin-bottom:0; }
+.export-decks { display:grid; gap:10px; max-height:580px; overflow:auto; padding:4px; }
+.export-choice { display:flex; gap:12px; align-items:center; min-height:52px; cursor:pointer; overflow-wrap:anywhere; }
+.export-choice input[type="checkbox"] { width:20px; height:20px; min-height:20px; flex:0 0 20px; accent-color:var(--purple); }
+.export-choice span { min-width:0; }
+.export-choice small { display:block; }
+.export-decks .export-choice { border:1px solid var(--line); border-radius:12px; padding:14px; }
+.export-decks .export-choice.is-selected { background:#f5f0ff; border-color:#a88bdb; }
+.export-section select { width:100%; margin-top:8px; }
+.export-summary .btn { width:100%; }
+.export-choice input:focus-visible { outline:3px solid #8060dc; outline-offset:3px; }
+@media(min-width:761px) { .sidebar { overflow-y:auto; } }
+@media(max-width:1000px) { .export-layout { grid-template-columns:1fr; } }
