@@ -14,6 +14,8 @@ import { reviewRepository } from './modules/reviews/repository.js';
 import { reviewController } from './modules/reviews/controller.js';
 import { statsRepository } from './modules/stats/repository.js';
 import { statsController } from './modules/stats/controller.js';
+import { exportRepository } from './modules/exports/repository.js';
+import { exportController } from './modules/exports/controller.js';
 import { generationController } from './modules/generation/controller.js';
 import { documentRepository } from './modules/documents/repository.js';
 import { documentController } from './modules/documents/controller.js';
@@ -56,6 +58,7 @@ export function createApp(pool, config) {
   app.use('/api/documents', documentController(documentRepository(pool)));
   app.use('/api/review', reviewController(reviewRepository(pool)));
   app.use('/api/stats', statsController(statsRepository(pool)));
+  app.use('/api/exports', exportController(exportRepository(pool)));
   const generation = generationController(config);
   app.use('/api', generation);
   app.use('/api', (req, res) => res.status(404).json({ error: 'ไม่พบ API' }));
