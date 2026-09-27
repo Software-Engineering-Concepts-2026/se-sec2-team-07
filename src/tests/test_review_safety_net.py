@@ -11,7 +11,7 @@ def test_score_two_returns_three_days():
     assert days == 3
     
 def test_score_four_returns_fourteen_days():
-    score = 3
+    score = 4
 
     days = calculate_next_review(score)
 
