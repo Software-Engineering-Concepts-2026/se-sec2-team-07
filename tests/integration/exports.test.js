@@ -49,3 +49,22 @@ test('exports are atomic owner scoped and reject invalid selections and unauthen
   const data = JSON.parse(response.body.content);
   assert.equal(data.decks[0].learning.accuracy, null); assert.equal(data.decks[0].learning.total_cards, 2); assert.equal('cards' in data.decks[0], false);
 });
+
+test('multiple selected decks retain requested order and every card; deleted selection fails as a whole', async () => {
+  const { agent, deck } = await setup();
+  const secondCards = [{ front: '第二問 🧠\nบรรทัดใหม่', back: 'Answer & details' }, { front: 'Final question', back: 'Final answer' }];
+  const created = await agent.post('/api/decks').send({ name: 'Second selected', cards: secondCards });
+  assert.equal(created.status, 201);
+  const secondId = created.body.id;
+  const selected = { ...options(deck.id), deck_ids: [secondId, deck.id] };
+  const exported = await agent.post('/api/exports').send(selected);
+  assert.equal(exported.status, 200);
+  const data = JSON.parse(exported.body.content);
+  assert.deepEqual(data.decks.map(item => item.name), ['Second selected', deck.name]);
+  assert.deepEqual(data.decks[0].cards, secondCards);
+  assert.deepEqual(data.decks[1].cards, deck.cards.map(({ front, back }) => ({ front, back })));
+  assert.equal((await agent.delete(`/api/decks/${secondId}`).send({})).status, 200);
+  const stale = await agent.post('/api/exports').send(selected);
+  assert.equal(stale.status, 404);
+  assert.equal('content' in stale.body, false);
+});
