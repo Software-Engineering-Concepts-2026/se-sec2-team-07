@@ -349,3 +349,54 @@ AI แนะนำให้ทดสอบคุณภาพของ Test Suite
 การเปลี่ยนดังกล่าวทำให้ behavior ของ score = 1 ผิดพลาด
 Unit Test test_score_one_returns_one_day สามารถตรวจจับ bug ดังกล่าวได้ และ GitHub Actions CI เปลี่ยนสถานะเป็น Failed หลัง push sabotage commit
 หลังจากคืน condition เป็น score <= 1 แล้ว Test Suite กลับมาผ่านทั้งหมด
+
+# AI Usage Disclosure (Lab 12)
+
+เครื่องมือที่ใช้: ChatGPT
+
+> **Prompt:**  
+> ตรง step 1 ช่วยยกตัวอย่างการเขียน unit test ให้ผมที 2 ข้อ
+
+### Output จาก AI
+
+ตัวอย่าง Unit Test สำหรับฟังก์ชัน calculate_next_review(score) จำนวน 2 ข้อ:
+
+```python
+def test_score_two_returns_three_days():
+    assert calculate_next_review(2) == 3
+
+
+def test_negative_score_raises_error():
+    with pytest.raises(ValueError):
+        calculate_next_review(-1)
+```
+
+Test แรกตรวจสอบกรณีปกติว่าเมื่อ score = 2 ฟังก์ชันควรคืนค่า 3 วัน
+
+Test ที่สองตรวจสอบกรณี error ว่าเมื่อใส่ score ติดลบ ฟังก์ชันควรเกิด ValueError
+
+> **Prompt:**  
+> ตรงขั้นตอนทดสอบ Safety Net ช่วยยกตัวอย่างการใส่ bug แบบง่าย ๆ ให้ผม 1 จุด เพื่อให้ผมลองแก้โค้ดและรัน test เอง
+
+### Output จาก AI
+
+สามารถลองสร้าง bug ที่เงื่อนไขของ calculate_next_review(score) เช่น เปลี่ยนเงื่อนไขจาก
+
+if score <= 1:
+
+เป็น
+
+if score < 1:
+
+การเปลี่ยนแบบนี้จะทำให้กรณี score = 1 ได้ผลลัพธ์ผิดจากที่กำหนดไว้
+
+จากนั้นให้ลองทำตามขั้นตอน:
+
+python -m pytest
+git add .
+git commit -m "test: introduce bug for safety net"
+git push
+
+ตรวจสอบว่า Test หรือ CI สามารถตรวจพบ bug และขึ้นสถานะไม่ผ่านหรือไม่
+
+หลังจากทดสอบเสร็จ ให้แก้เงื่อนไขกลับเป็นค่าที่ถูกต้อง แล้วรัน Test อีกครั้งเพื่อยืนยันว่า Test ผ่านก่อน merge เข้า main
