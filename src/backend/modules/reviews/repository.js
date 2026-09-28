@@ -11,7 +11,7 @@ export function reviewRepository(pool) {
       const usage = (await pool.query('SELECT seconds FROM review_days WHERE user_id=$1 AND day=$2', [uid, bangkokDate(now)])).rows[0];
       const average = (await pool.query('SELECT avg(seconds) value FROM (SELECT seconds FROM reviews WHERE user_id=$1 AND seconds>0 ORDER BY created DESC LIMIT 100) recent', [uid])).rows[0].value;
       const cards = (await pool.query(`SELECT c.*, d.name deck_name FROM cards c JOIN decks d ON d.id=c.deck_id
-        WHERE d.user_id=$1 AND ($2::int IS NULL OR d.id=$2)
+        WHERE d.user_id=$1 AND c.archived_at IS NULL AND ($2::int IS NULL OR d.id=$2)
         AND ($3::int IS NULL OR EXISTS(SELECT 1 FROM course_cards cc WHERE cc.card_id=c.id AND cc.course_id=$3))`, [uid, deckId, courseId])).rows;
       return planReviews(cards, user.review_minutes, usage?.seconds || 0, average, now);
     },
@@ -31,6 +31,7 @@ export function reviewRepository(pool) {
           if (existing.user_id !== uid || existing.card_id !== input.card_id || existing.rating !== input.rating) throw new HttpError(409, 'รหัสการทบทวนถูกใช้แล้ว');
           return { ok: true, duplicate: true };
         }
+        if (card.archived_at) throw new HttpError(409, 'การ์ดนี้เก็บเป็นเรียนจบแล้ว กรุณาโหลดรายการทบทวนใหม่');
         const now = Date.now() / 1000;
         const day = bangkokDate(now);
         const spent = (await client.query('SELECT seconds FROM review_days WHERE user_id=$1 AND day=$2', [uid, day])).rows[0]?.seconds || 0;

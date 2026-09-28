@@ -10,6 +10,8 @@ import { authService } from './modules/auth/service.js';
 import { authController } from './modules/auth/controller.js';
 import { deckRepository } from './modules/decks/repository.js';
 import { deckController } from './modules/decks/controller.js';
+import { cardRepository } from './modules/cards/repository.js';
+import { cardController } from './modules/cards/controller.js';
 import { reviewRepository } from './modules/reviews/repository.js';
 import { reviewController } from './modules/reviews/controller.js';
 import { statsRepository } from './modules/stats/repository.js';
@@ -53,6 +55,7 @@ export function createApp(pool, config) {
   });
   app.post('/api/logout', async (req, res) => { await auth.logout(res, req.user); res.json({ ok: true }); });
   app.use('/api/decks', deckController(deckRepository(pool)));
+  app.use('/api/cards', cardController(cardRepository(pool)));
   app.use('/api/courses', courseController(courseRepository(pool)));
   app.use('/api/notes', noteController(noteRepository(pool)));
   app.use('/api/documents', documentController(documentRepository(pool)));

@@ -7,7 +7,7 @@ export function deckRepository(pool) {
   return {
     async list(uid) {
       return (await pool.query(`SELECT d.*, count(c.id)::int card_count,
-        count(c.id) FILTER(WHERE c.due<=extract(epoch from now()))::int due_count,
+        count(c.id) FILTER(WHERE c.archived_at IS NULL AND c.due<=extract(epoch from now()))::int due_count,
         count(c.id) FILTER(WHERE c.interval>=4)::int learned
         FROM decks d LEFT JOIN cards c ON c.deck_id=d.id WHERE d.user_id=$1 GROUP BY d.id ORDER BY d.created DESC`, [uid])).rows;
     },
