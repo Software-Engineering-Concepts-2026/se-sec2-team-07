@@ -16,27 +16,32 @@
 # AI Usage Disclosure (Lab 3: Requirements Engineering)
 
 ### 1. Tools Used
-* **Tool:** Gemini / ChatGPT (Web Interface)
-* **Role:** Co-pilot ช่วยร่างโครงสร้าง Persona, Scenario, User Stories (INVEST) และ Non-Functional Requirements (NFR)
+
+- **Tool:** Gemini / ChatGPT (Web Interface)
+- **Role:** Co-pilot ช่วยร่างโครงสร้าง Persona, Scenario, User Stories (INVEST) และ Non-Functional Requirements (NFR)
 
 ---
 
 ### 2. Prompts Used (Five S's Framework)
 
 #### Prompt 1 (Persona & Scenarios)
+
 > **Prompt:** "ช่วยสร้าง User Persona และ Scenario สำหรับนักศึกษาและ Lifelong Learner ที่ต้องการใช้แอป Smart Flashcards เพื่อเตรียมสอบและทบทวนความรู้ด้วยระบบ Spaced Repetition โดยระบุ Goals, Frustrations และ Scenario การใช้งานจริง"
 
 #### Prompt 2 (User Stories & Acceptance Criteria)
+
 > **Prompt:** "ร่าง User Stories สำหรับระบบ Flashcard พร้อม Acceptance Criteria ตามเกณฑ์ INVEST โดยครอบคลุมฟีเจอร์: การสกัดเนื้อหาจาก PDF, โหมดทบทวน SRS, แดชบอร์ดสถิติ และ Pomodoro Timer"
 
 #### Prompt 3 (NFR Documentation)
+
 > **Prompt:** "ช่วยระบุ Non-Functional Requirements (NFR) 4 ด้าน (Performance, Usability, Reliability, Security) สำหรับเว็บแอปพลิเคชันเพื่อการศึกษา พร้อมทั้ง Metric และ Target Value ที่วัดผลได้จริง"
 
 ---
 
 ### 3. AI Generated vs Human Edited Parts
-* **ส่วนที่รับจาก AI ตรงๆ (~40%):** โครงสร้างหัวข้อมาตรฐาน, เทมเพลต As a / I want / So that และแนวทางการตั้งตัวชี้วัด NFR
-* **ส่วนที่เขียน/ปรับแต่งเองโดยนิสิต (≥ 60%):** ปรับแก้ Pain Points และ Goals ให้ตรงกับบริบทนักศึกษาไทย, ปรับแต่ง Story Points และจัดลำดับความสำคัญ (MoSCoW / Sprint Backlog), กำหนด Acceptance Criteria ให้ตรงกับฟีเจอร์จริงของทีม
+
+- **ส่วนที่รับจาก AI ตรงๆ (~40%):** โครงสร้างหัวข้อมาตรฐาน, เทมเพลต As a / I want / So that และแนวทางการตั้งตัวชี้วัด NFR
+- **ส่วนที่เขียน/ปรับแต่งเองโดยนิสิต (≥ 60%):** ปรับแก้ Pain Points และ Goals ให้ตรงกับบริบทนักศึกษาไทย, ปรับแต่ง Story Points และจัดลำดับความสำคัญ (MoSCoW / Sprint Backlog), กำหนด Acceptance Criteria ให้ตรงกับฟีเจอร์จริงของทีม
 
 ---
 
@@ -274,3 +279,73 @@ CMD ["python", "-m", "http.server", "8000", "--directory", "prototypes/sprint1"]
 อาจตั้งชื่อว่า:feature/lab7-refactor-duplicated-codeสรุปคือ:
 
 แทนที่จะพิมพ์คำว่าsmell name ตรง ๆ ให้เลือก 1 ปัญหาที่คุณเจอในโค้ดของทีม แล้วเอามาใส่ต่อท้ายแทนครับ
+
+# AI Usage Disclosure (Lab 9)
+
+## 1. Tools Used
+
+- **Tool:** ChatGPT
+- **Role:** Co-pilot ช่วยออกแบบ Test Cases, วิเคราะห์ Test Coverage และตรวจสอบคุณภาพของ Unit Test และ Property-Based Test สำหรับระบบ Focus Flashcards
+
+## 2. Prompts Used
+
+### Prompt 1: Generate Test Cases
+
+> **Prompt:**  
+> "ช่วยเขียน Unit Test อย่างน้อย 5 tests สำหรับฟังก์ชัน `calculate_next_review(score)` ของระบบ Focus Flashcards โดยใช้ Equivalence Partitioning และ Boundary Value Analysis และเขียน test ตามรูปแบบ Arrange-Act-Assert (AAA)"
+
+### Output จาก AI
+
+AI แนะนำ Test Cases สำหรับ `calculate_next_review(score)` ได้แก่:
+
+1. `score = 0` → ควรคืนค่า 1 วัน
+2. `score = 1` → ควรคืนค่า 1 วัน
+3. `score = 3` → ควรคืนค่า 7 วัน
+4. `score = 5` → ควรคืนค่า 30 วัน
+5. `score = 6` → ต้องเกิด `ValueError`
+
+ตัวอย่าง Unit Test ที่ได้รับ:
+
+```python
+def test_score_zero_returns_one_day():
+    # Arrange
+    score = 0
+
+    # Act
+    result = calculate_next_review(score)
+
+    # Assert
+    assert result == 1
+```
+
+### Prompt 2: Identify Testing Gaps
+
+> **Prompt:**
+> "ช่วยตรวจสอบ Unit Tests ของ calculate_next_review(score) ว่ายังมีกรณีหรือ behavior ใดที่ Test ไม่ครอบคลุม และแนะนำ Property-Based Tests ด้วย Hypothesis ที่เหมาะสม"
+
+### Output จาก AI
+
+AI พบว่า Unit Tests แบบกำหนดค่าทีละตัวอาจยังไม่ตรวจสอบ invariant ของ business logic สำหรับ input หลายค่า จึงแนะนำ Property-Based Tests จำนวน 3 properties:
+
+1. Valid score 0–5 ต้องให้ review interval ที่มากกว่า 0 เสมอ
+2. เมื่อ score เพิ่มขึ้น review interval ต้องไม่ลดลง
+3. score ที่อยู่นอกช่วง 0–5 ต้องเกิด ValueError
+
+### Prompt 3: Review Test Quality
+
+> **Prompt:**
+> "ช่วย review คุณภาพของ Test Suite สำหรับ Focus Flashcards โดยตรวจสอบว่า Unit Tests ครอบคลุม boundary values, Property-Based Tests ตรวจสอบ behavior จริง และ tests สามารถตรวจจับ bug ได้หรือไม่"
+
+### Output จาก AI
+
+AI แนะนำให้ทดสอบคุณภาพของ Test Suite ด้วย Saboteur Testing โดยจงใจเปลี่ยน boundary condition ใน calculate_next_review() จาก:
+
+> if score <= 1:
+
+เป็น:
+
+> if score < 1:
+
+การเปลี่ยนดังกล่าวทำให้ behavior ของ score = 1 ผิดพลาด
+Unit Test test_score_one_returns_one_day สามารถตรวจจับ bug ดังกล่าวได้ และ GitHub Actions CI เปลี่ยนสถานะเป็น Failed หลัง push sabotage commit
+หลังจากคืน condition เป็น score <= 1 แล้ว Test Suite กลับมาผ่านทั้งหมด
