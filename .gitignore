@@ -18,3 +18,17 @@ dist/
 # OS Header files
 .DS_Store
 Thumbs.db
+
+# Local application data and development tools
+/.local/
+/.tools/
+/.vendor/
+/.venv/
+/data/
+
+# Generated test results
+.coverage
+.coverage.*
+/htmlcov/
+/test-results/
+/playwright-report/
