@@ -155,3 +155,9 @@ dialog p { color:#6f617c; font-size:14px; }
 .export-choice input:focus-visible { outline:3px solid #8060dc; outline-offset:3px; }
 @media(min-width:761px) { .sidebar { overflow-y:auto; } }
 @media(max-width:1000px) { .export-layout { grid-template-columns:1fr; } }
+
+.archive-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 20px; }
+.archive-card { min-width: 0; }
+.archive-card h2 { font-size: 1.15rem; margin-top: 20px; }
+.archive-card .shared-text { overflow-wrap: anywhere; }
+.archive-card .row a { overflow-wrap: anywhere; }

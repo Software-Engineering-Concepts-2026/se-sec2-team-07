@@ -8,6 +8,7 @@ import { PomodoroProvider, PomodoroBanner } from '../pomodoro';
 const links = [
   ['/', 'home', 'ภาพรวม'],
   ['/decks', 'decks', 'ชุดการ์ดของฉัน'],
+  ['/archive', 'check', 'จัดเก็บการ์ด'],
   ['/courses', 'courses', 'รายวิชา'],
   ['/notes', 'notes', 'โน้ต'],
   ['/review', 'review', 'ทบทวนการ์ด'],

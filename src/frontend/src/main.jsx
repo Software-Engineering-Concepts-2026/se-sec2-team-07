@@ -13,6 +13,7 @@ import CourseDetail from './pages/CourseDetail';
 import Notes from './pages/Notes';
 import Statistics from './pages/Statistics';
 import Export from './pages/Export';
+import Archive from './pages/Archive';
 import PomodoroPage from './pomodoro';
 import './style.css';
 
@@ -30,6 +31,7 @@ const router = createHashRouter([{ element: <App />, children: [{ element: <Layo
   { path: '/pomodoro', element: <PomodoroPage /> },
   { path: '/stats', element: <Statistics /> },
   { path: '/export', element: <Export /> },
+  { path: '/archive', element: <Archive /> },
   { path: '*', element: <Navigate to="/" replace /> },
 ] }] }]);
 createRoot(document.getElementById('root')).render(<RouterProvider router={router} />);
