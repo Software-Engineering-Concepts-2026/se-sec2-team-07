@@ -1,0 +1,72 @@
+import { test, expect } from '@playwright/test';
+import pg from 'pg';
+import { randomUUID } from 'node:crypto';
+
+test('Issue #17: select saved cards, retain hidden drafts, validate, retry and reopen latest content', async ({ page }, testInfo) => {
+  const email = `edit17-${randomUUID()}@example.com`;
+  const pool = new pg.Pool({ connectionString: process.env.TEST_DATABASE_URL });
+  try {
+    expect((await page.request.post('/api/register', { data: { name: 'Editor', email, password: 'TestPassword123' } })).ok()).toBeTruthy();
+    const created = await page.request.post('/api/decks', { data: { name: 'แก้ไขข้อมูลที่บันทึกแล้ว', cards: [{ front: 'Stack?', back: 'Wrong' }, { front: 'Queue?', back: 'FIFO' }] } });
+    expect(created.ok()).toBeTruthy();
+    const { id } = await created.json();
+    const original = await (await page.request.get(`/api/decks/${id}`)).json();
+    const cardId = original.cards[0].id;
+    const course = await (await page.request.post('/api/courses', { data: { name: 'โครงสร้างข้อมูล' } })).json();
+    expect((await page.request.put(`/api/courses/${course.id}/cards/${cardId}`, { data: {} })).ok()).toBeTruthy();
+    expect((await page.request.post('/api/review', { data: { id: randomUUID(), card_id: cardId, rating: 'good', seconds: 10 } })).ok()).toBeTruthy();
+    expect((await page.request.put(`/api/cards/${cardId}/archive`, { data: { archived: true } })).ok()).toBeTruthy();
+    const before = await (await page.request.get(`/api/decks/${id}`)).json();
+    await page.goto('/#/decks');
+    await page.getByRole('link', { name: 'แก้ไขข้อมูลที่บันทึกแล้ว', exact: true }).click();
+    const selection = page.getByLabel('เลือกการ์ดที่ต้องการแก้ไข');
+    const front = page.getByRole('textbox', { name: 'ด้านหน้า · คำถาม', exact: true });
+    const back = page.getByRole('textbox', { name: 'ด้านหลัง · คำตอบ', exact: true });
+    const save = page.getByRole('button', { name: 'บันทึกชุดการ์ด', exact: true });
+    await selection.selectOption({ index: 1 });
+    await expect(front).toHaveCount(1);
+    await front.fill('Stack ทำงานอย่างไร?');
+    await back.fill('   ');
+    await selection.selectOption({ index: 2 });
+    await expect(front).toHaveValue('Queue?');
+    await front.fill('Queue ทำงานอย่างไร?');
+    await save.click();
+    await expect(page.getByRole('alert')).toContainText('ใบที่ 1');
+    await expect(front).toHaveValue('Stack ทำงานอย่างไร?');
+    await back.fill('LIFO — เข้าหลัง ออกก่อน');
+    await selection.selectOption({ index: 2 });
+    await expect(front).toHaveValue('Queue ทำงานอย่างไร?');
+    let attempts = 0;
+    await page.route(`**/api/decks/${id}`, async route => {
+      if (route.request().method() !== 'PUT') return route.continue();
+      attempts++;
+      if (attempts === 1) return route.fulfill({ status: 503, json: { error: 'บันทึกไม่สำเร็จชั่วคราว' } });
+      await route.continue();
+    });
+    await save.click();
+    await page.getByRole('dialog').getByRole('button', { name: 'ยกเลิก', exact: true }).click();
+    expect(attempts).toBe(0);
+    await save.click();
+    await page.getByRole('dialog').getByRole('button', { name: 'ยืนยัน', exact: true }).click();
+    await expect(page.getByRole('alert')).toContainText('บันทึกไม่สำเร็จ');
+    await expect(front).toHaveValue('Queue ทำงานอย่างไร?');
+    await save.click();
+    await page.getByRole('dialog').getByRole('button', { name: 'ยืนยัน', exact: true }).click();
+    await page.getByRole('link', { name: 'แก้ไขข้อมูลที่บันทึกแล้ว', exact: true }).click();
+    await page.reload();
+    await expect(front.nth(0)).toHaveValue('Stack ทำงานอย่างไร?');
+    await expect(back.nth(0)).toHaveValue('LIFO — เข้าหลัง ออกก่อน');
+    await expect(front.nth(1)).toHaveValue('Queue ทำงานอย่างไร?');
+    const after = await (await page.request.get(`/api/decks/${id}`)).json();
+    expect(after.cards.map(c => c.id)).toEqual(before.cards.map(c => c.id));
+    for (const key of ['due', 'interval', 'reviews', 'archived_at', 'courses']) expect(after.cards[0][key]).toEqual(before.cards[0][key]);
+    expect(after.cards[1].back).toBe('FIFO');
+    expect(attempts).toBe(2);
+    await selection.selectOption({ index: 1 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+    await page.screenshot({ path: `.local/${testInfo.project.name}-edit17.png`, fullPage: true });
+  } finally {
+    await pool.query('DELETE FROM users WHERE email=$1', [email]);
+    await pool.end();
+  }
+});
