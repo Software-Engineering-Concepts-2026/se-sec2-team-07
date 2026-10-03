@@ -10,6 +10,12 @@ __pycache__/
 venv/
 ENV/
 
+# Python test reports
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
 # Node.js
 node_modules/
 .next/
