@@ -11,6 +11,6 @@ export function readConfig(env = process.env) {
     databaseSsl: env.DATABASE_SSL === 'true',
     port: Number(env.PORT || 8000), host: env.HOST || '127.0.0.1',
     origin: env.APP_ORIGIN, trustProxy: Number(env.TRUST_PROXY || 0),
-    aiKey: env.OPENAI_API_KEY, aiModel: env.OPENAI_MODEL,
+    aiKey: env.OPENAI_API_KEY?.trim(), aiModel: env.OPENAI_MODEL?.trim(),
   };
 }
