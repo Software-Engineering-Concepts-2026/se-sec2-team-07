@@ -161,3 +161,34 @@ dialog p { color:#6f617c; font-size:14px; }
 .archive-card h2 { font-size: 1.15rem; margin-top: 20px; }
 .archive-card .shared-text { overflow-wrap: anywhere; }
 .archive-card .row a { overflow-wrap: anywhere; }
+
+/* Creation workspace: choose a source, review cards, then save the deck. */
+.editor-workspace { grid-template-columns:minmax(0,1fr) 310px; align-items:start; }
+.editor-workspace > *, .editor-workspace .stack { min-width:0; }
+.editor-workspace [hidden] { display:none!important; }
+.editor-step { font-size:12px; font-weight:700; color:var(--purple); }
+.editor-workspace h2 { margin:4px 0 8px; }
+.source-panel { border-top:4px solid #8865cf; }
+.source-panel p, .deck-summary p { margin:0; }
+.source-choices { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.source-choice { display:flex; flex-direction:column; align-items:flex-start; gap:7px; padding:16px 12px; border:1px solid var(--line); border-radius:14px; background:white; color:#655772; text-align:left; min-height:110px; }
+.source-choice strong { font-size:14px; }
+.source-choice small { font-size:12px; }
+.source-choice.active { background:#f2edfc; border-color:#8761cc; color:#56339a; box-shadow:0 0 0 1px #8761cc; }
+.source-choice:hover:not(:disabled) { background:#f7f3fd; }
+.source-panel .dropzone { position:relative; padding:28px 18px; }
+.upload-input { position:absolute; inset:0; opacity:0; cursor:pointer; height:100%; }
+.dropzone:focus-within { outline:3px solid #8060dc; outline-offset:3px; }
+.generation-options, .deck-options { border-top:1px solid var(--line); padding-top:8px; }
+.generation-options summary, .deck-options summary { font-weight:600; padding:8px 0 12px; }
+.generation-options > .stack, .deck-options > .stack { padding-block:8px; }
+.generate-action { width:100%; min-height:50px; }
+.manual-hint { display:flex; gap:16px; background:#f6f3fb; padding:20px; border-radius:12px; color:#655772; }
+.manual-hint svg { flex-shrink:0; margin-top:4px; }
+.manual-hint p { font-size:14px; margin-top:6px; }
+.card-review-heading { margin-top:12px; gap:12px; flex-wrap:wrap; scroll-margin-top:24px; }
+.card-review-heading h2 { font-size:19px; }
+.deck-summary { box-shadow:0 8px 28px #49336609; }
+.deck-summary > .btn { width:100%; }
+@media(max-width:1100px) { .editor-workspace { grid-template-columns:minmax(0,1fr); } .deck-summary { position:static; } }
+@media(max-width:480px) { .source-choice { padding:12px 9px; min-height:100px; } .source-choice small { font-size:11px; } .source-choice strong { font-size:13px; } .source-choices { gap:7px; } }

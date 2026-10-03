@@ -22,8 +22,16 @@ test('Issue #3: extract notes, preserve drafts on file and AI errors, retry and 
     const notes = page.getByLabel('หรือวางข้อความจากโน้ต');
     const questions = page.getByRole('textbox', { name: 'ด้านหน้า · คำถาม', exact: true });
     const answers = page.getByRole('textbox', { name: 'ด้านหลัง · คำตอบ', exact: true });
+    await expect(page.getByRole('button', { name: /สร้างการ์ดจากเนื้อหา/ })).toBeDisabled();
+    await page.getByRole('button', { name: /อัปโหลดไฟล์ PDF/ }).click();
     await upload.setInputFiles({ name: 'Issue 3 notes.txt', mimeType: 'text/plain', buffer: Buffer.from(source) });
     await expect(notes).toHaveValue(source);
+    await page.getByRole('button', { name: /เขียนเอง เพิ่มคำถาม/ }).click();
+    await expect(notes).toBeHidden();
+    await page.getByRole('button', { name: /วางข้อความ คัดลอก/ }).click();
+    await expect(notes).toHaveValue(source);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+    await page.screenshot({ path: `.local/editor-${test.info().project.name}.png`, fullPage: true });
     await expect(page.getByLabel('ชื่อชุดการ์ด')).toHaveValue('Issue 3 notes');
     await page.getByRole('button', { name: /สร้างการ์ดจากเนื้อหา/ }).click();
     await expect(questions).toHaveCount(2);

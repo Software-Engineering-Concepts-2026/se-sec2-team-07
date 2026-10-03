@@ -22,6 +22,7 @@ test('register → upload → edit → review → statistics → delete → logi
     await expect(page.getByLabel('ด้านหน้า · คำถาม')).toHaveCount(2);
     await page.getByLabel('ด้านหน้า · คำถาม').first().fill('What is a stack?');
     await page.getByLabel('ชื่อชุดการ์ด').fill('My Data Structures');
+    await page.locator('summary').filter({ hasText: 'รายละเอียดเพิ่มเติม' }).click();
     await page.getByLabel('หมวดหมู่ / แท็ก').fill('Computer Science');
     await page.getByRole('button', { name: 'บันทึกชุดการ์ด' }).click();
     await expect(page.getByRole('heading', { name: 'My Data Structures' })).toBeVisible();

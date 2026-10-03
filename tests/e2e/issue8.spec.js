@@ -41,6 +41,7 @@ test('Issue #8: select AI knowledge level, preserve edited drafts on failure and
     await page.getByLabel('ชื่อชุดการ์ด').fill('Issue 8 levels');
     await sourceInput.fill(source);
     await mode.selectOption('ai');
+    await page.getByText('ปรับระดับความรู้และภาษา', { exact: true }).click();
     await expect(level).toHaveValue('intermediate');
     await level.selectOption('beginner');
     await generate.click();
