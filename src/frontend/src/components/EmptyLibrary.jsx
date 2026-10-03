@@ -14,5 +14,5 @@ const sample = { name: 'เรียนรู้ให้จำได้นา�
 export default function EmptyLibrary({ reload }) {
   const [busy, setBusy] = useState(false); const { notify } = useApp();
   async function addSample() { setBusy(true); try { await api('/decks', 'POST', sample); notify('เพิ่มชุดตัวอย่างแล้ว'); reload(); } catch (e) { notify(e.message); } finally { setBusy(false); } }
-  return <Empty title="เริ่มจากความรู้เรื่องที่คุณสนใจ"><p>สร้างชุดการ์ดแรกจากโน้ต หรือเพิ่มคำถามด้วยตัวเอง</p><div className="row wrap" style={{ justifyContent: 'center' }}><Link className="btn" to="/create"><Icon name="plus" />สร้างชุดการ์ดแรก</Link><button className="btn secondary" disabled={busy} onClick={addSample}>ลองชุดการ์ดตัวอย่าง</button></div></Empty>;
+  return <Empty title="เริ่มจากความรู้เรื่องที่คุณสนใจ"><p>สร้างชุดการ์ดแรกจากโน้ต หรือเพิ่มคำถามด้วยตัวเอง</p><div className="empty-library-actions"><Link className="btn" to="/create"><Icon name="plus" />สร้างชุดการ์ดแรก</Link><button className="btn secondary" disabled={busy} onClick={addSample}>{busy ? 'กำลังเพิ่มชุดตัวอย่าง…' : 'ลองชุดการ์ดตัวอย่าง'}</button></div></Empty>;
 }
