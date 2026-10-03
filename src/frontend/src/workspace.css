@@ -1,4 +1,37 @@
 /* Shared presentation layer for all learning, management and account screens. */
+.focus-workspace { --focus-accent:#7551c7; --focus-soft:#eee7fa; display:grid; grid-template-columns:minmax(0,1.4fr) minmax(280px,1fr); gap:24px; align-items:start; }
+.focus-workspace.resting { --focus-accent:#287961; --focus-soft:#e4f2eb; }
+.focus-workspace .focus-timer { width:100%; max-width:none; padding:30px; background:radial-gradient(ellipse at 50% 35%,var(--focus-soft),#fff 68%); }
+.focus-phase { display:flex; justify-content:center; gap:6px; background:#f5f3f8; padding:5px; border-radius:14px; width:fit-content; margin:auto; }
+.focus-phase span { padding:9px 15px; font-size:13px; color:#746980; }
+.focus-phase .current { background:#fff; color:var(--focus-accent); font-weight:700; border-radius:10px; box-shadow:0 2px 8px #432d6510; }
+.focus-ring { width:min(100%,320px); aspect-ratio:1; margin:30px auto 20px; position:relative; }
+.focus-ring > svg { width:100%; height:100%; transform:rotate(-90deg); fill:none; stroke-width:5; }
+.ring-track { stroke:var(--focus-soft); }
+.ring-value { stroke:var(--focus-accent); stroke-linecap:round; }
+.focus-ring-copy { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.focus-ring-copy h2 { font-size:16px; font-weight:500; color:var(--focus-accent); margin:0; }
+.focus-ring .pomodoro-clock { font-size:clamp(52px,6vw,78px); padding:12px 0; font-weight:650; letter-spacing:-3px; color:#352846; }
+.focus-status { display:flex; align-items:center; gap:7px; font-size:12px; color:#786883; }
+.focus-status i { width:7px; height:7px; border-radius:50%; background:#bcb2c7; }
+.focus-status i.running { background:var(--focus-accent); }
+.focus-intention { font-size:21px; font-weight:650; margin:0 0 4px; }
+.focus-caption { font-size:14px; margin:0 0 24px; }
+.focus-timer .pomodoro-actions { gap:10px; margin-bottom:10px; }
+.focus-timer .pomodoro-actions .btn { min-height:50px; padding-inline:24px; }
+.focus-timer .pomodoro-actions > .btn:first-child { background:var(--focus-accent); color:white; min-width:165px; }
+.focus-guide h2 { margin:10px 0 24px; }
+.focus-steps { list-style:none; padding:0; margin:0; display:grid; gap:24px; }
+.focus-steps li { display:flex; align-items:flex-start; gap:14px; }
+.focus-steps li > span { display:grid; place-items:center; width:30px; height:30px; flex-shrink:0; background:var(--focus-soft); color:var(--focus-accent); border-radius:10px; font-size:13px; font-weight:700; }
+.focus-steps strong { font-size:15px; }
+.focus-steps p { font-size:14px; color:#73647f; margin:5px 0 0; }
+.focus-reminder { display:flex; align-items:center; gap:14px; padding:22px; border-radius:18px; background:var(--focus-soft); color:var(--focus-accent); }
+.focus-reminder svg { flex-shrink:0; }
+.focus-reminder p { margin:0; font-size:15px; }
+.focus-help p { font-size:13px; color:#73647f; }
+@media(max-width:1100px) { .focus-workspace { grid-template-columns:1fr; } }
+@media(max-width:480px) { .focus-workspace .focus-timer { padding:18px 16px; } .focus-ring { width:210px; max-width:100%; margin-block:14px; } .focus-intention { font-size:18px; } .focus-caption { margin-bottom:14px; font-size:13px; } .focus-timer .pomodoro-actions .btn { padding-inline:14px; min-width:0; flex:1; } .focus-phase span { padding:8px 12px; } }
 :root {
   --purple:#6544c5;
   --muted:#686175;

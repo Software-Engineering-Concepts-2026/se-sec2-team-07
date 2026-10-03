@@ -79,25 +79,29 @@ export function PomodoroBanner() {
 
 export default function PomodoroPage() {
   const timer = useContext(PomodoroContext);
+  const resting = timer.phase === 'break';
+  const progress = Math.max(0, Math.min(1, 1 - timer.remaining / durations[timer.phase]));
   return <>
     <PageTitle eyebrow="ONE FOCUSED MOMENT" title="Pomodoro" subtitle="แบ่งเวลาเรียน 25 นาที แล้วพัก 5 นาที ตามจังหวะของคุณ" />
-    <section className={`panel stack pomodoro-panel ${timer.phase === 'break' ? 'is-break' : ''}`} aria-label="นาฬิกา Pomodoro">
-      <div className="row between"><h2><Icon name="clock" /> {phaseName(timer.phase)}</h2><span className="badge">{timer.running ? 'กำลังจับเวลา' : timer.started ? 'หยุดชั่วคราว' : 'พร้อมเริ่ม'}</span></div>
-      <div className="pomodoro-clock" role="timer" aria-label="เวลาที่เหลือ" aria-live="off">{clockText(timer.remaining)}</div>
-      <p className="muted">{timer.phase === 'focus' ? 'ให้เวลากับสิ่งที่กำลังเรียนทีละเรื่อง' : 'พักสายตา ยืดเส้น หรือทบทวนการ์ดสั้น ๆ ตามสะดวก'}</p>
+    <div className={`focus-workspace ${resting ? 'resting' : ''}`}>
+    <section className="panel pomodoro-panel focus-timer" aria-label="นาฬิกา Pomodoro">
+      <div className="focus-phase"><span className={!resting ? 'current' : ''} aria-current={!resting ? 'step' : undefined}>01 · เรียน 25 นาที</span><span className={resting ? 'current' : ''} aria-current={resting ? 'step' : undefined}>02 · พัก 5 นาที</span></div>
+      <div className="focus-ring">
+        <svg viewBox="0 0 300 300" aria-hidden="true"><circle className="ring-track" cx="150" cy="150" r="139" /><circle className="ring-value" cx="150" cy="150" r="139" pathLength="100" strokeDasharray="100" strokeDashoffset={100 * (1 - progress)} /></svg>
+        <div className="focus-ring-copy"><h2>{phaseName(timer.phase)}</h2><div className="pomodoro-clock" role="timer" aria-label="เวลาที่เหลือ" aria-live="off">{clockText(timer.remaining)}</div><span className="focus-status"><i className={timer.running ? 'running' : ''} aria-hidden="true" />{timer.running ? 'กำลังจับเวลา' : timer.started ? 'หยุดชั่วคราว' : 'พร้อมเมื่อคุณพร้อม'}</span></div>
+      </div>
+      <p className="focus-intention">{resting ? 'พักสักนิด แล้วค่อยไปต่อ' : 'ทีละเรื่อง ก็ไปได้ไกล'}</p>
+      <p className="muted focus-caption">{resting ? 'พักสายตา ยืดเส้น หรือดื่มน้ำสักแก้ว' : 'วางสิ่งรบกวน แล้วให้เวลากับสิ่งตรงหน้า'}</p>
       <div className="row pomodoro-actions">
         {timer.running
-          ? <button className="btn" onClick={timer.pause}>หยุดชั่วคราว</button>
-          : <button className="btn" onClick={timer.start}>{timer.started ? 'เริ่มต่อ' : 'เริ่มจับเวลา'}</button>}
+          ? <button className="btn" onClick={timer.pause}><span aria-hidden="true">Ⅱ</span>หยุดชั่วคราว</button>
+          : <button className="btn" onClick={timer.start}><Icon name="clock" />{timer.started ? 'เริ่มต่อ' : 'เริ่มจับเวลา'}</button>}
         <button className="btn secondary" onClick={timer.reset}>รีเซ็ตช่วงนี้</button>
       </div>
       {timer.message && <p className="notice" role="status">{timer.message}</p>}
       {timer.phase === 'break' && <Link className="btn secondary" to="/review">ทบทวน Flashcards ช่วงพัก</Link>}
     </section>
-    <section className="panel stack"><h2>เรียนและพักอย่างพอดี</h2>
-      <p>เมื่อครบเวลา ระบบจะแจ้งเตือนบนหน้าจอและเตรียมช่วงถัดไปให้ กดเริ่มจับเวลาเมื่อคุณพร้อม</p>
-      <p>เปลี่ยนหน้าในแอปได้โดยเวลายังเดินต่อ หากรีเฟรช ปิดหน้า หรือออกจากระบบ นาฬิกาจะเริ่มใหม่</p>
-      <p className="small muted">เวลา Pomodoro แยกจากเวลาทบทวนรายวัน และไม่นับเป็นสถิติการเรียน การทบทวน Flashcards ยังคงใช้การ์ดที่ถึงกำหนดและเวลาที่เหลือตามตารางของคุณ</p>
-    </section>
+    <aside className="focus-guide stack"><section className="panel"><span className="editor-step">จังหวะเล็ก ๆ ที่ทำได้ทุกวัน</span><h2>เรียนและพักอย่างพอดี</h2><ol className="focus-steps"><li><span>1</span><div><strong>เลือกเพียงหนึ่งเรื่อง</strong><p>อ่านหนึ่งหัวข้อ สรุปโน้ต หรือทำโจทย์ที่ตั้งใจไว้</p></div></li><li><span>2</span><div><strong>โฟกัส 25 นาที</strong><p>กดเริ่มเมื่อพร้อม หยุดชั่วคราวได้เมื่อจำเป็น</p></div></li><li><span>3</span><div><strong>ให้ตัวเองพัก 5 นาที</strong><p>เมื่อครบเวลา ระบบเตรียมช่วงถัดไปให้ คุณเป็นคนกดเริ่มเอง</p></div></li></ol></section><section className="focus-reminder"><Icon name={resting ? 'check' : 'notes'} /><p>{resting ? 'การพักก็เป็นส่วนหนึ่งของการเรียนรู้' : 'ไม่ต้องทำให้เสร็จทุกอย่าง แค่เริ่มจากเรื่องเดียวก็พอ'}</p></section><details className="panel focus-help"><summary>สิ่งที่ควรรู้เกี่ยวกับตัวจับเวลา</summary><p>เปลี่ยนหน้าในแอปได้โดยเวลายังเดินต่อ หากรีเฟรช ปิดหน้า หรือออกจากระบบ นาฬิกาจะเริ่มใหม่</p><p>เวลา Pomodoro แยกจากเวลาทบทวนรายวัน และไม่นับเป็นสถิติการเรียน การทบทวน Flashcards ยังคงใช้การ์ดที่ถึงกำหนดและเวลาที่เหลือตามตารางของคุณ</p></details></aside>
+    </div>
   </>;
 }
