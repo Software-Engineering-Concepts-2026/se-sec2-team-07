@@ -20,14 +20,11 @@ if (!existsSync(resolve(databaseDir, 'PG_VERSION'))) await database.initialise()
 await database.start();
 const client = database.getPgClient('postgres', '127.0.0.1');
 await client.connect();
-for (const name of ['focus', 'focus_test']) {
+for (const name of ['focus_test']) {
   if (!(await client.query('SELECT 1 FROM pg_database WHERE datname=$1', [name])).rowCount) await client.query(`CREATE DATABASE ${name}`);
 }
 await client.end();
-if (!existsSync('.env')) {
-  await writeFile('.env', `DATABASE_URL=postgresql://${settings.user}:${settings.password}@127.0.0.1:${settings.port}/focus\nTEST_DATABASE_URL=postgresql://${settings.user}:${settings.password}@127.0.0.1:${settings.port}/focus_test\nJWT_SECRET=${randomBytes(48).toString('hex')}\nHOST=127.0.0.1\nPORT=8000\nAPP_ORIGIN=http://127.0.0.1:5173\nCOOKIE_SECURE=false\n`, { mode: 0o600 });
-  console.log('Created .env with local database configuration.');
-} else console.log('Existing .env preserved. Connection settings are in .local/postgres.json.');
+console.log('Test database ready. Configure TEST_DATABASE_URL for focus_test using the local settings; application uses Supabase.');
 console.log(`Local PostgreSQL running on 127.0.0.1:${settings.port}. Press Ctrl+C to stop.`);
 const keepAlive = setInterval(() => {}, 60000);
 let stopping = false;

@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 Set-Location -LiteralPath $PSScriptRoot
 if (-not (Test-Path -LiteralPath '.env')) {
-    throw 'Configure .env first. See docs/development.md or run npm run db:local.'
+    throw 'Configure Supabase in .env first. See docs/development.md.'
 }
 if (-not (Test-Path -LiteralPath 'dist/index.html')) {
     & node node_modules/vite/bin/vite.js build

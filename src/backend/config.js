@@ -10,7 +10,8 @@ export function readAiConfig(env = process.env) {
 }
 
 export function readConfig(env = process.env) {
-  const supabase = env.DATABASE_PROVIDER === 'supabase';
+  // Local connections are reserved for isolated test fixtures.
+  const supabase = env.NODE_ENV !== 'test';
   if (supabase) assertSupabaseTarget(env.SUPABASE_DATABASE_URL, env.SUPABASE_PROJECT_REF);
   const databaseUrl = supabase ? env.SUPABASE_DATABASE_URL : env.DATABASE_URL;
   if (!databaseUrl) throw new Error('DATABASE_URL is required. Copy .env.example to .env.');

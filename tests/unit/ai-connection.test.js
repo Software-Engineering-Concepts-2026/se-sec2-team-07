@@ -4,7 +4,7 @@ import { generate } from '../../src/backend/modules/generation/service.js';
 import { readConfig } from '../../src/backend/config.js';
 
 test('AI configuration trims whitespace and does not treat whitespace as configured', () => {
-  const base = { DATABASE_URL: 'test', JWT_SECRET: 'x'.repeat(32) };
+  const base = { NODE_ENV: 'test', DATABASE_URL: 'test', JWT_SECRET: 'x'.repeat(32) };
   const result = readConfig({ ...base, OPENAI_API_KEY: ' test-key ', OPENAI_MODEL: ' test-model ' });
   assert.equal(result.aiKey, 'test-key');
   assert.equal(result.aiModel, 'test-model');

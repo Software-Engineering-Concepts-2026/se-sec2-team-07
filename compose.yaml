@@ -1,49 +1,18 @@
 services:
-  db:
-    image: postgres:17-bookworm
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-focus}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
-      POSTGRES_DB: ${POSTGRES_DB:-focus}
-    volumes:
-      - focus-postgres:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-    restart: unless-stopped
-  migrate:
-    build:
-      context: .
-      target: build
-    environment:
-      DIRECT_URL: postgresql://${POSTGRES_USER:-focus}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-focus}
-    command: ["node", "node_modules/prisma/build/index.js", "migrate", "deploy"]
-    depends_on:
-      db:
-        condition: service_healthy
   app:
     build: .
     ports:
       - "127.0.0.1:8000:8000"
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-focus}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-focus}
-      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      SUPABASE_PROJECT_REF: ${SUPABASE_PROJECT_REF:?Set Supabase project ref}
+      SUPABASE_DATABASE_URL: ${SUPABASE_DATABASE_URL:?Set Supabase runtime connection}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
       HOST: 0.0.0.0
       PORT: 8000
-      # Local HTTP only; hosted deployments require production and Secure cookies.
       NODE_ENV: development
       COOKIE_SECURE: "false"
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-}
       OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
       OPENAI_API_MODE: ${OPENAI_API_MODE:-}
-    depends_on:
-      db:
-        condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
     restart: unless-stopped
-volumes:
-  focus-postgres:

@@ -2,7 +2,7 @@ import pg from 'pg';
 import { spawnSync } from 'node:child_process';
 import { assertSupabaseTarget, assertTestDatabase, connectionOptions } from '../src/backend/db/targets.js';
 
-const mode = process.argv.includes('--supabase') ? 'supabase' : process.argv.includes('--test') ? 'test' : 'local';
+const mode = process.argv.includes('--test') ? 'test' : 'supabase';
 const baseline = process.argv.includes('--baseline-legacy');
 const checkOnly = process.argv.includes('--check');
 const initial = '20261003000000_initial';
@@ -22,11 +22,6 @@ try {
     url = process.env.SUPABASE_DIRECT_URL;
     if (baseline) throw Error('Remote legacy baselining is disabled; review existing data separately');
   } else if (mode === 'test') url = assertTestDatabase();
-  else {
-    url = process.env.DIRECT_URL || process.env.DATABASE_URL;
-    const parsed = new URL(url);
-    if (!['localhost', '127.0.0.1', '[::1]', 'db'].includes(parsed.hostname)) throw Error('Use --supabase with a verified project for remote migration');
-  }
   pool = new pg.Pool({ ...connectionOptions(url, mode === 'supabase'), connectionTimeoutMillis: 10000 });
   const tables = (await pool.query("SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename")).rows.map(r => r.tablename);
   console.log(`Verified ${mode} destination. Existing public tables: ${tables.join(', ') || '(none)'}`);

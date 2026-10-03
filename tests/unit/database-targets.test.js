@@ -1,6 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assertTestDatabase, assertSupabaseTarget, connectionOptions } from '../../src/backend/db/targets.js';
+import { readConfig } from '../../src/backend/config.js';
+test('runtime requires Supabase even when old local settings remain', () => {
+  const base = { JWT_SECRET: 'x'.repeat(32), DATABASE_URL: 'postgresql://u:p@localhost/focus', DATABASE_PROVIDER: 'local' };
+  assert.throws(() => readConfig(base));
+  const url = 'postgresql://postgres:p@db.abcdefghijklmnopqrst.supabase.co:5432/postgres';
+  const config = readConfig({ ...base, SUPABASE_PROJECT_REF: 'abcdefghijklmnopqrst', SUPABASE_DATABASE_URL: url });
+  assert.equal(config.databaseUrl, url);
+  assert.equal(config.databaseSsl, true);
+});
 test('test cleanup is confined to a distinct local test database', () => {
   const safe = 'postgresql://test:test@localhost:5432/focus_test';
   assert.equal(assertTestDatabase({ TEST_DATABASE_URL: safe }), safe);
