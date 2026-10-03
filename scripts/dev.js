@@ -1,9 +1,17 @@
 import { spawn } from 'node:child_process';
-const children = [
-  spawn(process.execPath, ['--watch', '--env-file-if-exists=.env', 'src/backend/server.js'], { stdio: 'inherit', windowsHide: true }),
-  spawn(process.execPath, ['node_modules/vite/bin/vite.js', '--host', '127.0.0.1'], { stdio: 'inherit', windowsHide: true }),
-];
+import { createServer } from 'vite';
+
+// Vite may choose another port when 5173 is occupied. Authorize only the
+// actual development origin, without changing .env or production policy.
+const web = await createServer({ server: { host: '127.0.0.1' } });
+await web.listen();
+web.printUrls();
+const origin = `http://127.0.0.1:${web.httpServer.address().port}`;
+const backend = spawn(process.execPath, ['--watch', '--env-file-if-exists=.env', 'src/backend/server.js'], {
+  stdio: 'inherit', windowsHide: true, env: { ...process.env, APP_ORIGIN: origin },
+});
 let stopping = false;
-function stop(code = 0) { if (stopping) return; stopping = true; children.forEach(child => child.kill()); process.exitCode = code; }
-children.forEach(child => { child.on('error', error => { console.error(error.message); stop(1); }); child.on('exit', code => stop(code || 0)); });
+async function stop(code = 0) { if (stopping) return; stopping = true; backend.kill(); await web.close(); process.exitCode = code; }
+backend.on('error', error => { console.error(error.message); stop(1); });
+backend.on('exit', code => stop(code || 0));
 process.on('SIGINT', () => stop()); process.on('SIGTERM', () => stop());
