@@ -353,3 +353,8 @@ AI read the current GitHub criteria and extended the existing saved-deck editor 
 ## Live AI connection preparation — 2026-10-03
 
 AI inspected the existing Responses API integration and official Structured Outputs documentation. Added trimmed server configuration, actionable provider/timeout errors without provider-body disclosure, and an opt-in live smoke check using synthetic source text. Relevant unit tests passed 18/18 with mocked AI responses. The local configuration check reports missing API key/model, so live generation and the real-provider browser flow remain blocked until the user supplies server configuration. No keys were printed, added to Git or invented. No live request, push or deployment was performed.
+
+
+## KKU API integration — 2026-10-03
+
+Implemented configurable HTTPS base URL and chat/responses protocol using the user-provided KKU manual. Preserved configured model and credentials, updated only local endpoint/mode, and changed the UI disclosure to cover the configured provider. Live synthetic smoke check succeeded with gpt-6-sol-pro and two accurate Thai Stack/Queue cards. Related unit tests passed 21/21, including malformed/refused/truncated chat output and existing Responses regression. Live browser-to-database flow and broad semantic quality remain unverified. Secrets were not logged or committed; no push/deployment.

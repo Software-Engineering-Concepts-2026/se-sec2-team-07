@@ -146,3 +146,20 @@ node --watch --env-file=../../.env src/backend/server.js
 หากใช้ checkout ปกติให้เปลี่ยน `../../.env` เป็น `.env` คำสั่งตรวจจริงแสดงการ์ดที่ได้เพื่อให้ตรวจคุณภาพขั้นต้น ไม่บันทึกลงฐานข้อมูล และไม่ยืนยันคุณภาพทุกวิชาหรือทุกระดับ
 
 ผลตรวจ 3 ตุลาคม 2026: tests/unit/ai-connection.test.js, issue3-generation.test.js, issue8.test.js และ services.test.js ผ่าน 18/18 โดยใช้ provider จำลอง ยังไม่มี key/model ในเครื่องจึงไม่ได้เรียก API จริง ไม่ได้ทดสอบสร้าง→บันทึกผ่านหน้าเว็บด้วยบริการจริงในรอบนี้
+
+
+## KKU / UP AI Connect (3 ตุลาคม 2026)
+
+ใช้โฟลเดอร์หลักแล้ว ตั้งค่าใน `.env` (ห้าม commit คีย์):
+
+```dotenv
+OPENAI_BASE_URL=https://gen.ai.kku.ac.th/upacth/api/v1
+OPENAI_API_MODE=chat
+OPENAI_MODEL=gpt-6-sol-pro
+```
+
+ใช้ OPENAI_API_KEY เดิมที่ออกโดย KKU แล้ว restart `npm run dev` เพื่อโหลดค่าใหม่ ตรวจได้ด้วย `node --env-file=.env scripts/check-ai.js --live` ซึ่งส่งเฉพาะบทเรียนตัวอย่างหนึ่งครั้งและใช้โควตาจริง
+
+ตามคู่มือที่ผู้ใช้ส่ง KKU ใช้ POST /chat/completions, messages, stream:false และ choices[0].message.content จึงไม่ส่ง Responses/Structured Outputs parameters ที่คู่มือไม่ได้รับรอง โหมด chat ขอ JSON ผ่านคำสั่งแล้วตรวจด้วย schema ฝั่งเซิร์ฟเวอร์; หากคำตอบไม่ครบ/ผิดรูปแบบจะให้ลองใหม่ ไม่บันทึกการ์ดอัตโนมัติ โหมด responses เดิมยังใช้ได้กับ OpenAI โดยตรง
+
+ผล: เรียก KKU จริงด้วย gpt-6-sol-pro ได้การ์ดภาษาไทย Stack=LIFO และ Queue=FIFO สองใบ ผ่านการตรวจ schema; unit ที่เกี่ยวข้อง 21/21 ผ่าน ยังไม่ได้ตรวจ live ผ่านหน้าเว็บจนบันทึกฐานข้อมูล หรือรับรองทุกโมเดล/ระดับ/เอกสารยาว ไม่มีการส่งเอกสารส่วนตัวในการตรวจครั้งนี้

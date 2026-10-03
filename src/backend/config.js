@@ -1,3 +1,12 @@
+export function readAiConfig(env = process.env) {
+  const aiBaseUrl = (env.OPENAI_BASE_URL?.trim() || 'https://api.openai.com/v1').replace(/\/+$/, '');
+  const url = new URL(aiBaseUrl);
+  if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash) throw Error('OPENAI_BASE_URL must be an HTTPS URL without credentials, query or fragment');
+  const aiApi = env.OPENAI_API_MODE?.trim() || (url.hostname === 'api.openai.com' ? 'responses' : 'chat');
+  if (!['responses', 'chat'].includes(aiApi)) throw Error('OPENAI_API_MODE must be responses or chat');
+  return { aiKey: env.OPENAI_API_KEY?.trim(), aiModel: env.OPENAI_MODEL?.trim(), aiBaseUrl, aiApi };
+}
+
 export function readConfig(env = process.env) {
   if (!env.DATABASE_URL) throw new Error('DATABASE_URL is required. Copy .env.example to .env.');
   if (!env.JWT_SECRET || env.JWT_SECRET.length < 32 || env.JWT_SECRET.startsWith('replace-')) {
@@ -11,6 +20,6 @@ export function readConfig(env = process.env) {
     databaseSsl: env.DATABASE_SSL === 'true',
     port: Number(env.PORT || 8000), host: env.HOST || '127.0.0.1',
     origin: env.APP_ORIGIN, trustProxy: Number(env.TRUST_PROXY || 0),
-    aiKey: env.OPENAI_API_KEY?.trim(), aiModel: env.OPENAI_MODEL?.trim(),
+    ...readAiConfig(env),
   };
 }
