@@ -40,7 +40,16 @@ export async function generate(input, config, request = fetch) {
         input: input.text, text: { format: { type: 'json_schema', name: 'flashcards', strict: true, schema } },
       }),
     });
-    if (!response.ok) throw new Error('AI request failed');
+    if (!response.ok) {
+      // Never expose the provider body: it can contain request data or credential details.
+      const messages = {
+        401: 'เชื่อมต่อ AI ไม่สำเร็จ: API key ไม่ถูกต้องหรือหมดอายุ กรุณาตรวจการตั้งค่าเซิร์ฟเวอร์',
+        403: 'บัญชี AI ไม่มีสิทธิ์ใช้งานที่ร้องขอ กรุณาตรวจสิทธิ์ของโครงการและโมเดล',
+        404: 'ไม่พบโมเดล AI ที่ตั้งค่าไว้ หรือบัญชีไม่มีสิทธิ์ใช้โมเดลนี้',
+        429: 'AI ถึงขีดจำกัดการใช้งานหรือโควตา กรุณาตรวจยอดการใช้งานแล้วลองใหม่ภายหลัง',
+      };
+      throw new HttpError(502, messages[response.status] || 'บริการ AI ไม่พร้อมใช้งาน หรือไม่รองรับการตั้งค่านี้ กรุณาลองใหม่หรือตรวจโมเดลบนเซิร์ฟเวอร์');
+    }
     const result = await response.json();
     if (result.status !== 'completed') throw new Error('Incomplete response');
     const text = (result.output || []).flatMap(item => item.content || []).filter(c => c.type === 'output_text').map(c => c.text).join('');
@@ -50,6 +59,7 @@ export async function generate(input, config, request = fetch) {
     return cards.slice(0, input.count).map(card => cardSchema.omit({ id: true }).parse(card));
   } catch (error) {
     if (error instanceof HttpError) throw error;
+    if (error.name === 'TimeoutError' || error.name === 'AbortError') throw new HttpError(502, 'AI ใช้เวลานานเกินไป กรุณาลดเนื้อหาหรือจำนวนการ์ดแล้วลองใหม่');
     throw new HttpError(502, 'สร้างการ์ดด้วย AI ไม่สำเร็จ โปรดตรวจคีย์ โมเดล และโควตา หรือลองโหมดแยกข้อความ');
   }
 }
