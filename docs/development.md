@@ -23,7 +23,7 @@ npm ci
 npm run dev
 ```
 
-เปิด `http://127.0.0.1:5173` — Vite ส่ง `/api` ต่อไป Express ที่พอร์ต 8000 และ Express รัน SQL migrations เมื่อเริ่มทำงาน
+เปิด `http://127.0.0.1:5173` — Vite ส่ง `/api` ต่อไป Express ที่พอร์ต 8000 ก่อนเปิดครั้งแรกให้รัน `npm run db:migrate` สำหรับฐานข้อมูลว่าง หรือ baseline ฐานข้อมูลเดิมตาม [คู่มือ Prisma/Supabase](testing/supabase-prisma.md) การเปิด Express จะไม่เปลี่ยน schema อัตโนมัติอีกต่อไป
 
 สำหรับเปิดเว็บที่ build แล้ว:
 
@@ -93,7 +93,7 @@ npm run test:e2e
 
 Integration/browser tests ต้องมี `TEST_DATABASE_URL` แยกจากข้อมูลใช้งานจริง Tests สร้างบัญชีของตัวเองและลบเฉพาะบัญชีเหล่านั้น Browser tests ใช้ Chrome (`npx playwright install chrome` หากยังไม่มี) เริ่ม Express สำหรับทดสอบที่ 8001 และตรวจเว็บ build แล้วบน desktop/mobile ภาพอยู่ใน `.local/` ส่วน trace เมื่อผิดพลาดอยู่ใน `test-results/`
 
-CI ตั้ง PostgreSQL 17, รันทดสอบ, build React และทดสอบ browser การอัปเกรด schema ใช้ PostgreSQL advisory lock และ `schema_migrations` ให้เพิ่ม SQL migration ใหม่แทนแก้ไฟล์ที่ apply ไปแล้ว
+CI ตั้ง PostgreSQL 17, deploy Prisma migrations ลงฐานข้อมูลทดสอบ, รันทดสอบ, build React และทดสอบ browser การอัปเกรด schema ใช้ `prisma/migrations` ให้เพิ่ม migration ใหม่แทนแก้ไฟล์ที่ apply ไปแล้ว ส่วน SQL เดิมเก็บไว้สำหรับ legacy fixtures/import ในเครื่องเท่านั้น
 
 ## Deploy บน Render / Railway
 
@@ -107,12 +107,12 @@ CI ตั้ง PostgreSQL 17, รันทดสอบ, build React และ�
 - `DATABASE_SSL=true` หากฐานข้อมูลกำหนดให้ใช้ TLS โดยยังตรวจ certificate
 - `OPENAI_API_KEY` / `OPENAI_MODEL` หากต้องการเปิด AI
 
-ใช้ `/api/health` เป็น readiness check และ HTTPS ที่ public ingress Express เสิร์ฟ React build และ API จาก origin เดียวกัน ฐานข้อมูลต้องพร้อมก่อนรัน startup migrations งานครั้งนี้ยังไม่ได้ publish ไป cloud
+ใช้ `/api/health` เป็น readiness check และ HTTPS ที่ public ingress Express เสิร์ฟ React build และ API จาก origin เดียวกัน ต้อง deploy Prisma migrations แยกก่อนเปิด runtime งานครั้งนี้ยังไม่ได้ publish แอพไป cloud
 # รายวิชาและโน้ต (Issue #11)
 
 เปิดเมนูรายวิชา สร้างวิชา แล้วกดเพิ่มจากคลังเพื่อเลือกการ์ดหรือโน้ตที่มีอยู่ เนื้อหาเดียวกันเชื่อมได้หลายวิชา การแก้ต้นฉบับมีผลทุกวิชาที่เชื่อม ระบบจะแจ้งก่อนบันทึก การนำออกจากวิชาหรือลบรายวิชาไม่ลบต้นฉบับ
 
-โน้ตเก็บข้อความที่พิมพ์หรือสกัดจากไฟล์ ไม่เก็บไฟล์ต้นฉบับ การเปิด server จะใช้ migration `003_courses_notes.sql` อัตโนมัติ รายละเอียด API การทดสอบ และข้อควรระวังเมื่อย้อนเวอร์ชันอยู่ใน [บันทึก Issue #11](testing/issue-11.md)
+โน้ตเก็บข้อความที่พิมพ์หรือสกัดจากไฟล์ ไม่เก็บไฟล์ต้นฉบับ โครงสร้างจาก `003_courses_notes.sql` รวมอยู่ใน Prisma initial migration แล้ว รายละเอียด API การทดสอบ และข้อควรระวังเมื่อย้อนเวอร์ชันอยู่ใน [บันทึก Issue #11](testing/issue-11.md)
 
 ## ส่งออกผลงาน (Issue #12)
 
@@ -120,7 +120,7 @@ CI ตั้ง PostgreSQL 17, รันทดสอบ, build React และ�
 
 ## จัดเก็บการ์ดเรียนจบ (Issue #16)
 
-เปิดเมนู **จัดเก็บการ์ด** เลือก **เรียนจบแล้ว · จัดเก็บ** แล้วกดยืนยัน การ์ดจะออกจากคิวทบทวนและแผนทุกวิชาที่เชื่อม แต่เนื้อหากับประวัติยังอยู่ ดูรายการได้ที่ **เรียนจบแล้ว** และกด **นำกลับมาทบทวน** เพื่อคืนการ์ดเดิมให้พร้อมเข้าคิวตามงบรายวัน ระบบใช้ migration `006_card_archive.sql` อัตโนมัติเมื่อเปิดเซิร์ฟเวอร์ อ่านผลทดสอบและข้อจำกัดการย้อนเวอร์ชันใน [Issue #16](testing/issue-16.md)
+เปิดเมนู **จัดเก็บการ์ด** เลือก **เรียนจบแล้ว · จัดเก็บ** แล้วกดยืนยัน การ์ดจะออกจากคิวทบทวนและแผนทุกวิชาที่เชื่อม แต่เนื้อหากับประวัติยังอยู่ ดูรายการได้ที่ **เรียนจบแล้ว** และกด **นำกลับมาทบทวน** เพื่อคืนการ์ดเดิมให้พร้อมเข้าคิวตามงบรายวัน โครงสร้างจาก `006_card_archive.sql` รวมใน Prisma initial migration แล้ว อ่านผลทดสอบและข้อจำกัดการย้อนเวอร์ชันใน [Issue #16](testing/issue-16.md)
 
 ## แก้ไขการ์ดที่บันทึกแล้ว (Issue #17)
 

@@ -158,7 +158,7 @@ npm run dev
 
 เปิด http://127.0.0.1:5173 เพื่อพัฒนา หรือ `npm run build` ตามด้วย `npm start` แล้วเปิด http://127.0.0.1:8000
 
-`db:local` เริ่ม PostgreSQL แยกในโฟลเดอร์ `.local` และสร้าง `.env` หากยังไม่มี หากใช้ PostgreSQL ที่มีอยู่ ให้ตั้งค่าตาม `.env.example` แทน
+`db:local` เริ่ม PostgreSQL แยกในโฟลเดอร์ `.local` และสร้าง `.env` หากยังไม่มี ก่อนเปิดแอพกับฐานข้อมูลว่างให้รัน `npm run db:migrate` ส่วนฐานข้อมูลเดิมต้องตรวจและ baseline ตาม [คู่มือ Prisma/Supabase](docs/testing/supabase-prisma.md) ก่อน ข้อมูล Supabase ตั้งตาม `.env.example` และ deploy ผ่านคำสั่งที่ตรวจ project ref ไม่ใช้ฐานข้อมูล cloud รันทดสอบที่ล้างข้อมูล
 
 - สร้างบัญชีและเพิ่มชุดการ์ดจาก PDF/PPTX/TXT/MD หรือข้อความ
 - แก้ไขและบันทึกการ์ด ทบทวนตาม SRS และดูสถิติจริง

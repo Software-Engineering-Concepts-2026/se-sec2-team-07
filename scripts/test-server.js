@@ -1,3 +1,5 @@
+import { assertTestDatabase } from '../src/backend/db/targets.js';
+assertTestDatabase();
 import { createPool } from '../src/backend/db/pool.js';
 import { migrate } from '../src/backend/db/migrate.js';
 import { createApp } from '../src/backend/app.js';

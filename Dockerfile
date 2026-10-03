@@ -1,6 +1,8 @@
 FROM node:24-bookworm-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
+COPY prisma ./prisma
+COPY prisma.config.ts ./
 RUN npm ci
 COPY vite.config.js ./
 COPY src/frontend ./src/frontend
@@ -10,10 +12,9 @@ FROM node:24-bookworm-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=8000
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 COPY src/backend ./src/backend
-COPY scripts/migrate.js ./scripts/migrate.js
-COPY scripts/import-sqlite.js ./scripts/import-sqlite.js
 COPY --from=build /app/dist ./dist
 USER node
 EXPOSE 8000
