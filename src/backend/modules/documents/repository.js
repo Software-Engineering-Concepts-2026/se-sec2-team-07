@@ -1,25 +1,26 @@
 import { HttpError } from '../../shared/errors.js';
 
 export function documentRepository(pool) {
-  const requireRow = result => {
-    if (!result.rows[0]) throw new HttpError(404, 'ไม่พบเอกสาร');
-    return result.rows[0];
-  };
+  const missing = () => new HttpError(404, 'ไม่พบเอกสาร');
   return {
-    async list(userId) {
-      return (await pool.query('SELECT id,title,name,body,created FROM documents WHERE user_id=$1 ORDER BY created DESC,id DESC', [userId])).rows;
+    async list(user_id) {
+      return pool.prisma.document.findMany({ where: { user_id },
+        select: { id: true, title: true, name: true, body: true, created: true },
+        orderBy: [{ created: 'desc' }, { id: 'desc' }] });
     },
-    async create(userId, { title, name, body, content }) {
-      return (await pool.query('INSERT INTO documents(user_id,title,name,body,content) VALUES($1,$2,$3,$4,$5) RETURNING id', [userId, title, name, body, content])).rows[0].id;
+    async create(user_id, { title, name, body, content }) {
+      return (await pool.prisma.document.create({ data: { user_id, title, name, body, content }, select: { id: true } })).id;
     },
-    async download(userId, id) {
-      return requireRow(await pool.query('SELECT name,content FROM documents WHERE user_id=$1 AND id=$2', [userId, id]));
+    async download(user_id, id) {
+      const file = await pool.prisma.document.findFirst({ where: { user_id, id }, select: { name: true, content: true } });
+      if (!file) throw missing();
+      return { name: file.name, content: Buffer.from(file.content) };
     },
-    async rename(userId, id, title) {
-      requireRow(await pool.query('UPDATE documents SET title=$3 WHERE user_id=$1 AND id=$2 RETURNING id', [userId, id, title]));
+    async rename(user_id, id, title) {
+      if (!(await pool.prisma.document.updateMany({ where: { user_id, id }, data: { title } })).count) throw missing();
     },
-    async remove(userId, id) {
-      requireRow(await pool.query('DELETE FROM documents WHERE user_id=$1 AND id=$2 RETURNING id', [userId, id]));
+    async remove(user_id, id) {
+      if (!(await pool.prisma.document.deleteMany({ where: { user_id, id } })).count) throw missing();
     },
   };
 }

@@ -21,7 +21,7 @@ export function authService(repo, config) {
     cookieOptions,
     async register(input) {
       try { return await repo.create({ ...input, password: await hashPassword(input.password) }); }
-      catch (error) { if (error.code === '23505') throw new HttpError(409, 'อีเมลนี้ถูกใช้แล้ว'); throw error; }
+      catch (error) { if (['23505', 'P2002'].includes(error.code)) throw new HttpError(409, 'อีเมลนี้ถูกใช้แล้ว'); throw error; }
     },
     async login(input) {
       const user = await repo.byEmail(input.email);
@@ -47,7 +47,7 @@ export function authService(repo, config) {
         res.cookie('focus_token', issue(user), cookieOptions);
         next();
       } catch (error) {
-        if (error.code?.startsWith('08') || error.code === 'ECONNREFUSED') return next(error);
+        if (error.code?.startsWith('08') || error.code?.startsWith('P') || error.code === 'ECONNREFUSED') return next(error);
         next(new HttpError(401, 'กรุณาเข้าสู่ระบบอีกครั้ง'));
       }
     },

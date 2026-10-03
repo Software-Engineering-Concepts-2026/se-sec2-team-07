@@ -4,8 +4,11 @@ import { notFound } from '../../shared/errors.js';
 export function cardRepository(pool) {
   return {
     async list(uid, archived) {
-      return (await pool.query(`SELECT c.*, d.name deck_name FROM cards c JOIN decks d ON d.id=c.deck_id
-        WHERE d.user_id=$1 AND (c.archived_at IS NOT NULL)=$2 ORDER BY d.id,c.id`, [uid, archived])).rows;
+      const cards = await pool.prisma.card.findMany({
+        where: { deck: { user_id: uid }, archived_at: archived ? { not: null } : null },
+        include: { deck: { select: { name: true } } }, orderBy: [{ deck_id: 'asc' }, { id: 'asc' }],
+      });
+      return cards.map(({ deck, ...card }) => ({ ...card, deck_name: deck.name }));
     },
     async archive(uid, id, archived) {
       return transaction(pool, async client => {

@@ -1,9 +1,15 @@
 import pg from 'pg';
+import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { connectionOptions } from './targets.js';
 
 export function createPool(config) {
-  return new pg.Pool({ connectionString: config.databaseUrl,
-    ssl: config.databaseSsl ? { rejectUnauthorized: true } : undefined,
+  const pool = new pg.Pool({ ...connectionOptions(config.databaseUrl, config.databaseSsl),
     max: 10, idleTimeoutMillis: 30000, connectionTimeoutMillis: 5000 });
+  pool.prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
+  const close = pool.end.bind(pool);
+  pool.end = async () => { await pool.prisma.$disconnect(); await close(); };
+  return pool;
 }
 
 export async function transaction(pool, operation) {

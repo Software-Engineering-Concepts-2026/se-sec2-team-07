@@ -1,10 +1,10 @@
 export function authRepository(pool) {
   return {
-    async byEmail(email) { return (await pool.query('SELECT * FROM users WHERE email=$1', [email])).rows[0]; },
-    async byId(id) { return (await pool.query('SELECT id,name,email,token_version FROM users WHERE id=$1', [id])).rows[0]; },
+    async byEmail(email) { return pool.prisma.user.findUnique({ where: { email } }); },
+    async byId(id) { return pool.prisma.user.findUnique({ where: { id }, select: { id: true, name: true, email: true, token_version: true } }); },
     async create({ name, email, password }) {
-      return (await pool.query('INSERT INTO users(name,email,password) VALUES($1,$2,$3) RETURNING id,name,email,token_version', [name, email, password])).rows[0];
+      return pool.prisma.user.create({ data: { name, email, password }, select: { id: true, name: true, email: true, token_version: true } });
     },
-    async revoke(id) { await pool.query('UPDATE users SET token_version=token_version+1 WHERE id=$1', [id]); },
+    async revoke(id) { await pool.prisma.user.update({ where: { id }, data: { token_version: { increment: 1 } } }); },
   };
 }

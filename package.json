@@ -17,9 +17,17 @@
     "db:import-sqlite": "node --env-file-if-exists=.env scripts/import-sqlite.js",
     "test": "node --test tests/unit/*.test.js",
     "test:e2e": "node --env-file-if-exists=.env node_modules/playwright/cli.js test",
-    "test:integration": "node --env-file-if-exists=.env --test --test-concurrency=1 tests/integration/*.test.js"
+    "test:integration": "node --env-file-if-exists=.env --test --test-concurrency=1 tests/integration/*.test.js",
+    "db:generate": "prisma generate",
+    "db:validate": "prisma validate",
+    "postinstall": "prisma generate",
+    "db:check:supabase": "node --env-file-if-exists=.env scripts/migrate.js --supabase --check",
+    "db:deploy:supabase": "node --env-file-if-exists=.env scripts/migrate.js --supabase",
+    "db:migrate:test": "node --env-file-if-exists=.env scripts/migrate.js --test"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
     "cookie-parser": "^1.4.7",
     "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
@@ -40,6 +48,7 @@
     "@vitejs/plugin-react": "^5.1.0",
     "concurrently": "^9.2.0",
     "embedded-postgres": "^18.4.0-beta.17",
+    "prisma": "^7.10.0",
     "supertest": "^7.1.0",
     "vite": "^7.3.0"
   }

@@ -1,3 +1,5 @@
+import { assertSupabaseTarget } from './db/targets.js';
+
 export function readAiConfig(env = process.env) {
   const aiBaseUrl = (env.OPENAI_BASE_URL?.trim() || 'https://api.openai.com/v1').replace(/\/+$/, '');
   const url = new URL(aiBaseUrl);
@@ -8,7 +10,10 @@ export function readAiConfig(env = process.env) {
 }
 
 export function readConfig(env = process.env) {
-  if (!env.DATABASE_URL) throw new Error('DATABASE_URL is required. Copy .env.example to .env.');
+  const supabase = env.DATABASE_PROVIDER === 'supabase';
+  if (supabase) assertSupabaseTarget(env.SUPABASE_DATABASE_URL, env.SUPABASE_PROJECT_REF);
+  const databaseUrl = supabase ? env.SUPABASE_DATABASE_URL : env.DATABASE_URL;
+  if (!databaseUrl) throw new Error('DATABASE_URL is required. Copy .env.example to .env.');
   if (!env.JWT_SECRET || env.JWT_SECRET.length < 32 || env.JWT_SECRET.startsWith('replace-')) {
     throw new Error('JWT_SECRET must be a random secret of at least 32 characters.');
   }
@@ -16,8 +21,8 @@ export function readConfig(env = process.env) {
   const cookieSecure = env.COOKIE_SECURE ? env.COOKIE_SECURE === 'true' : production;
   if (production && !cookieSecure) throw new Error('Production requires COOKIE_SECURE=true and HTTPS.');
   return {
-    databaseUrl: env.DATABASE_URL, jwtSecret: env.JWT_SECRET, production, cookieSecure,
-    databaseSsl: env.DATABASE_SSL === 'true',
+    databaseUrl, jwtSecret: env.JWT_SECRET, production, cookieSecure,
+    databaseSsl: supabase || env.DATABASE_SSL === 'true',
     port: Number(env.PORT || 8000), host: env.HOST || '127.0.0.1',
     origin: env.APP_ORIGIN, trustProxy: Number(env.TRUST_PROXY || 0),
     ...readAiConfig(env),
