@@ -16,6 +16,7 @@ import Export from './pages/Export';
 import Archive from './pages/Archive';
 import PomodoroPage from './pomodoro';
 import './style.css';
+import './workspace.css';
 
 const router = createHashRouter([{ element: <App />, children: [{ element: <Layout />, children: [
   { path: '/', element: <Dashboard /> },

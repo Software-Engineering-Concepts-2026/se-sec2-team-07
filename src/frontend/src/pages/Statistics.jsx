@@ -15,6 +15,6 @@ export default function Statistics() {
       </article>)}<p className="small muted">แสดงเฉพาะชุดที่มีประวัติ · การทบทวนยังจำกัดตามวันครบกำหนดและเวลารายวัน</p>
     </section>
     <section className="panel stack" aria-label="ประวัติการทบทวน"><h2>ประวัติย้อนหลัง 30 วัน</h2><p className="small muted">จำนวนครั้งอาจมากกว่าจำนวนการ์ด เพราะทบทวนใบเดิมซ้ำได้</p>
-      <div style={{ overflowX: 'auto' }}><table style={{ width: '100%', textAlign: 'left' }}><thead><tr><th>วันที่</th><th>ครั้ง</th><th>ใบไม่ซ้ำ</th><th>ความแม่นยำ</th></tr></thead><tbody>{[...stats.history].reverse().map(day => <tr key={day.date}><td>{day.date}</td><td>{day.count}</td><td>{day.uniqueCards}</td><td>{day.accuracy === null ? '—' : `${day.accuracy}%`}</td></tr>)}</tbody></table></div>
+      <div className="history-table" tabIndex={0} role="region" aria-label="ประวัติการทบทวนรายวัน"><table style={{ width: '100%', textAlign: 'left' }}><thead><tr><th>วันที่</th><th>ครั้ง</th><th>ใบไม่ซ้ำ</th><th>ความแม่นยำ</th></tr></thead><tbody>{[...stats.history].reverse().map(day => <tr key={day.date}><td>{day.date}</td><td>{day.count}</td><td>{day.uniqueCards}</td><td>{day.accuracy === null ? '—' : `${day.accuracy}%`}</td></tr>)}</tbody></table></div>
     </section>{!stats.total && <Empty title="กราฟแรกเริ่มจากการทบทวนครั้งแรก"><p>เลือกชุดการ์ด แล้วกลับมาดูความก้าวหน้าได้ที่นี่</p><Link to="/review" className="btn">เริ่มทบทวน</Link></Empty>}<p className="stats-note">นับวันตามเวลาไทย (UTC+7) · สถิติอ้างอิงการ์ดที่ยังอยู่ในคลัง · ค่าความแม่นยำเป็นการประเมินตนเอง</p></>;
 }
