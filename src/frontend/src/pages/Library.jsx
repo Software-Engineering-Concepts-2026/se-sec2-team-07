@@ -6,7 +6,7 @@ import { useOverview } from '../hooks/useOverview';
 import { PageTitle, Icon, DeckCard, Empty, ErrorPanel } from '../components/UI';
 import EmptyLibrary from '../components/EmptyLibrary';
 export default function Library() {
-  const { decks, loading, error, reload, sync } = useOverview(); const [query, setQuery] = useState(''); const [category, setCategory] = useState('');
+  const { decks, loading, error, reload, sync } = useOverview({ includeStats: false }); const [query, setQuery] = useState(''); const [category, setCategory] = useState('');
   if (loading) return <div className="loading">กำลังเปิดคลังการ์ด…</div>;
   if (error) return <ErrorPanel error={error} retry={reload} />;
   const filtered = decks.filter(d => `${d.name} ${d.description} ${d.category}`.toLowerCase().includes(query.trim().toLowerCase()) && (!category || d.category === category));
