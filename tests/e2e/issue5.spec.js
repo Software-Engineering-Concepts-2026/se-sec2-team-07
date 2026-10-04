@@ -23,7 +23,7 @@ test('Issue #5: store, search, reopen and manage original documents alongside no
     await document.getByText('เปิดอ่านข้อความ', { exact: true }).click();
     await expect(document.getByText('Photosynthesis converts light into chemical energy.', { exact: false })).toBeVisible();
 
-    const search = page.getByRole('textbox', { name: 'ค้นหาโน้ต', exact: true });
+    const search = page.getByRole('searchbox', { name: 'ค้นหาโน้ต', exact: true });
     await search.fill('PHOTOSYNTHESIS');
     await expect(document).toHaveCount(1);
     await search.fill('no matching content here');

@@ -1,5 +1,6 @@
 import { useRemoteSync } from '../hooks/useRemoteSync';
 import { useRetryableSave } from '../hooks/useRetryableSave';
+import SearchField from '../components/SearchField';
 import SyncStatus from '../components/SyncStatus';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -47,7 +48,7 @@ export default function Notes() {
   async function refresh() { const data = await api('/notes'); setNotes(data.notes); }
   async function select(note) {
     if (dirty.current && !await confirm('เปลี่ยนโน้ตที่กำลังแก้ไข?', 'ข้อความที่ยังไม่ได้บันทึกจะหายไป')) return;
-    dirty.current = false; setEditing(note); setDraft(note ? { title: note.title, body: note.body } : blank()); setActionError(''); setParams(note ? { edit: note.id } : {});
+    dirty.current = false; setEditing(note); setDraft(note ? { title: note.title, body: note.body } : blank()); setActionError(''); setParams(note ? { edit: note.id } : {}); requestAnimationFrame(() => document.getElementById('note-title')?.focus());
   }
   async function save(event) {
     event.preventDefault(); if (busy) return;
@@ -72,16 +73,17 @@ export default function Notes() {
       setDraft(d => ({ title: d.title || file.name.replace(/\.[^.]+$/, '').slice(0, 120), body: result.text })); notify('อ่านข้อความแล้ว กรุณาตรวจและบันทึกโน้ต');
     });
   }
-  const filtered = notes.filter(note => `${note.title} ${note.body}`.toLowerCase().includes(query.toLowerCase()));
+  const filtered = notes.filter(note => `${note.title} ${note.body}`.toLowerCase().includes(query.trim().toLowerCase()));
   return <><PageTitle eyebrow="SHARED NOTES" title="คลังโน้ต" subtitle="เอกสารและโน้ตในที่เดียว ค้นหาและเปิดอ่านได้ทุกเมื่อ"><Link to="/courses" className="btn secondary">รายวิชาของฉัน</Link></PageTitle><SyncStatus sync={sync} paused={dirty.current} reload={reload} disabled={busy || mutation.uncertain} />
-    <div className="toolbar"><input aria-label="ค้นหาโน้ต" placeholder="ค้นหาเอกสารหรือโน้ตจากชื่อและเนื้อหา…" value={query} onChange={e => setQuery(e.target.value)} /></div>
-    <Documents query={query} />
+    <div className="toolbar"><SearchField label="ค้นหาโน้ต" placeholder="ค้นหาเอกสารหรือโน้ตจากชื่อและเนื้อหา…" value={query} onChange={setQuery} /></div>
+    <nav className="note-shortcuts" aria-label="ทางลัดคลังโน้ต"><a href="#note-title" onClick={e => { e.preventDefault(); document.getElementById('note-title')?.focus(); }}>เขียนโน้ต ↓</a><a href="#saved-notes" onClick={e => { e.preventDefault(); document.getElementById('saved-notes')?.focus(); }}>ดูโน้ตที่บันทึก ({notes.length}) ↓</a></nav><Documents query={query} />
     <form className="panel note-editor" onSubmit={save}><h2>{editing ? 'แก้ไขโน้ตต้นฉบับ' : 'สร้างโน้ต'}</h2>{editing && <><CourseLinks courses={editing.courses} />{editing.courses?.length > 0 && <p role="note">การแก้ไขมีผลกับทุกวิชาที่เชื่อม ระบบจะให้ยืนยันก่อนบันทึก</p>}</>}
       <label htmlFor="note-title">ชื่อโน้ต</label><input id="note-title" value={draft.title} maxLength={120} required disabled={locked || loading} onChange={e => change('title', e.target.value)} />
-      <label htmlFor="note-body">เนื้อหาโน้ต</label><textarea id="note-body" rows={10} value={draft.body} maxLength={60000} required disabled={locked || loading} onChange={e => change('body', e.target.value)} />
-      <label htmlFor="note-file">อ่านข้อความจากไฟล์ PDF, PPTX, TXT หรือ Markdown (ไม่เก็บไฟล์ต้นฉบับ)</label><input id="note-file" type="file" accept=".pdf,.pptx,.txt,.md" disabled={locked || loading} onChange={e => { const file = e.target.files[0]; e.target.value = ''; readFile(file); }} />
+      <label htmlFor="note-body">เนื้อหาโน้ต</label><textarea id="note-body" rows={6} value={draft.body} maxLength={60000} required disabled={locked || loading} onChange={e => change('body', e.target.value)} />
+      <p className="small muted">{draft.body.length.toLocaleString()} / 60,000 ตัวอักษร · {dirty.current ? 'มีการแก้ไขที่ยังไม่บันทึก' : 'กรอกชื่อและเนื้อหา แล้วกดบันทึกโน้ต'}</p><label htmlFor="note-file">อ่านข้อความจากไฟล์ PDF, PPTX, TXT หรือ Markdown (ไม่เก็บไฟล์ต้นฉบับ)</label><input id="note-file" type="file" accept=".pdf,.pptx,.txt,.md" disabled={locked || loading} onChange={e => { const file = e.target.files[0]; e.target.value = ''; readFile(file); }} />
       {actionError && <p role="alert">{actionError}</p>}<div className="toolbar"><button className="btn" disabled={busy || sync.refreshing || loading || !draft.title.trim() || !draft.body.trim()}>{busy ? 'กำลังดำเนินการ…' : 'บันทึกโน้ต'}</button><button type="button" className="btn secondary" disabled={locked || loading} onClick={() => select(null)}>เริ่มโน้ตใหม่</button></div>
     </form>
+    <h2 id="saved-notes" tabIndex={-1}>โน้ตที่บันทึก <span className="small muted">({filtered.length} รายการ)</span></h2>
     {loading ? <p className="loading">กำลังเปิดคลังโน้ต…</p> : error && !notes.length ? <ErrorPanel error={error} retry={reload} /> : filtered.length ? filtered.map(note => <article key={note.id} className="panel shared-content"><h2>{note.title}</h2><p className="shared-text">{note.body}</p><CourseLinks courses={note.courses} /><div className="toolbar"><button className="btn secondary" disabled={locked || loading} onClick={() => select(note)}>แก้ไขโน้ต</button><button className="btn danger" disabled={locked || note.courses?.length > 0} onClick={() => remove(note)}>ลบโน้ต</button></div>{note.courses?.length > 0 && <p className="small muted">นำโน้ตออกจากรายวิชาที่เชื่อมทั้งหมดก่อนลบต้นฉบับ</p>}</article>) : <Empty title="ไม่พบโน้ต"><p>สร้างโน้ตใหม่หรือเปลี่ยนคำค้นหา</p></Empty>}
   </>;
 }

@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useApp } from '../context';
 import { api } from '../api';
 import { Brand, Icon } from './UI';
@@ -38,6 +38,10 @@ function WorkspaceLayout() {
   async function logout() { setBusy(true); try { await api('/logout', 'POST', {}); setUser(null); } catch (e) { notify(e.message); } finally { setBusy(false); } }
   const logoutButton = <button className="logout" disabled={busy} onClick={logout} aria-label="ออกจากระบบ" title="ออกจากระบบ"><Icon name="logout" /></button>;
   const pageTitle = getPageTitle(pathname);
+  useEffect(() => {
+    document.title = `${pageTitle} · focus.`;
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [pathname, pageTitle]);
   const now = new Date();
   const today = now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
   const localDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;

@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
 import { useApp } from '../context';
 import { useRemoteSync } from '../hooks/useRemoteSync';
+import SearchField from '../components/SearchField';
 import SyncStatus from '../components/SyncStatus';
 import { Empty, PageTitle } from '../components/UI';
 
@@ -22,7 +23,7 @@ export default function Archive() {
     apply: data => setResult({ archived, cards: data.cards }),
   });
   const cards = result.archived === archived ? result.cards : [];
-  const filtered = cards.filter(card => `${card.front} ${card.back} ${card.deck_name}`.toLowerCase().includes(query.toLowerCase()));
+  const filtered = cards.filter(card => `${card.front} ${card.back} ${card.deck_name}`.toLowerCase().includes(query.trim().toLowerCase()));
   async function change(card) {
     if (inFlight.current) return;
     inFlight.current = true; setBusy(true); setError('');
@@ -46,7 +47,7 @@ export default function Archive() {
       <button className={`btn ${archived ? '' : 'secondary'}`} aria-pressed={archived} disabled={busy} onClick={() => select(true)}>เรียนจบแล้ว</button>
     </div>
     <SyncStatus sync={sync} disabled={busy} />
-    <div className="toolbar"><input aria-label="ค้นหาการ์ดเพื่อจัดเก็บ" placeholder="ค้นหาคำถาม คำตอบ หรือชื่อชุดการ์ด…" value={query} onChange={event => setQuery(event.target.value)} /></div>
+    <div className="toolbar"><SearchField label="ค้นหาการ์ดเพื่อจัดเก็บ" placeholder="ค้นหาคำถาม คำตอบ หรือชื่อชุดการ์ด…" value={query} onChange={setQuery} /></div>
     {error && <p className="notice" role="alert">{error}</p>}
     {sync.loading ? <p className="loading">กำลังเปิดรายการการ์ด…</p> : <>
       <p className="small muted">{archived ? 'เรียนจบแล้ว' : 'ยังทบทวนอยู่'} · {filtered.length} ใบ</p>

@@ -1,4 +1,13 @@
 /* Shared presentation layer for all learning, management and account screens. */
+.search-field { flex:1; min-width:180px; position:relative; }
+.search-field input { padding-right:65px; }
+.search-field input::-webkit-search-cancel-button { display:none; }
+.search-clear { position:absolute; bottom:5px; right:5px; min-height:38px; padding:6px 12px; border:0; border-radius:8px; background:#f1eafb; color:#674491; font-size:13px; }
+.toolbar:has(.search-field) { align-items:flex-end; }
+.note-shortcuts { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+.note-shortcuts a { display:inline-flex; align-items:center; min-height:44px; padding:8px 16px; background:#eee7fa; color:#64428c; border-radius:10px; font-size:14px; font-weight:600; }
+#saved-notes { scroll-margin-top:24px; margin-top:28px; }
+#saved-notes:focus-visible { outline:3px solid #8060dc; outline-offset:4px; }
 .welcome-page { background:#fcfbfe; min-height:100dvh; grid-template-columns:1fr 1fr; }
 .welcome-page .welcome-story { padding:40px clamp(32px,5vw,90px); background:radial-gradient(ellipse at 15% 10%,#f6f0ff,transparent 65%),linear-gradient(145deg,#eee4fb,#eae6f8 60%,#dfefeb); justify-content:space-between; gap:30px; }
 .welcome-copy { margin-top:14px; }
