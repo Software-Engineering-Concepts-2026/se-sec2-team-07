@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { api } from '../api';
 import { useApp } from '../context';
-import { Art, Brand, Icon } from '../components/UI';
+import { Brand, Icon } from '../components/UI';
 export default function Auth() {
   const { setUser, setAi } = useApp();
   const [register, setRegister] = useState(false);
@@ -14,5 +14,36 @@ export default function Auth() {
     try { await api(register ? '/register' : '/login', 'POST', data); const me = await api('/me'); setAi(me.ai); setUser(me.user); }
     catch (e) { setError(e.message); } finally { setBusy(false); }
   }
-  return <main className="auth"><section className="auth-story"><Brand /><div className="eyebrow" style={{ marginTop: 45 }}>A LITTLE FOCUS. A LOT OF POSSIBILITIES.</div><h1>เรียนรู้ทีละนิด<br />จดจำได้อีกนาน</h1><p>เปลี่ยนโน้ตที่กองอยู่ ให้เป็นความรู้ที่อยู่กับคุณ<br />สร้างแฟลชการ์ด ทบทวน และเติบโตในทุกวัน</p><Art /><p className="small">ออกแบบมาเพื่อจังหวะการเรียนรู้ของคุณ</p></section><section className="auth-form"><div className="auth-box"><div className="eyebrow">YOUR LEARNING SPACE</div><h2>{register ? 'เริ่มต้นบทใหม่ของคุณ' : 'ยินดีต้อนรับกลับมา'}</h2><p className="muted small">{register ? 'สร้างบัญชีเพื่อเก็บชุดการ์ดและความก้าวหน้าของคุณ' : 'เข้าสู่ระบบ แล้วมาเรียนรู้อีกนิดด้วยกัน'}</p><form onSubmit={submit}>{register && <label className="field">ชื่อที่อยากให้เราเรียก<input name="name" required maxLength={80} autoComplete="name" placeholder="ชื่อของคุณ" /></label>}<label className="field">อีเมล<input name="email" type="email" required maxLength={254} autoComplete="email" placeholder="you@example.com" /></label><label className="field">รหัสผ่าน<div className="password-control"><input name="password" aria-label="รหัสผ่าน" type={showPassword ? 'text' : 'password'} required minLength={8} maxLength={256} autoComplete={register ? 'new-password' : 'current-password'} placeholder="อย่างน้อย 8 ตัวอักษร" /><button type="button" aria-label={showPassword ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'} aria-pressed={showPassword} onClick={() => setShowPassword(v => !v)}>{showPassword ? 'ซ่อน' : 'แสดง'}</button></div></label>{error && <p className="error" role="alert">{error}</p>}<button className="btn" type="submit" disabled={busy}>{busy ? 'กำลังดำเนินการ…' : register ? 'สร้างบัญชี' : 'เข้าสู่ระบบ'}<Icon name="arrow" /></button></form><div className="auth-switch">{register ? 'มีบัญชีอยู่แล้ว?' : 'ยังไม่มีบัญชี?'} <button disabled={busy} onClick={() => { setRegister(v => !v); setShowPassword(false); setError(''); }}>{register ? 'เข้าสู่ระบบ' : 'สร้างบัญชีฟรี'}</button></div><p className="footer-note">FOCUS FLASHCARDS · NEX4</p></div></section></main>;
+  return <main className="auth welcome-page">
+    <section className="auth-story welcome-story">
+      <Brand />
+      <div className="welcome-copy"><span className="welcome-tag"><Icon name="decks" />พื้นที่เล็ก ๆ สำหรับความรู้ของคุณ</span>
+        <h1>เปลี่ยนสิ่งที่อ่าน<br />เป็นสิ่งที่<span>จำได้</span></h1>
+        <p>จากโน้ตเลกเชอร์ถึงวันสอบ<br />ให้ focus. ช่วยจัดจังหวะการเรียนรู้ของคุณ</p>
+      </div>
+      <div className="welcome-preview" aria-label="ตัวอย่างการเรียนด้วยแฟลชการ์ด">
+        <div className="preview-top"><span><Icon name="notes" />การเรียนรู้ที่ยั่งยืน</span><span>ตัวอย่างการ์ด</span></div>
+        <span className="preview-label">ลองนึกคำตอบก่อนอ่าน</span><h2>จำให้ได้นานขึ้น<br />เริ่มจากอะไร?</h2>
+        <div className="preview-answer"><Icon name="check" /><p>ลองเรียกความรู้จากความจำ<br /><strong>แล้วกลับมาทบทวนเป็นระยะ</strong></p></div>
+        <div className="preview-footer"><span>ทีละใบ ทีละความเข้าใจ</span><Icon name="arrow" /></div>
+      </div>
+      <div className="welcome-features"><span><Icon name="notes" />สร้างจากโน้ต</span><span><Icon name="review" />ทบทวนตามรอบ</span><span><Icon name="stats" />เห็นความก้าวหน้า</span></div>
+    </section>
+    <section className="auth-form welcome-form" aria-labelledby="auth-heading"><div className="auth-box">
+      <div className="welcome-symbol" aria-hidden="true"><Icon name={register ? 'plus' : 'decks'} /></div>
+      <div className="eyebrow">พื้นที่เรียนรู้ของคุณ</div>
+      <h2 id="auth-heading">{register ? 'เริ่มต้นบทใหม่ของคุณ' : 'ยินดีต้อนรับกลับมา'}</h2>
+      <p className="muted small">{register ? 'สร้างบัญชีเพื่อเก็บชุดการ์ดและความก้าวหน้าของคุณ' : 'ความรู้ที่สะสมไว้ รอให้คุณกลับมาเรียนรู้ต่อ'}</p>
+      <form onSubmit={submit} aria-busy={busy}>
+        {register && <label className="field">ชื่อที่อยากให้เราเรียก<input name="name" required maxLength={80} autoComplete="name" placeholder="ชื่อของคุณ" disabled={busy} /></label>}
+        <label className="field">อีเมล<input name="email" type="email" required maxLength={254} autoComplete="email" placeholder="you@example.com" disabled={busy} /></label>
+        <div className="field auth-password"><label htmlFor="auth-password">รหัสผ่าน</label><div className="password-control"><input id="auth-password" name="password" type={showPassword ? 'text' : 'password'} required minLength={8} maxLength={256} autoComplete={register ? 'new-password' : 'current-password'} placeholder={register ? 'ตั้งรหัสผ่านอย่างน้อย 8 ตัวอักษร' : 'กรอกรหัสผ่านของคุณ'} disabled={busy} /><button type="button" disabled={busy} aria-label={showPassword ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'} aria-pressed={showPassword} onClick={() => setShowPassword(v => !v)}>{showPassword ? 'ซ่อน' : 'แสดง'}</button></div></div>
+        {error && <p className="error" role="alert">{error}</p>}
+        <button className="btn" type="submit" disabled={busy}>{busy ? 'กำลังดำเนินการ…' : register ? 'สร้างบัญชี' : 'เข้าสู่ระบบ'}<Icon name="arrow" /></button>
+      </form>
+      <div className="auth-switch">{register ? 'มีบัญชีอยู่แล้ว?' : 'ยังไม่มีบัญชี?'} <button disabled={busy} onClick={() => { setRegister(v => !v); setShowPassword(false); setError(''); }}>{register ? 'เข้าสู่ระบบ' : 'สร้างบัญชีฟรี'}</button></div>
+      <p className="welcome-note"><Icon name="decks" />ชุดการ์ด โน้ต และความก้าวหน้า ในบัญชีเดียว</p>
+      <p className="footer-note">FOCUS FLASHCARDS · เรียนรู้ในจังหวะของคุณ</p>
+    </div></section>
+  </main>;
 }
