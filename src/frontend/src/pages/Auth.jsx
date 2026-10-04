@@ -8,11 +8,17 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
   async function submit(event) {
     event.preventDefault(); if (busy) return; setBusy(true); setError('');
     const data = Object.fromEntries(new FormData(event.currentTarget));
-    try { await api(register ? '/register' : '/login', 'POST', data); const me = await api('/me'); setAi(me.ai); setUser(me.user); }
-    catch (e) { setError(e.message); } finally { setBusy(false); }
+    try {
+      if (!authenticated) { await api(register ? '/register' : '/login', 'POST', data); setAuthenticated(true); }
+      const me = await api('/me'); setAi(me.ai); setUser(me.user);
+    } catch (e) {
+      if (e.status === 401) setAuthenticated(false);
+      setError(e.message);
+    } finally { setBusy(false); }
   }
   return <main className="auth welcome-page">
     <section className="auth-story welcome-story">
@@ -35,13 +41,16 @@ export default function Auth() {
       <h2 id="auth-heading">{register ? 'เริ่มต้นบทใหม่ของคุณ' : 'ยินดีต้อนรับกลับมา'}</h2>
       <p className="muted small">{register ? 'สร้างบัญชีเพื่อเก็บชุดการ์ดและความก้าวหน้าของคุณ' : 'ความรู้ที่สะสมไว้ รอให้คุณกลับมาเรียนรู้ต่อ'}</p>
       <form onSubmit={submit} aria-busy={busy}>
+        {authenticated && <p className="notice" role="status">ยืนยันบัญชีแล้ว แต่ยังเปิดข้อมูลไม่สำเร็จ กดลองอีกครั้งได้โดยไม่ต้องสมัครหรือเข้าสู่ระบบซ้ำ</p>}
+        <fieldset className="auth-fields" disabled={authenticated || busy}>
         {register && <label className="field">ชื่อที่อยากให้เราเรียก<input name="name" required maxLength={80} autoComplete="name" placeholder="ชื่อของคุณ" disabled={busy} /></label>}
         <label className="field">อีเมล<input name="email" type="email" required maxLength={254} autoComplete="email" placeholder="you@example.com" disabled={busy} /></label>
         <div className="field auth-password"><label htmlFor="auth-password">รหัสผ่าน</label><div className="password-control"><input id="auth-password" name="password" type={showPassword ? 'text' : 'password'} required minLength={8} maxLength={256} autoComplete={register ? 'new-password' : 'current-password'} placeholder={register ? 'ตั้งรหัสผ่านอย่างน้อย 8 ตัวอักษร' : 'กรอกรหัสผ่านของคุณ'} disabled={busy} /><button type="button" disabled={busy} aria-label={showPassword ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'} aria-pressed={showPassword} onClick={() => setShowPassword(v => !v)}>{showPassword ? 'ซ่อน' : 'แสดง'}</button></div></div>
+        </fieldset>
         {error && <p className="error" role="alert">{error}</p>}
-        <button className="btn" type="submit" disabled={busy}>{busy ? 'กำลังดำเนินการ…' : register ? 'สร้างบัญชี' : 'เข้าสู่ระบบ'}<Icon name="arrow" /></button>
+        <button className="btn" type="submit" disabled={busy}>{busy ? 'กำลังดำเนินการ…' : authenticated ? 'ลองเปิดบัญชีอีกครั้ง' : register ? 'สร้างบัญชี' : 'เข้าสู่ระบบ'}<Icon name="arrow" /></button>
       </form>
-      <div className="auth-switch">{register ? 'มีบัญชีอยู่แล้ว?' : 'ยังไม่มีบัญชี?'} <button disabled={busy} onClick={() => { setRegister(v => !v); setShowPassword(false); setError(''); }}>{register ? 'เข้าสู่ระบบ' : 'สร้างบัญชีฟรี'}</button></div>
+      <div className="auth-switch">{register ? 'มีบัญชีอยู่แล้ว?' : 'ยังไม่มีบัญชี?'} <button disabled={busy || authenticated} onClick={() => { setRegister(v => !v); setShowPassword(false); setError(''); }}>{register ? 'เข้าสู่ระบบ' : 'สร้างบัญชีฟรี'}</button></div>
       <p className="welcome-note"><Icon name="decks" />ชุดการ์ด โน้ต และความก้าวหน้า ในบัญชีเดียว</p>
       <p className="footer-note">FOCUS FLASHCARDS · เรียนรู้ในจังหวะของคุณ</p>
     </div></section>

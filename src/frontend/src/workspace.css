@@ -1,4 +1,5 @@
 /* Shared presentation layer for all learning, management and account screens. */
+.auth-fields { border:0; padding:0; margin:0; min-width:0; }
 .search-field { flex:1; min-width:180px; position:relative; }
 .search-field input { padding-right:65px; }
 .search-field input::-webkit-search-cancel-button { display:none; }
