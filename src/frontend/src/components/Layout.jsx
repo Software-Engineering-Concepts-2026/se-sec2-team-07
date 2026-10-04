@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useApp } from '../context';
 import { api } from '../api';
 import { Brand, Icon } from './UI';
@@ -76,7 +76,7 @@ function WorkspaceLayout() {
         <div className="mobile-brand"><Brand /></div>
         <div className="row topbar-meta"><span className="status">พื้นที่เรียนรู้ของคุณ</span><time dateTime={localDate}>วันนี้ {today}</time>{logoutButton}</div>
       </header>
-      <div className="content"><PomodoroBanner /><Outlet /></div>
+      <div className="content"><PomodoroBanner /><Suspense fallback={<div className="loading" role="status">กำลังเปิดหน้า…</div>}><Outlet /></Suspense></div>
     </main>
   </>;
 }

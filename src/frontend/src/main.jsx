@@ -1,19 +1,19 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
 import App from './App';
 import Layout from './components/Layout';
-import Dashboard from './pages/Dashboard';
-import Library from './pages/Library';
-import Editor from './pages/Editor';
-import Review from './pages/Review';
-import Schedule from './pages/Schedule';
-import Courses from './pages/Courses';
-import CourseDetail from './pages/CourseDetail';
-import Notes from './pages/Notes';
-import Statistics from './pages/Statistics';
-import Export from './pages/Export';
-import Archive from './pages/Archive';
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Library = lazy(() => import('./pages/Library'));
+const Editor = lazy(() => import('./pages/Editor'));
+const Review = lazy(() => import('./pages/Review'));
+const Schedule = lazy(() => import('./pages/Schedule'));
+const Courses = lazy(() => import('./pages/Courses'));
+const CourseDetail = lazy(() => import('./pages/CourseDetail'));
+const Notes = lazy(() => import('./pages/Notes'));
+const Statistics = lazy(() => import('./pages/Statistics'));
+const Export = lazy(() => import('./pages/Export'));
+const Archive = lazy(() => import('./pages/Archive'));
 import PomodoroPage from './pomodoro';
 import './style.css';
 import './workspace.css';
@@ -35,4 +35,4 @@ const router = createHashRouter([{ element: <App />, children: [{ element: <Layo
   { path: '/archive', element: <Archive /> },
   { path: '*', element: <Navigate to="/" replace /> },
 ] }] }]);
-createRoot(document.getElementById('root')).render(<RouterProvider router={router} />);
+createRoot(document.getElementById('root')).render(<Suspense fallback={<div className="loading" role="status">กำลังเปิดหน้า…</div>}><RouterProvider router={router} /></Suspense>);
