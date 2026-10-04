@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { useBlocker } from 'react-router-dom';
 import { useApp } from '../context';
 export function useUnsavedChanges(dirtyRef) {
-  const { confirm } = useApp();
+  const { confirm, registerDraft } = useApp();
+  useEffect(() => registerDraft(dirtyRef), [registerDraft, dirtyRef]);
   const blocker = useBlocker(() => dirtyRef.current);
   useEffect(() => {
     if (blocker.state !== 'blocked') return;

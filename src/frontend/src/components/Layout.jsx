@@ -32,10 +32,17 @@ export default function Layout() {
 }
 
 function WorkspaceLayout() {
-  const { user, setUser, notify } = useApp();
+  const { user, setUser, notify, confirm, hasUnsavedDraft } = useApp();
   const { pathname } = useLocation();
   const [busy, setBusy] = useState(false);
-  async function logout() { setBusy(true); try { await api('/logout', 'POST', {}); setUser(null); } catch (e) { notify(e.message); } finally { setBusy(false); } }
+  async function logout() {
+    if (busy) return;
+    setBusy(true);
+    try {
+      if (hasUnsavedDraft() && !await confirm('ออกจากระบบโดยไม่บันทึก?', 'มีร่างที่ยังไม่ได้บันทึก หากออกจากระบบร่างนี้จะหายไป เลือกยกเลิกเพื่อกลับไปบันทึกก่อน')) return;
+      await api('/logout', 'POST', {}); setUser(null);
+    } catch (e) { notify(e.message); } finally { setBusy(false); }
+  }
   const logoutButton = <button className="logout" disabled={busy} onClick={logout} aria-label="ออกจากระบบ" title="ออกจากระบบ"><Icon name="logout" /></button>;
   const pageTitle = getPageTitle(pathname);
   useEffect(() => {
