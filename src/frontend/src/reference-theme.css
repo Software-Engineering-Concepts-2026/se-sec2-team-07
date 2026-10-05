@@ -217,3 +217,19 @@ input::placeholder,textarea::placeholder { color:#6d647c; opacity:1; }
 .focus-steps p { color:#5d4e39; }
 .focus-reminder,.focus-help .editor-step,.focus-phase .current { color:#56318b; }
 .badge,.editor-step,.face-label { color:#56318b; }
+
+.weekly-activity { display:flex; flex-direction:column; gap:20px; }
+.weekly-heading { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px 16px; }
+.weekly-heading h2 { margin:0; font-size:21px; }
+.weekly-heading > span { color:var(--muted); font-size:14px; }
+.weekly-summary { margin:0; display:flex; align-items:baseline; gap:12px; color:var(--muted); font-size:16px; }
+.weekly-summary strong { color:var(--ink); font-size:30px; font-variant-numeric:tabular-nums; }
+.weekly-summary strong span { font-size:16px; font-weight:500; color:var(--muted); }
+.weekly-activity .week-dots { margin:4px 0; }
+.weekly-activity .week-dots small { color:var(--muted); }
+.weekly-encouragement { margin:0; padding:16px 18px; background:#f2edff; border-radius:12px; color:#514164; font-size:15px; line-height:1.7; }
+.weekly-footer { margin-top:auto; padding-top:14px; border-top:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:14px; }
+.weekly-legend { display:inline-flex; align-items:center; gap:8px; color:var(--muted); }
+.weekly-legend i { width:10px; height:10px; border:1px solid #22694f; border-radius:50%; background:var(--mint); }
+.weekly-footer a { color:#56318b; font-weight:600; padding-block:8px; }
+@media(max-width:480px) { .weekly-heading h2 { font-size:20px; } .weekly-activity { gap:16px; } }
