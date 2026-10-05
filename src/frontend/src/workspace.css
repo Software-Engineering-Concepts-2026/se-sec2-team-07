@@ -199,8 +199,8 @@ tbody tr:hover { background:#fcfaff; }
 .auth-story h1 { font-size:clamp(32px,3.5vw,48px); }
 .auth-story p { color:#6b587b; font-size:16px; }
 .password-control { position:relative; }
-.password-control input { padding-right:90px; }
-.password-control button { position:absolute; right:6px; top:4px; bottom:4px; min-width:72px; border:0; border-radius:7px; background:#f4effa; color:#62467c; font-size:13px; }
+.password-control input { padding-right:58px; }
+.password-control button { position:absolute; right:6px; top:4px; bottom:4px; width:44px; min-width:44px; display:grid; place-items:center; border:0; border-radius:7px; background:#f4effa; color:#62467c; font-size:13px; }
 dialog { padding:28px; box-shadow:0 24px 80px #26123430; }
 dialog h2 { font-size:22px; }
 dialog .row { flex-wrap:wrap; gap:10px; }

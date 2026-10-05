@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { api } from '../api';
 import { useApp } from '../context';
 import { Brand, Icon } from '../components/UI';
@@ -45,7 +46,7 @@ export default function Auth() {
         <fieldset className="auth-fields" disabled={authenticated || busy}>
         {register && <label className="field">ชื่อที่อยากให้เราเรียก<input name="name" required maxLength={80} autoComplete="name" placeholder="ชื่อของคุณ" disabled={busy} /></label>}
         <label className="field">อีเมล<input name="email" type="email" required maxLength={254} autoComplete="email" placeholder="you@example.com" disabled={busy} /></label>
-        <div className="field auth-password"><label htmlFor="auth-password">รหัสผ่าน</label><div className="password-control"><input id="auth-password" name="password" type={showPassword ? 'text' : 'password'} required minLength={8} maxLength={256} autoComplete={register ? 'new-password' : 'current-password'} placeholder={register ? 'ตั้งรหัสผ่านอย่างน้อย 8 ตัวอักษร' : 'กรอกรหัสผ่านของคุณ'} disabled={busy} /><button type="button" disabled={busy} aria-label={showPassword ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'} aria-pressed={showPassword} onClick={() => setShowPassword(v => !v)}>{showPassword ? 'ซ่อน' : 'แสดง'}</button></div></div>
+        <div className="field auth-password"><label htmlFor="auth-password">รหัสผ่าน</label><div className="password-control"><input id="auth-password" name="password" type={showPassword ? 'text' : 'password'} required minLength={8} maxLength={256} autoComplete={register ? 'new-password' : 'current-password'} placeholder={register ? 'ตั้งรหัสผ่านอย่างน้อย 8 ตัวอักษร' : 'กรอกรหัสผ่านของคุณ'} disabled={busy} /><button type="button" disabled={busy} aria-label={showPassword ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'} aria-pressed={showPassword} onClick={() => setShowPassword(v => !v)}>{showPassword ? <EyeOff size={20} aria-hidden="true" /> : <Eye size={20} aria-hidden="true" />}</button></div></div>
         </fieldset>
         {error && <p className="error" role="alert">{error}</p>}
         <button className="btn" type="submit" disabled={busy}>{busy ? 'กำลังดำเนินการ…' : authenticated ? 'ลองเปิดบัญชีอีกครั้ง' : register ? 'สร้างบัญชี' : 'เข้าสู่ระบบ'}<Icon name="arrow" /></button>
