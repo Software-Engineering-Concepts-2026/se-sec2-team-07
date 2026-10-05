@@ -59,6 +59,21 @@ test('Issue #3: extract notes, preserve drafts on file and AI errors, retry and 
     await expect(questions).toHaveCount(2);
     await expect(answers.nth(0)).toHaveValue('LIFO');
 
+    await page.route('**/api/extract', route => route.fulfill({ json: { text: source, ocrPages: [1, 2], requiresReview: true } }));
+    await upload.setInputFiles({ name: 'scan.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-test') });
+    const generate = page.getByRole('button', { name: /สร้างการ์ดจากเนื้อหา/ });
+    const reviewed = page.getByRole('checkbox', { name: 'ฉันตรวจและแก้ไขข้อความแล้ว' });
+    await expect(reviewed).toBeVisible();
+    await expect(generate).toBeDisabled();
+    await reviewed.check();
+    await expect(generate).toBeEnabled();
+    await notes.fill(source + ' edited');
+    await expect(reviewed).not.toBeChecked();
+    await expect(generate).toBeDisabled();
+    await notes.fill(source);
+    await reviewed.check();
+    await page.unroute('**/api/extract');
+
     let attempts = 0;
     await page.route('**/api/generate', async route => {
       expect(route.request().postDataJSON()).toEqual({ text: source, count: 10, mode: 'ai', language: 'Thai', level: 'intermediate' });
