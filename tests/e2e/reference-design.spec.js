@@ -10,6 +10,21 @@ test('reference design keeps routes usable and mobile navigation accessible', as
   try {
     await page.goto('/');
     await expect(page.getByLabel('รหัสผ่าน', { exact: true })).toBeVisible();
+    const password = page.getByLabel('รหัสผ่าน', { exact: true });
+    await password.fill('TestPassword123');
+    await page.getByRole('button', { name: 'แสดงรหัสผ่าน', exact: true }).click();
+    await expect(password).toHaveAttribute('type', 'text');
+    await expect(page.getByRole('button', { name: 'ซ่อนรหัสผ่าน', exact: true })).toHaveText('');
+    await page.getByRole('tab', { name: 'สมัครใหม่', exact: true }).click();
+    await expect(page.getByLabel('ชื่อที่อยากให้เราเรียก')).toBeVisible();
+    await expect(password).toHaveAttribute('type', 'password');
+    await page.getByRole('tab', { name: 'เข้าสู่ระบบ', exact: true }).click();
+    await expect(page.getByLabel('ชื่อที่อยากให้เราเรียก')).toHaveCount(0);
+    await page.getByRole('tab', { name: 'เข้าสู่ระบบ', exact: true }).press('ArrowRight');
+    await expect(page.getByRole('tab', { name: 'สมัครใหม่', exact: true })).toBeFocused();
+    await page.getByRole('tab', { name: 'สมัครใหม่', exact: true }).press('ArrowLeft');
+    await expect(page.getByRole('tab', { name: 'เข้าสู่ระบบ', exact: true })).toHaveAttribute('aria-selected', 'true');
+    await password.fill('');
     await page.screenshot({ path: `.local/ref-auth-${info.project.name}.png`, fullPage: true });
     const registered = await page.request.post('/api/register', { data: { name: 'UX review', email, password: 'TestPassword123' } });
     expect(registered.ok()).toBeTruthy();
