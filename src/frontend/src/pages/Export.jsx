@@ -62,6 +62,7 @@ export default function Export() {
   if (!decks) return <div className="loading">กำลังเปิดรายการสำหรับส่งออก…</div>;
   return <>
     <PageTitle eyebrow="YOUR LEARNING PORTFOLIO" title="ส่งออกผลงาน" subtitle="รวบรวมชุดการ์ดและการทบทวนไว้เป็นไฟล์ของคุณ" />
+    {!decks.length && <section className="export-steps"><h2>ส่งออกได้ใน 3 ขั้น</h2><div className="start-options">{[['เลือกชุดการ์ด', 'เลือกได้สูงสุด 20 ชุดต่อไฟล์'], ['เลือกข้อมูล', 'เนื้อหาการ์ดและสรุปการเรียนรู้'], ['เลือกรูปแบบไฟล์', 'HTML สำหรับอ่าน · JSON สำหรับใช้ข้อมูลต่อ']].map(([title, detail], i) => <article className="panel" key={title}><span className="badge">{i + 1}</span><h3>{title}</h3><p>{detail}</p></article>)}</div></section>}
     {!decks.length ? <Empty title="ยังไม่มีชุดการ์ดให้ส่งออก"><p>สร้างและบันทึกชุดการ์ดก่อน แล้วกลับมาเลือกผลงานที่ต้องการ</p><Link className="btn" to="/create"><Icon name="plus" />สร้างชุดการ์ด</Link></Empty> :
       <form className="export-layout" onSubmit={exportFile} aria-busy={busy}>
         <fieldset className="panel export-section" disabled={busy}>
