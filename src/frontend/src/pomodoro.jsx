@@ -67,13 +67,11 @@ export function PomodoroBanner() {
   const timer = useContext(PomodoroContext);
   const { pathname } = useLocation();
   if (!timer || pathname === '/pomodoro' || (!timer.started && !timer.message && timer.phase === 'focus')) return null;
-  return <aside className="notice pomodoro-banner" aria-label="สถานะ Pomodoro">
-    <div className="row between">
-      <Link to="/pomodoro"><strong>Pomodoro · {phaseName(timer.phase)} · <span aria-live="off">{clockText(timer.remaining)}</span></strong></Link>
-      <span>{timer.running ? 'กำลังจับเวลา' : timer.started ? 'หยุดชั่วคราว' : 'พร้อมเริ่ม'}</span>
-    </div>
+  return <aside className="pomodoro-float" aria-label="สถานะ Pomodoro">
+    <div className="pomodoro-float-heading"><Link to="/pomodoro"><Icon name="clock" />Pomodoro</Link><span>{phaseName(timer.phase)}</span></div>
+    <div className="pomodoro-float-controls"><div><strong role="timer" aria-label="เวลา Pomodoro ที่เหลือ" aria-live="off">{clockText(timer.remaining)}</strong><small>{timer.running ? 'กำลังจับเวลา' : timer.started ? 'หยุดชั่วคราว' : 'พร้อมเริ่ม'}</small></div><button className="btn" onClick={timer.running ? timer.pause : timer.start}>{timer.running ? 'หยุดชั่วคราว' : timer.started ? 'เริ่มต่อ' : 'เริ่มจับเวลา'}</button></div>
     {timer.message && <p role="status">{timer.message}</p>}
-    {timer.phase === 'break' && <p><Link to="/review">ทบทวน Flashcards ช่วงพัก →</Link></p>}
+    {timer.phase === 'break' && <Link className="pomodoro-float-link" to="/review">ทบทวน Flashcards ช่วงพัก →</Link>}
   </aside>;
 }
 

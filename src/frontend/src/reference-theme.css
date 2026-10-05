@@ -233,3 +233,17 @@ input::placeholder,textarea::placeholder { color:#6d647c; opacity:1; }
 .weekly-legend i { width:10px; height:10px; border:1px solid #22694f; border-radius:50%; background:var(--mint); }
 .weekly-footer a { color:#56318b; font-weight:600; padding-block:8px; }
 @media(max-width:480px) { .weekly-heading h2 { font-size:20px; } .weekly-activity { gap:16px; } }
+
+/* Persistent controls stay visible while navigating and scrolling. */
+.pomodoro-float { position:fixed; right:24px; bottom:24px; width:280px; z-index:45; padding:16px; background:white; color:var(--ink); border:2px solid var(--ink); border-radius:18px; box-shadow:0 5px 0 var(--ink); }
+.pomodoro-float-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+.pomodoro-float-heading a { display:flex; align-items:center; gap:7px; font-weight:700; font-size:14px; }
+.pomodoro-float-heading > span { font-size:12px; color:#56318b; background:#eee7ff; border-radius:6px; padding:3px 7px; }
+.pomodoro-float-controls { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.pomodoro-float-controls strong { display:block; font-size:30px; line-height:1.2; font-variant-numeric:tabular-nums; }
+.pomodoro-float-controls small { display:block; font-size:12px; margin-top:5px; color:var(--muted); }
+.pomodoro-float-controls .btn { font-size:14px; padding:10px 12px; }
+.pomodoro-float p { font-size:13px; margin:12px 0 0; }
+.pomodoro-float-link { display:block; font-size:13px; margin-top:12px; color:#56318b; }
+.content:has(.pomodoro-float) { padding-bottom:240px; }
+@media(max-width:760px) { .pomodoro-float { right:12px; bottom:calc(88px + env(safe-area-inset-bottom)); width:260px; max-width:calc(100vw - 24px); padding:12px; } .content:has(.pomodoro-float) { padding-bottom:330px; } }
