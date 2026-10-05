@@ -47,3 +47,16 @@ test('AI endpoint configuration rejects unsafe URLs and unknown protocols', () =
   for (const url of ['http://example.com', 'https://user:pass@example.com', 'https://example.com?key=x']) assert.throws(() => readAiConfig({ OPENAI_BASE_URL: url }));
   assert.throws(() => readAiConfig({ OPENAI_API_MODE: 'unknown' }));
 });
+
+ test('vocabulary format takes precedence over comparison and analysis at every level', async () => {
+  for (const level of ['beginner', 'intermediate', 'advanced']) {
+    await generate({ ...input, level, text: 'Vocab Meaning\nbest ดีที่สุด\nbetter ดีกว่า' }, config, async (url, options) => {
+      const instructions = JSON.parse(options.body).messages[0].content;
+      assert.match(instructions, /one separate card per term/);
+      assert.match(instructions, /Never combine terms, compare terms/);
+      assert.match(instructions, /takes priority over ALL difficulty instructions/);
+      assert.match(instructions, /Only for non-vocabulary study material apply/);
+      return { ok: true, json: async () => ({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ cards: [{ front: 'best', back: 'ดีที่สุด' }] }) } }] }) };
+    });
+  }
+});
