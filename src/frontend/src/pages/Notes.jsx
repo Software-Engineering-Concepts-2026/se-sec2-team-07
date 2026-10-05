@@ -15,12 +15,13 @@ const blank = () => ({ title: '', body: '' });
 export default function Notes() {
   const { confirm, notify } = useApp(), [params, setParams] = useSearchParams();
   const [notes, setNotes] = useState([]), [draft, setDraft] = useState(blank), [editing, setEditing] = useState(null);
+  const [conflict, setConflict] = useState(false);
   const [actionError, setActionError] = useState(''), [busy, setBusy] = useState(false), [query, setQuery] = useState('');
   const dirty = useRef(false), inFlight = useRef(false); useUnsavedChanges(dirty);
   const target = params.get('edit');
   const mutation = useRetryableSave(target || 'new-note');
   useEffect(() => {
-    dirty.current = false; setEditing(null); setDraft(blank()); setActionError('');
+    dirty.current = false; setEditing(null); setDraft(blank()); setActionError(''); setConflict(false);
   }, [target]);
   const sync = useRemoteSync({ resource: `notes:${target}`,
     blocked: () => dirty.current || inFlight.current || mutation.uncertain,
@@ -42,13 +43,13 @@ export default function Notes() {
   }
   function change(key, value) { dirty.current = true; setDraft(d => ({ ...d, [key]: value })); }
   async function run(action) {
-    if (inFlight.current) return; inFlight.current = true; setBusy(true); setActionError('');
-    try { await action(); } catch (e) { setActionError(e.message); } finally { inFlight.current = false; setBusy(false); }
+    if (inFlight.current) return; inFlight.current = true; setBusy(true); setActionError(''); setConflict(false);
+    try { await action(); } catch (e) { setConflict(e.status === 409); setActionError(e.message); } finally { inFlight.current = false; setBusy(false); }
   }
   async function refresh() { const data = await api('/notes'); setNotes(data.notes); }
   async function select(note) {
     if (dirty.current && !await confirm('เปลี่ยนโน้ตที่กำลังแก้ไข?', 'ข้อความที่ยังไม่ได้บันทึกจะหายไป')) return;
-    dirty.current = false; setEditing(note); setDraft(note ? { title: note.title, body: note.body } : blank()); setActionError(''); setParams(note ? { edit: note.id } : {}); requestAnimationFrame(() => document.getElementById('note-title')?.focus());
+    dirty.current = false; setEditing(note); setDraft(note ? { title: note.title, body: note.body } : blank()); setActionError(''); setConflict(false); setParams(note ? { edit: note.id } : {}); requestAnimationFrame(() => document.getElementById('note-title')?.focus());
   }
   async function save(event) {
     event.preventDefault(); if (busy) return;
@@ -74,7 +75,7 @@ export default function Notes() {
     });
   }
   const filtered = notes.filter(note => `${note.title} ${note.body}`.toLowerCase().includes(query.trim().toLowerCase()));
-  return <><PageTitle eyebrow="SHARED NOTES" title="คลังโน้ต" subtitle="เอกสารและโน้ตในที่เดียว ค้นหาและเปิดอ่านได้ทุกเมื่อ"><Link to="/courses" className="btn secondary">รายวิชาของฉัน</Link></PageTitle><SyncStatus sync={sync} paused={dirty.current} reload={reload} disabled={busy || mutation.uncertain} />
+  return <><PageTitle eyebrow="SHARED NOTES" title="คลังโน้ต" subtitle="เอกสารและโน้ตในที่เดียว ค้นหาและเปิดอ่านได้ทุกเมื่อ"><Link to="/courses" className="btn secondary">รายวิชาของฉัน</Link></PageTitle><SyncStatus sync={sync} recoveryError={conflict ? actionError : undefined} paused={dirty.current} reload={reload} disabled={busy || mutation.uncertain} />
     <div className="toolbar"><SearchField label="ค้นหาโน้ต" placeholder="ค้นหาเอกสารหรือโน้ตจากชื่อและเนื้อหา…" value={query} onChange={setQuery} /></div>
     <nav className="note-shortcuts" aria-label="ทางลัดคลังโน้ต"><a href="#note-title" onClick={e => { e.preventDefault(); document.getElementById('note-title')?.focus(); }}>เขียนโน้ต ↓</a><a href="#saved-notes" onClick={e => { e.preventDefault(); document.getElementById('saved-notes')?.focus(); }}>ดูโน้ตที่บันทึก ({notes.length}) ↓</a></nav><Documents query={query} />
     <form className="panel note-editor" onSubmit={save}><h2>{editing ? 'แก้ไขโน้ตต้นฉบับ' : 'สร้างโน้ต'}</h2>{editing && <><CourseLinks courses={editing.courses} />{editing.courses?.length > 0 && <p role="note">การแก้ไขมีผลกับทุกวิชาที่เชื่อม ระบบจะให้ยืนยันก่อนบันทึก</p>}</>}
