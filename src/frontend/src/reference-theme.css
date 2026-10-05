@@ -168,3 +168,52 @@ input,textarea,select { line-height:1.65; }
 .welcome-form .password-control button:hover { background:#eee7ff; }
 .welcome-form form > .btn { width:100%; min-height:56px; border:2px solid var(--ink); border-radius:15px; box-shadow:0 5px 0 var(--ink); font-size:16px; }
 @media(max-width:480px) { .welcome-form .auth-box { padding:26px 22px; } .welcome-form #auth-heading { font-size:25px; } }
+
+/* Readable type scale and semantic foregrounds across the workspace. */
+:root { font-size:16px; --muted:#605770; }
+body { font-size:16px; }
+.small,small,.page-title p,.notice,.session-note,.stats-note,.deck-card p,.field,label,table { font-size:14px; line-height:1.75; }
+.muted,.page-title p,.deck-card p,.stats-note,.session-note { color:var(--muted); }
+input:not([type=checkbox]):not([type=radio]),textarea,select,.btn { font-size:16px; }
+input::placeholder,textarea::placeholder { color:#6d647c; opacity:1; }
+.eyebrow,.nav-caption,.editor-step,.badge,.pill,.footer-note { font-size:13px; line-height:1.6; letter-spacing:0; }
+.page-title h1 { font-size:32px; } h2 { font-size:23px; } h3 { font-size:19px; }
+.nav a { font-size:14px; } .nav-caption { color:#c5bdd8; }
+.sidebar .user-name { font-size:14px; } .sidebar-profile-copy .small { font-size:12px; color:#c5bdd8; }
+.sidebar .user { gap:8px; } .sidebar .muted { color:#c5bdd8; }
+.desktop-label,.topbar-meta,.search-clear { font-size:14px; }
+.metric .label,.metric small,.mission small,.week-dots small,.start-option p,.start-option strong,.export-steps p { font-size:14px; line-height:1.7; }
+.metric .label,.metric small { color:#40364f; }
+.dashboard-start .mission strong { font-size:16px; } .mission small { color:#605770; }
+.start-option p,.start-option strong { color:var(--ink); }
+.hero p,.welcome-story .welcome-copy p,.welcome-tag,.welcome-features { color:#f3edff; }
+.hero .pill { color:var(--ink); } .hero .btn { color:var(--ink); }
+.welcome-features span,.preview-top,.preview-label,.preview-footer,.welcome-preview .preview-answer p { font-size:14px; }
+.welcome-preview .preview-answer p { color:#23483a; }
+.welcome-form .field,.welcome-form .auth-box > p { font-size:16px; }
+.notice { color:#514164; } .footer-note { color:#655976; }
+.review-card .face-label,.review-card .hint,.rating small { font-size:14px; color:#60516f; }
+.review-surface .session-note,.review-surface .review-top .muted { color:#f5efff; }
+.review-surface .session-note a { color:white; text-decoration:underline; }
+.focus-phase span,.focus-status,.focus-caption,.focus-steps li,.focus-help p { font-size:15px; }
+.focus-timer .focus-caption,.focus-timer .focus-status { color:#f4efff; }
+.focus-ring .focus-status,.focus-ring-copy .muted { color:#605770; }
+.focus-help .editor-step { color:#573194; }
+.schedule-grid .schedule-day { font-size:15px; min-width:0; overflow-wrap:anywhere; }
+.schedule-grid .schedule-day small { font-size:14px; }
+@media(min-width:1100px) { .schedule-grid { grid-template-columns:repeat(4,minmax(0,1fr)); } }
+@media(min-width:1600px) { .schedule-grid { grid-template-columns:repeat(7,minmax(0,1fr)); } }
+@media(max-width:760px) {
+ .page-title h1 { font-size:28px; } .page-title p,.hero p { font-size:15px; }
+ .metric .label,.metric small { font-size:14px; }
+ .mobile-dock a,.mobile-dock button { font-size:12px; line-height:1.35; }
+ .mobile-dock { gap:2px; padding-inline:4px; }
+ .mobile-dock a,.mobile-dock button { padding-inline:2px; }
+ .welcome-story .welcome-copy p { font-size:14px; }
+ .week-dots { gap:4px; } .week-dots small { font-size:12px; }
+ .review-card .hint { font-size:14px; }
+}
+
+.focus-steps p { color:#5d4e39; }
+.focus-reminder,.focus-help .editor-step,.focus-phase .current { color:#56318b; }
+.badge,.editor-step,.face-label { color:#56318b; }
