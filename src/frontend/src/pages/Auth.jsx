@@ -37,10 +37,9 @@ export default function Auth() {
       <div className="welcome-features"><span><Icon name="notes" />สร้างจากโน้ต</span><span><Icon name="review" />ทบทวนตามรอบ</span><span><Icon name="stats" />เห็นความก้าวหน้า</span></div>
     </section>
     <section className="auth-form welcome-form" aria-labelledby="auth-heading"><div className="auth-box">
-      <div className="welcome-symbol" aria-hidden="true"><Icon name={register ? 'plus' : 'decks'} /></div>
-      <div className="eyebrow">พื้นที่เรียนรู้ของคุณ</div>
+      <div className="auth-mode-switch" role="tablist" aria-label="เลือกเข้าสู่ระบบหรือสมัครใหม่">{[[false, 'เข้าสู่ระบบ'], [true, 'สมัครใหม่']].map(([value, label]) => <button key={label} type="button" role="tab" aria-selected={register === value} tabIndex={register === value ? 0 : -1} onKeyDown={e => { if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) { e.preventDefault(); const next = e.key === 'Home' ? false : e.key === 'End' ? true : !register; setRegister(next); setShowPassword(false); setError(''); e.currentTarget.parentElement.children[next ? 1 : 0].focus(); } }} disabled={busy || authenticated} onClick={() => { setRegister(value); setShowPassword(false); setError(''); }}>{label}</button>)}</div>
       <h2 id="auth-heading">{register ? 'เริ่มต้นบทใหม่ของคุณ' : 'ยินดีต้อนรับกลับมา'}</h2>
-      <p className="muted small">{register ? 'สร้างบัญชีเพื่อเก็บชุดการ์ดและความก้าวหน้าของคุณ' : 'ความรู้ที่สะสมไว้ รอให้คุณกลับมาเรียนรู้ต่อ'}</p>
+      <p className="muted small">{register ? 'สร้างบัญชีเพื่อเก็บชุดการ์ดและความก้าวหน้าของคุณ' : 'เข้าสู่ระบบเพื่อเรียนต่อจากที่ค้างไว้'}</p>
       <form onSubmit={submit} aria-busy={busy}>
         {authenticated && <p className="notice" role="status">ยืนยันบัญชีแล้ว แต่ยังเปิดข้อมูลไม่สำเร็จ กดลองอีกครั้งได้โดยไม่ต้องสมัครหรือเข้าสู่ระบบซ้ำ</p>}
         <fieldset className="auth-fields" disabled={authenticated || busy}>
@@ -51,9 +50,6 @@ export default function Auth() {
         {error && <p className="error" role="alert">{error}</p>}
         <button className="btn" type="submit" disabled={busy}>{busy ? 'กำลังดำเนินการ…' : authenticated ? 'ลองเปิดบัญชีอีกครั้ง' : register ? 'สร้างบัญชี' : 'เข้าสู่ระบบ'}<Icon name="arrow" /></button>
       </form>
-      <div className="auth-switch">{register ? 'มีบัญชีอยู่แล้ว?' : 'ยังไม่มีบัญชี?'} <button disabled={busy || authenticated} onClick={() => { setRegister(v => !v); setShowPassword(false); setError(''); }}>{register ? 'เข้าสู่ระบบ' : 'สร้างบัญชีฟรี'}</button></div>
-      <p className="welcome-note"><Icon name="decks" />ชุดการ์ด โน้ต และความก้าวหน้า ในบัญชีเดียว</p>
-      <p className="footer-note">FOCUS FLASHCARDS · เรียนรู้ในจังหวะของคุณ</p>
     </div></section>
   </main>;
 }
