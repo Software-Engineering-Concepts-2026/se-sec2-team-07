@@ -17,6 +17,7 @@ const Archive = lazy(() => import('./pages/Archive'));
 import PomodoroPage from './pomodoro';
 import './style.css';
 import './workspace.css';
+import './reference-theme.css';
 
 const router = createHashRouter([{ element: <App />, children: [{ element: <Layout />, children: [
   { path: '/', element: <Dashboard /> },
