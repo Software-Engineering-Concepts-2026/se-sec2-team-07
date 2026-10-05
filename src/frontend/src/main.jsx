@@ -15,6 +15,8 @@ const Statistics = lazy(() => import('./pages/Statistics'));
 const Export = lazy(() => import('./pages/Export'));
 const Archive = lazy(() => import('./pages/Archive'));
 import PomodoroPage from './pomodoro';
+import '@fontsource-variable/noto-sans-thai/wght.css';
+import '@fontsource-variable/inter/wght.css';
 import './style.css';
 import './workspace.css';
 import './reference-theme.css';

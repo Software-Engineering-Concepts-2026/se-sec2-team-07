@@ -139,3 +139,16 @@ input:focus,textarea:focus,select:focus { border-color:var(--purple); outline-co
 .sidebar-profile-copy .small { font-size:11px; line-height:1.4; white-space:nowrap; }
 .sidebar .user .logout { width:36px; height:36px; min-width:36px; padding:0; margin:0; display:grid; place-items:center; border:1px solid transparent; border-radius:9px; background:transparent; }
 .sidebar .user .logout:hover { background:#352a50; border-color:#514367; color:white; }
+
+/* Locally served variable fonts keep Thai and Latin consistent across devices. */
+:root { font-family:'Inter Variable','Noto Sans Thai Variable',Tahoma,sans-serif; font-size:15px; line-height:1.65; font-synthesis:none; }
+body,button,input,textarea,select { font-family:inherit; }
+h1,h2,h3 { line-height:1.4; letter-spacing:0; }
+.page-title h1,.welcome-story .welcome-copy h1 { letter-spacing:0; }
+.btn,.nav a { font-weight:600; }
+p { line-height:1.8; }
+.field,label { line-height:1.6; }
+input,textarea,select { line-height:1.65; }
+.card-text { line-height:1.65; }
+.pomodoro-clock,.metric strong,.timer { font-variant-numeric:tabular-nums; }
+@media(max-width:760px) { input,textarea,select { font-size:16px; } }
