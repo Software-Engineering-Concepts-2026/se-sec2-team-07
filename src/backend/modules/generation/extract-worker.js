@@ -1,3 +1,4 @@
+import { extractPdf } from './pdf-ocr.js';
 import { extname } from 'node:path';
 import { unzipSync, strFromU8 } from 'fflate';
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
@@ -8,6 +9,7 @@ async function extract({ name, content }) {
   const raw = Buffer.from(content, 'base64');
   if (raw.length > 20 * 1024 * 1024) throw Error('ไฟล์ต้องไม่เกิน 20 MB');
   let text;
+  let ocrPages = [];
   const extension = extname(name).toLowerCase();
   if (['.txt', '.md'].includes(extension)) {
     try { text = new TextDecoder('utf-8', { fatal: true }).decode(raw); }
@@ -19,7 +21,7 @@ async function extract({ name, content }) {
     try {
       const info = await parser.getInfo();
       if (info.total > 100) throw Error('รองรับ PDF ไม่เกิน 100 หน้า');
-      text = (await parser.getText({ pageJoiner: '' })).text;
+      ({ text, ocrPages } = await extractPdf(parser));
     } finally { await parser.destroy(); }
   } else if (extension === '.pptx') {
     let total = 0;
@@ -48,9 +50,9 @@ async function extract({ name, content }) {
   text = text.trim();
   if (text.length < 10) throw Error('ไม่พบข้อความในไฟล์ อาจเป็นภาพสแกน กรุณาวางข้อความแทน');
   if (text.length > 60000) throw Error('ข้อความเกิน 60,000 ตัวอักษร กรุณาแบ่งเอกสารเป็นส่วนย่อย');
-  return text;
+  return { text, ocrPages };
 }
 process.once('message', async input => {
-  try { process.send({ type: 'focus:extract-result', text: await extract(input) }); }
+  try { process.send({ type: 'focus:extract-result', ...await extract(input) }); }
   catch (error) { process.send({ type: 'focus:extract-result', error: error.message || 'อ่านไฟล์ไม่สำเร็จ' }); }
 });
