@@ -252,3 +252,8 @@ dialog .row { flex-wrap:wrap; gap:10px; }
 .creation-simple .generate-action { width: 100%; min-height: 52px; }
 .creation-simple .creation-review { gap: 16px; }
 .creation-simple .deck-summary > .btn { min-height: 52px; }
+
+.ocr-review-check { display:flex; align-items:center; gap:10px; min-height:44px; padding:8px 0; cursor:pointer; line-height:1.6; }
+.ocr-review-check input[type="checkbox"] { width:20px; height:20px; min-height:0; flex:0 0 20px; margin:0; padding:0; accent-color:var(--purple); }
+.ocr-review-check input:focus-visible { outline:3px solid #b6a1ff; outline-offset:3px; }
+.ocr-review-check:has(input:disabled) { cursor:default; opacity:.65; }
