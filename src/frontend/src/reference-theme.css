@@ -247,3 +247,24 @@ input::placeholder,textarea::placeholder { color:#6d647c; opacity:1; }
 .pomodoro-float-link { display:block; font-size:13px; margin-top:12px; color:#56318b; }
 .content:has(.pomodoro-float) { padding-bottom:240px; }
 @media(max-width:760px) { .pomodoro-float { right:12px; bottom:calc(88px + env(safe-area-inset-bottom)); width:260px; max-width:calc(100vw - 24px); padding:12px; } .content:has(.pomodoro-float) { padding-bottom:330px; } }
+
+.schedule-settings { grid-template-columns:1fr 1fr; gap:28px; align-items:start; }
+.schedule-preferences h2,.schedule-today h2 { margin:0 0 12px; font-size:21px; }
+.schedule-preferences > p { font-size:14px; margin-bottom:24px; }
+.schedule-settings .schedule-form { display:grid; gap:16px; }
+.schedule-settings .schedule-form .field { max-width:260px; }
+.schedule-settings .schedule-form .btn { justify-self:start; }
+.schedule-today { background:#f5f1ff; border:1px solid #ddd3f0; border-radius:16px; padding:22px; }
+.schedule-today-metrics { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin:20px 0; }
+.schedule-today-metrics dt { font-size:14px; color:var(--muted); margin-bottom:8px; }
+.schedule-today-metrics dd { margin:0 0 8px; font-size:23px; font-weight:750; line-height:1.5; }
+.schedule-today-metrics dd span { font-size:15px; font-weight:500; }
+.schedule-today-metrics small { font-size:13px; color:var(--muted); }
+.schedule-today > p { font-size:14px; margin:12px 0 0; }
+.schedule-today > .btn { display:flex; margin-top:16px; }
+.schedule-explanation { grid-column:1/-1; border-top:1px solid var(--line); padding-top:16px; }
+.schedule-explanation summary { cursor:pointer; color:var(--muted); font-size:14px; }
+.schedule-explanation p { margin:12px 0 0; }
+.schedule-settings > [role] { grid-column:1/-1; margin:0; }
+@media(max-width:900px) { .schedule-settings { grid-template-columns:1fr; gap:24px; } }
+@media(max-width:400px) { .schedule-today { padding:16px; } .schedule-today-metrics { gap:12px; } .schedule-today-metrics dd { font-size:20px; } }
