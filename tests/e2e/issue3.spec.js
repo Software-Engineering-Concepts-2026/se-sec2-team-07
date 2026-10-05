@@ -18,6 +18,8 @@ test('Issue #3: extract notes, preserve drafts on file and AI errors, retry and 
     });
     await page.goto('/');
     await page.getByRole('link', { name: 'สร้างชุดการ์ด', exact: true }).click();
+    await expect(page.getByLabel('ชื่อชุดการ์ด')).toBeHidden();
+    await expect(page.getByLabel('วิธีสร้าง')).toBeHidden();
     const upload = page.getByLabel('อัปโหลดเอกสาร');
     const notes = page.getByLabel('หรือวางข้อความจากโน้ต');
     const questions = page.getByRole('textbox', { name: 'ด้านหน้า · คำถาม', exact: true });
@@ -84,6 +86,7 @@ test('Issue #3: extract notes, preserve drafts on file and AI errors, retry and 
         await route.fulfill({ json: { cards: [{ front: 'โครงสร้างใดใช้ FIFO?', back: 'Queue' }] } });
       }
     });
+    await page.getByText(/ตัวเลือกการสร้าง ·/).click();
     await page.getByLabel('วิธีสร้าง').selectOption('ai');
     await page.getByRole('button', { name: /สร้างการ์ดจากเนื้อหา/ }).click();
     await expect(page.getByRole('alert')).toContainText('สร้างการ์ดด้วย AI ไม่สำเร็จ');

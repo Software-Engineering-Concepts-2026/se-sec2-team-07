@@ -239,3 +239,16 @@ dialog .row { flex-wrap:wrap; gap:10px; }
   #toast { bottom:calc(150px + env(safe-area-inset-bottom)); }
   td,th { padding:12px 10px; }
 }
+
+/* Keep creation in reading order, with secondary controls progressively revealed. */
+.editor-layout.creation-simple { display: flex; flex-direction: column; max-width: 860px; margin-inline: auto; gap: 24px; }
+.creation-simple [hidden] { display: none !important; }
+.creation-simple .deck-summary { position: static; width: 100%; }
+.creation-simple .source-panel { padding: clamp(20px, 4vw, 36px); }
+.creation-simple .source-text textarea { min-height: 180px; line-height: 1.8; }
+.creation-settings { border: 1px solid var(--border, #e3ddef); border-radius: 14px; padding: 16px; }
+.creation-settings > summary { cursor: pointer; font-weight: 600; line-height: 1.6; }
+.creation-settings[open] > summary { margin-bottom: 20px; }
+.creation-simple .generate-action { width: 100%; min-height: 52px; }
+.creation-simple .creation-review { gap: 16px; }
+.creation-simple .deck-summary > .btn { min-height: 52px; }
