@@ -69,7 +69,7 @@ function WorkspaceLayout() {
       </nav>
       <div className="sidebar-bottom">
         <div className="sidebar-tip">✧ ทีละใบ ทีละความรู้<br />ความสม่ำเสมอเล็ก ๆ<br />สร้างการเปลี่ยนแปลงที่ยิ่งใหญ่</div>
-        <div className="user row"><div className="avatar" aria-hidden="true">{user.name[0]}</div><div><div className="user-name">{user.name}</div><span className="small muted">พื้นที่เรียนรู้ของคุณ</span></div>{logoutButton}</div>
+        <div className="user row"><div className="avatar" aria-hidden="true">{user.name[0]}</div><div className="sidebar-profile-copy"><div className="user-name" title={user.name}>{user.name}</div><span className="small muted">บัญชีของคุณ</span></div>{logoutButton}</div>
       </div>
     </aside>
     <main className="main" id="main-content" tabIndex="-1">

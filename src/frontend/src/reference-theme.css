@@ -129,3 +129,13 @@ input:focus,textarea:focus,select:focus { border-color:var(--purple); outline-co
 .schedule-grid .schedule-day { padding:16px; gap:12px; font-size:13px; }
 .schedule-grid .schedule-day.is-today { background:var(--yellow); border:1.5px solid var(--ink); }
 .schedule-grid .schedule-day.is-empty { opacity:1; }
+
+/* Compact account row: fixed avatar/action, flexible text without wrapping. */
+.sidebar .sidebar-bottom { padding-top:16px; }
+.sidebar .user { display:grid; grid-template-columns:36px minmax(0,1fr) 36px; align-items:center; gap:10px; padding:0; margin:0; }
+.sidebar .avatar { width:36px; height:36px; border-radius:50%; display:grid; place-items:center; font-size:15px; font-weight:800; }
+.sidebar-profile-copy { min-width:0; display:grid; gap:4px; }
+.sidebar .user-name { font-size:13px; font-weight:700; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sidebar-profile-copy .small { font-size:11px; line-height:1.4; white-space:nowrap; }
+.sidebar .user .logout { width:36px; height:36px; min-width:36px; padding:0; margin:0; display:grid; place-items:center; border:1px solid transparent; border-radius:9px; background:transparent; }
+.sidebar .user .logout:hover { background:#352a50; border-color:#514367; color:white; }
