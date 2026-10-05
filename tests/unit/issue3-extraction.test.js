@@ -6,6 +6,13 @@ import { extractDocument } from '../../src/backend/modules/generation/extract.js
 const extract = (name, bytes) => extractDocument({ name, content: Buffer.from(bytes).toString('base64') });
 const slide = body => `<p:sld xmlns:p="p" xmlns:a="a"><p:sp><p:txBody>${body}</p:txBody></p:sp></p:sld>`;
 
+test('extraction ignores Node watch dependency messages', async () => {
+  const previous = process.env.WATCH_REPORT_DEPENDENCIES;
+  process.env.WATCH_REPORT_DEPENDENCIES = '1';
+  try { assert.equal(await extract('notes.txt', 'Stack: last in first out'), 'Stack: last in first out'); }
+  finally { if (previous === undefined) delete process.env.WATCH_REPORT_DEPENDENCIES; else process.env.WATCH_REPORT_DEPENDENCIES = previous; }
+});
+
 // Build a complete PDF with byte offsets, rather than mocking the PDF reader.
 function pdf(text) {
   const stream = `BT /F1 12 Tf 50 750 Td (${text}) Tj ET`;

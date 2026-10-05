@@ -70,7 +70,9 @@ export default function Notes() {
     await run(async () => {
       if (file.size > 20 * 1024 * 1024) throw Error('ไฟล์ต้องมีขนาดไม่เกิน 20 MB');
       const content = await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result.split(',')[1]); reader.onerror = () => reject(Error('อ่านไฟล์ไม่สำเร็จ')); reader.readAsDataURL(file); });
-      const result = await api('/extract', 'POST', { name: file.name, content }); dirty.current = true;
+      const result = await api('/extract', 'POST', { name: file.name, content });
+      if (typeof result?.text !== 'string' || !result.text.trim()) throw Error('เซิร์ฟเวอร์ส่งข้อความจากไฟล์ไม่ครบ กรุณาลองอัปโหลดอีกครั้ง');
+      dirty.current = true;
       setDraft(d => ({ title: d.title || file.name.replace(/\.[^.]+$/, '').slice(0, 120), body: result.text })); notify('อ่านข้อความแล้ว กรุณาตรวจและบันทึกโน้ต');
     });
   }

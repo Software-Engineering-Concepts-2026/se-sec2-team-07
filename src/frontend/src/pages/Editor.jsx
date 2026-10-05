@@ -58,6 +58,7 @@ export default function Editor() {
       const content = await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result.split(',')[1]); reader.onerror = () => reject(Error('อ่านไฟล์ไม่สำเร็จ')); reader.readAsDataURL(file); });
       try {
         const result = await api('/extract', 'POST', { name: file.name, content });
+        if (typeof result?.text !== 'string' || !result.text.trim()) throw Error('เซิร์ฟเวอร์ส่งข้อความจากไฟล์ไม่ครบ กรุณาลองอัปโหลดอีกครั้ง');
         setSource(result.text); setFileName(file.name); dirty.current = true;
         setDeck(d => ({ ...d, name: d.name || file.name.replace(/\.[^.]+$/, '') })); notify('อ่านข้อความแล้ว พร้อมสร้างการ์ด');
       } catch (e) { throw Error(`${e.message} — เลือกไฟล์ใหม่หรือวางข้อความแทน เนื้อหาเดิมยังอยู่`); }

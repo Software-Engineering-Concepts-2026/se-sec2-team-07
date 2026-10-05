@@ -51,6 +51,6 @@ async function extract({ name, content }) {
   return text;
 }
 process.once('message', async input => {
-  try { process.send({ text: await extract(input) }); }
-  catch (error) { process.send({ error: error.message }); }
+  try { process.send({ type: 'focus:extract-result', text: await extract(input) }); }
+  catch (error) { process.send({ type: 'focus:extract-result', error: error.message || 'อ่านไฟล์ไม่สำเร็จ' }); }
 });

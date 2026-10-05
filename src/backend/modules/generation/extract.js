@@ -17,7 +17,13 @@ export function extractDocument(input) {
       if (error) reject(new HttpError(400, error)); else resolve(text);
     };
     const timeout = setTimeout(() => finish('อ่านไฟล์นานเกินไป กรุณาแบ่งไฟล์หรือวางข้อความแทน'), 20000);
-    worker.once('message', result => finish(result.error, result.text));
+    // Runtime/watch IPC messages are not extraction results.
+    worker.on('message', result => {
+      if (result?.type !== 'focus:extract-result') return;
+      if (typeof result.error === 'string' && result.error) return finish(result.error);
+      if (typeof result.text !== 'string' || !result.text.trim()) return finish('อ่านไฟล์ไม่สำเร็จ กรุณาวางข้อความแทน');
+      finish(null, result.text);
+    });
     worker.once('error', () => finish('อ่านไฟล์ไม่สำเร็จ กรุณาวางข้อความแทน'));
     worker.once('exit', () => { if (!settled) finish('ตัวอ่านไฟล์หยุดทำงาน กรุณาวางข้อความแทน'); });
     worker.send(input, error => { if (error) finish('อ่านไฟล์ไม่สำเร็จ กรุณาวางข้อความแทน'); });

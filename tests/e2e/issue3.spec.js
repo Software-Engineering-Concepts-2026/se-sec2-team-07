@@ -40,6 +40,13 @@ test('Issue #3: extract notes, preserve drafts on file and AI errors, retry and 
     await expect(questions.nth(1)).toHaveValue('Queue');
     await expect(answers.nth(1)).toHaveValue('FIFO');
 
+    await page.route('**/api/extract', route => route.fulfill({ json: {} }));
+    await upload.setInputFiles({ name: 'broken-response.txt', mimeType: 'text/plain', buffer: Buffer.from(source) });
+    await expect(page.getByRole('alert')).toContainText('เซิร์ฟเวอร์ส่งข้อความจากไฟล์ไม่ครบ');
+    await expect(notes).toHaveValue(source);
+    await expect(questions).toHaveCount(2);
+    await page.unroute('**/api/extract');
+
     await upload.setInputFiles({ name: 'invalid.exe', mimeType: 'application/octet-stream', buffer: Buffer.from('invalid') });
     await expect(page.getByRole('alert')).toContainText('รูปแบบไฟล์');
     await expect(notes).toHaveValue(source);
