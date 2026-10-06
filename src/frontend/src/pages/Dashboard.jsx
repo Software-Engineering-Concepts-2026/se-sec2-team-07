@@ -1,22 +1,60 @@
+import WeeklyActivity from '../components/dashboard/WeeklyActivity';
+import StarterMissions from '../components/dashboard/StarterMissions';
+import DashboardMetrics from '../components/dashboard/DashboardMetrics';
+import DashboardHero from '../components/dashboard/DashboardHero';
 import SyncStatus from '../components/SyncStatus';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context';
 import { useOverview } from '../hooks/useOverview';
-import { Art, Icon, DeckCard, ErrorPanel } from '../components/UI';
+import { DeckCard, ErrorPanel } from '../components/UI';
 export default function Dashboard() {
-  const { user } = useApp(); const { decks, stats, loading, error, reload, sync } = useOverview();
+  const { user } = useApp();
+  const { decks, stats, loading, error, reload, sync } = useOverview();
   if (loading) return <div className="loading">กำลังจัดพื้นที่เรียนรู้…</div>;
   if (error) return <ErrorPanel error={error} retry={reload} />;
   const due = decks.reduce((sum, d) => sum + d.due_count, 0);
-  const studiedDays = stats.weekly.filter(day => day.count > 0).length;
   const missions = [
-    { done: decks.length > 0, title: 'สร้างชุดการ์ดชุดแรก', detail: 'จากไฟล์ PDF, PPTX, TXT, MD หรือพิมพ์เอง', to: '/create' },
-    { done: stats.total > 0, title: 'ทบทวนรอบแรก', detail: 'นึกคำตอบก่อนพลิก แล้วบอกว่าจำได้แค่ไหน', to: '/review' },
-    { done: stats.streak >= 3, title: 'ทบทวนครบ 3 วันติด', detail: 'กลับมาทบทวนวันละนิดให้เป็นนิสัย', to: '/schedule' },
+    {
+      done: decks.length > 0,
+      title: 'สร้างชุดการ์ดชุดแรก',
+      detail: 'จากไฟล์ PDF, PPTX, TXT, MD หรือพิมพ์เอง',
+      to: '/create',
+    },
+    {
+      done: stats.total > 0,
+      title: 'ทบทวนรอบแรก',
+      detail: 'นึกคำตอบก่อนพลิก แล้วบอกว่าจำได้แค่ไหน',
+      to: '/review',
+    },
+    {
+      done: stats.streak >= 3,
+      title: 'ทบทวนครบ 3 วันติด',
+      detail: 'กลับมาทบทวนวันละนิดให้เป็นนิสัย',
+      to: '/schedule',
+    },
   ];
-  return <><SyncStatus sync={sync} /><section className="hero dashboard-hero"><div><span className="pill">{stats.total ? 'เรียนรู้ต่ออีกนิด' : 'วันแรกของคุณ'}</span><h1>สวัสดี, {user.name}</h1><p>{due ? `วันนี้มี ${due} การ์ดรอให้คุณกลับมาทบทวน` : 'มาสร้างการ์ดใบแรก แล้วเริ่มจำให้ได้นานขึ้นกัน'}</p><Link className="btn" to={due ? '/review' : '/create'}><Icon name={due ? 'review' : 'plus'} />{due ? 'เริ่มทบทวนวันนี้' : 'สร้างชุดการ์ด'}</Link></div><Art /></section>
-    <div className="metrics dashboard-metrics"><div className="metric"><div className="label">ถึงกำหนดวันนี้</div><strong>{due} <small>ใบ</small></strong><small>{due ? 'พร้อมให้คุณทบทวน' : 'ยังว่างอยู่ เติมการ์ดได้เลย'}</small></div><div className="metric"><div className="label">เรียนต่อเนื่อง</div><strong>{stats.streak} <small>วัน</small></strong><small>ทบทวนวันนี้เพื่อเรียนรู้อย่างต่อเนื่อง</small></div><div className="metric"><div className="label">ทบทวนวันนี้</div><strong>{stats.today} <small>ครั้ง</small></strong><Link className="small" to="/schedule">ปรับเวลาทบทวน →</Link></div></div>
-    <div className="dashboard-start"><section className="panel"><div className="row between"><h2>ภารกิจเริ่มต้น</h2><span className="badge">{missions.filter(m => m.done).length} / 3</span></div><div className="mission-list">{missions.map((mission, i) => <Link className={mission.done ? 'mission done' : 'mission'} key={mission.to} to={mission.to}><span className="mission-number">{mission.done ? '✓' : i + 1}</span><div><strong>{mission.title}</strong><small>{mission.detail}</small></div><Icon name="arrow" /></Link>)}</div></section><section className="panel weekly-activity"><div className="weekly-heading"><h2>จังหวะการเรียนรู้ของคุณ</h2><span>7 วันที่ผ่านมา</span></div><p className="weekly-summary">ทบทวนแล้ว <strong>{studiedDays}<span> / {stats.weekly.length} วัน</span></strong></p><div className="week-dots">{stats.weekly.map(day => <div key={day.date}><span className={day.count ? 'studied' : ''}>{day.count ? '✓' : ''}</span><small>{new Date(`${day.date}T12:00:00`).toLocaleDateString('th-TH', { weekday: 'short' })}</small></div>)}</div><p className="weekly-encouragement">{studiedDays ? 'ทีละนิดทุกวัน ช่วยให้จำได้นานขึ้น' : 'เริ่มทบทวนวันนี้ แล้วค่อย ๆ สร้างความต่อเนื่อง'}</p><div className="weekly-footer"><span className="weekly-legend"><i aria-hidden="true" />วันที่ทบทวนแล้ว</span><Link to="/stats">ดูสถิติทั้งหมด <span aria-hidden="true">→</span></Link></div></section></div>
-    {decks.length > 0 && <><div className="section-heading row between"><h2>ชุดการ์ดของคุณ</h2><Link to="/decks">ดูทั้งหมด →</Link></div><div className="deck-grid">{decks.slice(0, 3).map(d => <DeckCard key={d.id} deck={d} />)}</div></>}
-  </>;
+  return (
+    <>
+      <SyncStatus sync={sync} />
+      <DashboardHero user={user} stats={stats} due={due} />
+      <DashboardMetrics stats={stats} due={due} />
+      <div className="dashboard-start">
+        <StarterMissions missions={missions} />
+        <WeeklyActivity weekly={stats.weekly} />
+      </div>
+      {decks.length > 0 && (
+        <>
+          <div className="section-heading row between">
+            <h2>ชุดการ์ดของคุณ</h2>
+            <Link to="/decks">ดูทั้งหมด →</Link>
+          </div>
+          <div className="deck-grid">
+            {decks.slice(0, 3).map((d) => (
+              <DeckCard key={d.id} deck={d} />
+            ))}
+          </div>
+        </>
+      )}
+    </>
+  );
 }
