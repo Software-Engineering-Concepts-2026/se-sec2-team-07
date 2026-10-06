@@ -241,7 +241,7 @@ dialog .row { flex-wrap:wrap; gap:10px; }
 }
 
 /* Keep creation in reading order, with secondary controls progressively revealed. */
-.editor-layout.creation-simple { display: flex; flex-direction: column; max-width: 860px; margin-inline: auto; gap: 24px; }
+.editor-layout.creation-simple { display: flex; flex-direction: column; align-items: stretch; width: 100%; max-width: 860px; margin-inline: auto; gap: 24px; }
 .creation-simple [hidden] { display: none !important; }
 .creation-simple .deck-summary { position: static; width: 100%; }
 .creation-simple .source-panel { padding: clamp(20px, 4vw, 36px); }

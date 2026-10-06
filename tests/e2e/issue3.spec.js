@@ -28,7 +28,12 @@ test('Issue #3: extract notes, preserve drafts on file and AI errors, retry and 
     await page.getByRole('button', { name: /อัปโหลดไฟล์ PDF/ }).click();
     await upload.setInputFiles({ name: 'Issue 3 notes.txt', mimeType: 'text/plain', buffer: Buffer.from(source) });
     await expect(notes).toHaveValue(source);
+    const sourceWidth = (await page.locator('.source-panel').boundingBox()).width;
     await page.getByRole('button', { name: /เขียนเอง เพิ่มคำถาม/ }).click();
+    expect(Math.abs((await page.locator('.source-panel').boundingBox()).width - sourceWidth)).toBeLessThan(2);
+    const workspaceWidth = (await page.locator('.creation-simple').boundingBox()).width;
+    expect(Math.abs((await page.locator('.source-panel').boundingBox()).width - workspaceWidth)).toBeLessThan(2);
+    await page.screenshot({ path: `.local/manual-editor-${test.info().project.name}.png`, fullPage: true });
     await expect(notes).toBeHidden();
     await page.getByRole('button', { name: /วางข้อความ คัดลอก/ }).click();
     await expect(notes).toHaveValue(source);
