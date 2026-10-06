@@ -1,13 +1,199 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, Layers, GraduationCap, NotebookPen, CalendarDays, Zap, ChartNoAxesColumn, Plus, ArrowRight, Upload, Trash2, Clock, Check, Flame, LogOut } from 'lucide-react';
-const icons = { home: BookOpen, decks: Layers, courses: GraduationCap, notes: NotebookPen, schedule: CalendarDays, review: Zap, stats: ChartNoAxesColumn, plus: Plus, arrow: ArrowRight, upload: Upload, trash: Trash2, clock: Clock, check: Check, flame: Flame, logout: LogOut };
-export function Icon({ name, ...props }) { const Component = icons[name] || Layers; return <Component size={19} strokeWidth={1.7} aria-hidden="true" {...props} />; }
-export function Brand() { return <div className="brand"><span className="brand-mark" aria-hidden="true">F</span><div>focus<span>.</span></div></div>; }
-export function Art() { return <div className="hero-art" aria-hidden="true"><div className="art-card back"><span>LEARN</span><span className="star">✧</span><strong>A little<br />every day.</strong></div><div className="art-card"><span>REMEMBER</span><span className="star">✦</span><strong>You’ve<br />got this.</strong></div><span className="spark">✧</span></div>; }
-export function PageTitle({ eyebrow, title, subtitle, children }) { return <header className="page-title row between"><div className="page-title-copy"><div className="eyebrow">{eyebrow}</div><h1>{title}</h1><p>{subtitle}</p></div>{children && <div className="page-title-actions">{children}</div>}</header>; }
-export function Metric({ label, value, sub, icon }) { return <div className="metric"><div className="label"><Icon name={icon} />{label}</div><strong>{value}</strong><small>{sub}</small></div>; }
-export function Metrics({ decks, stats }) { return <div className="metrics"><Metric label="การ์ดที่รอทบทวน" value={decks.reduce((n, d) => n + d.due_count, 0)} sub="พร้อมเรียนรู้ในวันนี้" icon="decks" /><Metric label="ทบทวนวันนี้" value={`${stats.today} ครั้ง`} sub={`จาก ${stats.todayUniqueCards ?? 0} ใบไม่ซ้ำ`} icon="check" /><Metric label="ความจำแม่นยำ" value={stats.total ? `${stats.accuracy}%` : '—'} sub="จากการประเมินว่าจำได้ / ง่าย" icon="stats" /><Metric label="เรียนต่อเนื่อง" value={`${stats.streak} วัน`} sub="กลับมาเติมความรู้ในทุกวัน" icon="flame" /></div>; }
-export function ActivityChart({ weekly }) { const max = Math.max(5, ...weekly.map(d => d.count)); return <div className="chart" role="img" aria-label={weekly.map(d => `${d.date}: ${d.count} ครั้ง`).join(', ')}>{weekly.map(d => <div className="bar-col" key={d.date}><small>{d.count || ''}</small><div className="bar" style={{ height: Math.max(2, d.count / max * 110) }} /><span>{new Date(`${d.date}T12:00:00`).toLocaleDateString('th-TH', { weekday: 'short' })}</span></div>)}</div>; }
-export function DeckCard({ deck: d }) { const percent = d.card_count ? Math.round(d.learned / d.card_count * 100) : 0; return <article className="deck-card"><div className="row between"><Link to={`/edit/${d.id}`} className={`deck-icon ${d.color}`} aria-label={`เปิด ${d.name}`}><Icon name="decks" /></Link><span className="badge">{d.category}</span></div><Link to={`/edit/${d.id}`}><h3>{d.name}</h3></Link><p>{d.description || 'พื้นที่สำหรับความรู้ชุดต่อไปของคุณ'}</p><div className="row between small muted"><span>{d.card_count} การ์ด</span><span>จำได้ดี {percent}%</span></div><div className="progress"><div style={{ width: `${percent}%` }} /></div><div className="deck-footer"><span>{d.due_count ? `รอทบทวน ${d.due_count} ใบ` : 'ทบทวนครบแล้ว'}</span><Link to={`/review/${d.id}`}>เริ่มทบทวน →</Link></div></article>; }
-export function Empty({ title, children }) { return <div className="empty"><Icon name="decks" size={35} /><h3>{title}</h3>{children}</div>; }
-export function ErrorPanel({ error, retry }) { return <Empty title="เปิดข้อมูลไม่สำเร็จ"><p role="alert">{error}</p>{retry && <button className="btn" onClick={retry}>ลองใหม่</button>}</Empty>; }
+import {
+  BookOpen,
+  Layers,
+  GraduationCap,
+  NotebookPen,
+  CalendarDays,
+  Zap,
+  ChartNoAxesColumn,
+  Plus,
+  ArrowRight,
+  Upload,
+  Trash2,
+  Clock,
+  Check,
+  Flame,
+  LogOut,
+} from 'lucide-react';
+const icons = {
+  home: BookOpen,
+  decks: Layers,
+  courses: GraduationCap,
+  notes: NotebookPen,
+  schedule: CalendarDays,
+  review: Zap,
+  stats: ChartNoAxesColumn,
+  plus: Plus,
+  arrow: ArrowRight,
+  upload: Upload,
+  trash: Trash2,
+  clock: Clock,
+  check: Check,
+  flame: Flame,
+  logout: LogOut,
+};
+export function Icon({ name, ...props }) {
+  const Component = icons[name] || Layers;
+  return <Component size={19} strokeWidth={1.7} aria-hidden="true" {...props} />;
+}
+export function Brand() {
+  return (
+    <div className="brand">
+      <span className="brand-mark" aria-hidden="true">
+        F
+      </span>
+      <div>
+        focus<span>.</span>
+      </div>
+    </div>
+  );
+}
+export function Art() {
+  return (
+    <div className="hero-art" aria-hidden="true">
+      <div className="art-card back">
+        <span>LEARN</span>
+        <span className="star">✧</span>
+        <strong>
+          A little
+          <br />
+          every day.
+        </strong>
+      </div>
+      <div className="art-card">
+        <span>REMEMBER</span>
+        <span className="star">✦</span>
+        <strong>
+          You’ve
+          <br />
+          got this.
+        </strong>
+      </div>
+      <span className="spark">✧</span>
+    </div>
+  );
+}
+export function PageTitle({ eyebrow, title, subtitle, children }) {
+  return (
+    <header className="page-title row between">
+      <div className="page-title-copy">
+        <div className="eyebrow">{eyebrow}</div>
+        <h1>{title}</h1>
+        <p>{subtitle}</p>
+      </div>
+      {children && <div className="page-title-actions">{children}</div>}
+    </header>
+  );
+}
+export function Metric({ label, value, sub, icon }) {
+  return (
+    <div className="metric">
+      <div className="label">
+        <Icon name={icon} />
+        {label}
+      </div>
+      <strong>{value}</strong>
+      <small>{sub}</small>
+    </div>
+  );
+}
+export function Metrics({ decks, stats }) {
+  return (
+    <div className="metrics">
+      <Metric
+        label="การ์ดที่รอทบทวน"
+        value={decks.reduce((n, d) => n + d.due_count, 0)}
+        sub="พร้อมเรียนรู้ในวันนี้"
+        icon="decks"
+      />
+      <Metric
+        label="ทบทวนวันนี้"
+        value={`${stats.today} ครั้ง`}
+        sub={`จาก ${stats.todayUniqueCards ?? 0} ใบไม่ซ้ำ`}
+        icon="check"
+      />
+      <Metric
+        label="ความจำแม่นยำ"
+        value={stats.total ? `${stats.accuracy}%` : '—'}
+        sub="จากการประเมินว่าจำได้ / ง่าย"
+        icon="stats"
+      />
+      <Metric
+        label="เรียนต่อเนื่อง"
+        value={`${stats.streak} วัน`}
+        sub="กลับมาเติมความรู้ในทุกวัน"
+        icon="flame"
+      />
+    </div>
+  );
+}
+export function ActivityChart({ weekly }) {
+  const max = Math.max(5, ...weekly.map((d) => d.count));
+  return (
+    <div
+      className="chart"
+      role="img"
+      aria-label={weekly.map((d) => `${d.date}: ${d.count} ครั้ง`).join(', ')}
+    >
+      {weekly.map((d) => (
+        <div className="bar-col" key={d.date}>
+          <small>{d.count || ''}</small>
+          <div className="bar" style={{ height: Math.max(2, (d.count / max) * 110) }} />
+          <span>
+            {new Date(`${d.date}T12:00:00`).toLocaleDateString('th-TH', { weekday: 'short' })}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+export function DeckCard({ deck: d }) {
+  const percent = d.card_count ? Math.round((d.learned / d.card_count) * 100) : 0;
+  return (
+    <article className="deck-card">
+      <div className="row between">
+        <Link to={`/edit/${d.id}`} className={`deck-icon ${d.color}`} aria-label={`เปิด ${d.name}`}>
+          <Icon name="decks" />
+        </Link>
+        <span className="badge">{d.category}</span>
+      </div>
+      <Link to={`/edit/${d.id}`}>
+        <h3>{d.name}</h3>
+      </Link>
+      <p>{d.description || 'พื้นที่สำหรับความรู้ชุดต่อไปของคุณ'}</p>
+      <div className="row between small muted">
+        <span>{d.card_count} การ์ด</span>
+        <span>จำได้ดี {percent}%</span>
+      </div>
+      <div className="progress">
+        <div style={{ width: `${percent}%` }} />
+      </div>
+      <div className="deck-footer">
+        <span>{d.due_count ? `รอทบทวน ${d.due_count} ใบ` : 'ทบทวนครบแล้ว'}</span>
+        <Link to={`/review/${d.id}`}>เริ่มทบทวน →</Link>
+      </div>
+    </article>
+  );
+}
+export function Empty({ title, children }) {
+  return (
+    <div className="empty">
+      <Icon name="decks" size={35} />
+      <h3>{title}</h3>
+      {children}
+    </div>
+  );
+}
+export function ErrorPanel({ error, retry }) {
+  return (
+    <Empty title="เปิดข้อมูลไม่สำเร็จ">
+      <p role="alert">{error}</p>
+      {retry && (
+        <button className="btn" onClick={retry}>
+          ลองใหม่
+        </button>
+      )}
+    </Empty>
+  );
+}

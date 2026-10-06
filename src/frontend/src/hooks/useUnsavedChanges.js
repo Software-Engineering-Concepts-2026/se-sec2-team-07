@@ -8,13 +8,23 @@ export function useUnsavedChanges(dirtyRef) {
   useEffect(() => {
     if (blocker.state !== 'blocked') return;
     let active = true;
-    confirm('ออกจากหน้านี้?', 'การแก้ไขที่ยังไม่ได้บันทึกจะหายไป').then(ok => {
-      if (active) { if (ok) blocker.proceed(); else blocker.reset(); }
+    confirm('ออกจากหน้านี้?', 'การแก้ไขที่ยังไม่ได้บันทึกจะหายไป').then((ok) => {
+      if (active) {
+        if (ok) blocker.proceed();
+        else blocker.reset();
+      }
     });
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [blocker.state, confirm]);
   useEffect(() => {
-    const handler = event => { if (dirtyRef.current) { event.preventDefault(); event.returnValue = ''; } };
+    const handler = (event) => {
+      if (dirtyRef.current) {
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    };
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
   }, [dirtyRef]);

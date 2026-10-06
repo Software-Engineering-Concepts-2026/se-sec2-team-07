@@ -9,8 +9,17 @@ test('library loads without requesting statistics, including refresh', async ({ 
   const pool = new pg.Pool({ connectionString: process.env.TEST_DATABASE_URL });
   let statisticsRequests = 0;
   try {
-    expect((await page.request.post('/api/register', { data: { name: 'Fast library', email, password: 'TestPassword123' } })).ok()).toBeTruthy();
-    await page.route('**/api/stats', async route => { statisticsRequests++; await route.fulfill({ status: 503, json: { error: 'Statistics unavailable' } }); });
+    expect(
+      (
+        await page.request.post('/api/register', {
+          data: { name: 'Fast library', email, password: 'TestPassword123' },
+        })
+      ).ok(),
+    ).toBeTruthy();
+    await page.route('**/api/stats', async (route) => {
+      statisticsRequests++;
+      await route.fulfill({ status: 503, json: { error: 'Statistics unavailable' } });
+    });
     await page.goto('/#/decks');
     await expect(page.getByRole('heading', { name: 'ชุดการ์ดของฉัน', exact: true })).toBeVisible();
     const refresh = page.getByRole('button', { name: 'ดึงข้อมูลล่าสุด', exact: true });
@@ -19,5 +28,8 @@ test('library loads without requesting statistics, including refresh', async ({ 
     expect(statisticsRequests).toBe(0);
     await page.getByRole('link', { name: 'สร้างชุดการ์ด', exact: true }).click();
     await expect(page.getByLabel('ชื่อชุดการ์ด')).toBeVisible();
-  } finally { await pool.query('DELETE FROM users WHERE email=$1', [email]); await pool.end(); }
+  } finally {
+    await pool.query('DELETE FROM users WHERE email=$1', [email]);
+    await pool.end();
+  }
 });

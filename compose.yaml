@@ -13,12 +13,12 @@ services:
       OPENAI_API_MODE: ${OPENAI_API_MODE:-}
       NODE_ENV: development
       HOST: 0.0.0.0
-      PORT: "8000"
+      PORT: '8000'
       APP_ORIGIN: http://localhost:8000
-      COOKIE_SECURE: "false"
-      TRUST_PROXY: "0"
+      COOKIE_SECURE: 'false'
+      TRUST_PROXY: '0'
     ports:
-      - "127.0.0.1:8000:8000"
+      - '127.0.0.1:8000:8000'
     volumes:
       - ocr-cache:/app/.local/ocr
     stop_grace_period: 30s

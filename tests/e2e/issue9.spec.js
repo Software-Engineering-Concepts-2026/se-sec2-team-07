@@ -4,12 +4,26 @@ import { test, expect } from '@playwright/test';
 import pg from 'pg';
 import { randomUUID } from 'node:crypto';
 
-test('Issue #9: pause, resume, reset, break review, navigation and session reset', async ({ page }) => {
+test('Issue #9: pause, resume, reset, break review, navigation and session reset', async ({
+  page,
+}) => {
   const email = `issue9-${randomUUID()}@example.com`;
   const pool = new pg.Pool({ connectionString: process.env.TEST_DATABASE_URL });
   try {
-    expect((await page.request.post('/api/register', { data: { name: 'Pomodoro', email, password: 'TestPassword123' } })).ok()).toBeTruthy();
-    expect((await page.request.post('/api/decks', { data: { name: 'Break deck', cards: [{ front: 'Break question', back: 'Break answer' }] } })).ok()).toBeTruthy();
+    expect(
+      (
+        await page.request.post('/api/register', {
+          data: { name: 'Pomodoro', email, password: 'TestPassword123' },
+        })
+      ).ok(),
+    ).toBeTruthy();
+    expect(
+      (
+        await page.request.post('/api/decks', {
+          data: { name: 'Break deck', cards: [{ front: 'Break question', back: 'Break answer' }] },
+        })
+      ).ok(),
+    ).toBeTruthy();
     await page.clock.install();
     await page.goto('/#/pomodoro');
     const timer = page.getByRole('timer');
@@ -36,7 +50,10 @@ test('Issue #9: pause, resume, reset, break review, navigation and session reset
     await page.clock.fastForward(60000);
     await expect(banner.getByRole('timer')).toHaveText('24:00');
     await banner.getByRole('button', { name: 'เริ่มต่อ', exact: true }).click();
-    await page.screenshot({ path: `.local/pomodoro-float-${test.info().project.name}.png`, fullPage: true });
+    await page.screenshot({
+      path: `.local/pomodoro-float-${test.info().project.name}.png`,
+      fullPage: true,
+    });
     await page.clock.fastForward(24 * 60000);
     await expect(banner).toContainText('ครบช่วงเรียนแล้ว');
     await expect(banner).toContainText('05:00');
@@ -55,7 +72,9 @@ test('Issue #9: pause, resume, reset, break review, navigation and session reset
     await expect(banner).toContainText('25:00');
     expect(await (await page.request.get('/api/review/plan')).json()).toEqual(before);
     await banner.getByRole('link', { name: 'Pomodoro', exact: true }).click();
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBeTruthy();
     await page.getByRole('button', { name: 'เริ่มจับเวลา', exact: true }).click();
     await page.clock.fastForward(60000);
     await page.reload();
@@ -71,4 +90,3 @@ test('Issue #9: pause, resume, reset, break review, navigation and session reset
     await pool.end();
   }
 });
-

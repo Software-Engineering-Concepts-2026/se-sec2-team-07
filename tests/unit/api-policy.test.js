@@ -21,7 +21,12 @@ test('API keeps private headers and rejects cross-origin writes', async () => {
   assert.equal(response.headers['x-robots-tag'], 'noindex, nofollow');
   await request(app).post('/').set('Origin', 'https://other.example').send({}).expect(403);
   await request(app).post('/').set('Origin', 'https://focus.example').send({}).expect(200);
-  await request(app).post('/').set('Host', 'focus.example').set('Origin', 'http://focus.example').send({}).expect(200);
+  await request(app)
+    .post('/')
+    .set('Host', 'focus.example')
+    .set('Origin', 'http://focus.example')
+    .send({})
+    .expect(200);
 });
 
 test('API distinguishes unsupported content from malformed JSON', async () => {

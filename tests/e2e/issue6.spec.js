@@ -4,12 +4,28 @@ import { test, expect } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import pg from 'pg';
 
-test('Issue #6: set daily workload, review a bounded queue, and see the updated schedule', async ({ page }, testInfo) => {
+test('Issue #6: set daily workload, review a bounded queue, and see the updated schedule', async ({
+  page,
+}, testInfo) => {
   const email = `issue6-${randomUUID()}@example.com`;
   const pool = new pg.Pool({ connectionString: process.env.TEST_DATABASE_URL });
   try {
-    expect((await page.request.post('/api/register', { data: { name: 'Planner', email, password: 'TestPassword123' } })).ok()).toBeTruthy();
-    const created = await page.request.post('/api/decks', { data: { name: 'Study plan', cards: Array.from({ length: 5 }, (_, i) => ({ front: `Plan question ${i}`, back: `Answer ${i}` })) } });
+    expect(
+      (
+        await page.request.post('/api/register', {
+          data: { name: 'Planner', email, password: 'TestPassword123' },
+        })
+      ).ok(),
+    ).toBeTruthy();
+    const created = await page.request.post('/api/decks', {
+      data: {
+        name: 'Study plan',
+        cards: Array.from({ length: 5 }, (_, i) => ({
+          front: `Plan question ${i}`,
+          back: `Answer ${i}`,
+        })),
+      },
+    });
     const deck = await (await page.request.get(`/api/decks/${(await created.json()).id}`)).json();
     await page.goto('/#/schedule');
     await expect(page.getByRole('heading', { name: 'ตารางทบทวน', exact: true })).toBeVisible();
@@ -32,12 +48,25 @@ test('Issue #6: set daily workload, review a bounded queue, and see the updated 
     await page.getByRole('button', { name: 'จบรอบนี้' }).click();
     await page.getByRole('link', { name: 'ดูตารางทบทวน' }).click();
     const plan = await (await page.request.get('/api/review/plan')).json();
-    expect(plan.days.slice(1).flatMap(day => day.cards).some(card => card.id === deck.cards[0].id)).toBeTruthy();
+    expect(
+      plan.days
+        .slice(1)
+        .flatMap((day) => day.cards)
+        .some((card) => card.id === deck.cards[0].id),
+    ).toBeTruthy();
     expect(plan.remaining_seconds).toBeLessThan(60);
     await page.screenshot({ path: `.local/${testInfo.project.name}-schedule.png`, fullPage: true });
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBeTruthy();
     // Consume the rest in another session; opening this page must not reset the daily budget.
-    expect((await page.request.post('/api/review', { data: { id: randomUUID(), card_id: deck.cards[1].id, rating: 'hard', seconds: 60 } })).ok()).toBeTruthy();
+    expect(
+      (
+        await page.request.post('/api/review', {
+          data: { id: randomUUID(), card_id: deck.cards[1].id, rating: 'hard', seconds: 60 },
+        })
+      ).ok(),
+    ).toBeTruthy();
     await page.goto('/#/review');
     await expect(page.getByRole('heading', { name: 'พักก่อน แล้วค่อยทบทวนต่อ' })).toBeVisible();
     await page.getByRole('link', { name: 'ดูตารางทบทวน' }).click();
@@ -48,12 +77,22 @@ test('Issue #6: set daily workload, review a bounded queue, and see the updated 
   }
 });
 
-test('Issue #6: stop when the configured session time expires without answering automatically', async ({ page }) => {
+test('Issue #6: stop when the configured session time expires without answering automatically', async ({
+  page,
+}) => {
   const email = `issue6-timer-${randomUUID()}@example.com`;
   const pool = new pg.Pool({ connectionString: process.env.TEST_DATABASE_URL });
   try {
-    expect((await page.request.post('/api/register', { data: { name: 'Timer', email, password: 'TestPassword123' } })).ok()).toBeTruthy();
-    await page.request.post('/api/decks', { data: { name: 'Timer deck', cards: [{ front: 'Question', back: 'Answer' }] } });
+    expect(
+      (
+        await page.request.post('/api/register', {
+          data: { name: 'Timer', email, password: 'TestPassword123' },
+        })
+      ).ok(),
+    ).toBeTruthy();
+    await page.request.post('/api/decks', {
+      data: { name: 'Timer deck', cards: [{ front: 'Question', back: 'Answer' }] },
+    });
     await page.request.put('/api/review/plan', { data: { minutes: 1 } });
     await page.goto('/#/review');
     await expect(page.getByText('การ์ด 1 จาก 1 ใบ')).toBeVisible();
