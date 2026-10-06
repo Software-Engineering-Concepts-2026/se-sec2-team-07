@@ -1,4 +1,5 @@
 import express from 'express';
+import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { ZodError } from 'zod';
@@ -35,6 +36,7 @@ export function createApp(pool, config) {
   } }, strictTransportSecurity: config.production ? undefined : false }));
   app.use('/api', (req, res, next) => {
     res.set('Cache-Control', 'no-store');
+    res.set('X-Robots-Tag', 'noindex, nofollow');
     if (!['GET', 'HEAD'].includes(req.method)) {
       const origin = req.get('Origin');
       const ownOrigin = `${req.protocol}://${req.get('host')}`;
@@ -67,7 +69,11 @@ export function createApp(pool, config) {
   app.use('/api', (req, res) => res.status(404).json({ error: 'ไม่พบ API' }));
   const dist = fileURLToPath(new URL('../../dist/', import.meta.url));
   if (existsSync(dist)) {
-    app.use(express.static(dist, { dotfiles: 'deny' }));
+    app.use(compression());
+    app.use('/assets', express.static(`${dist}/assets`, { dotfiles: 'deny', maxAge: '1y', immutable: true }));
+    app.use(express.static(dist, { dotfiles: 'deny', setHeaders(res, path) {
+      if (path.endsWith('.html')) res.set('Cache-Control', 'no-cache');
+    } }));
     app.get('/', (req, res) => res.sendFile(`${dist}/index.html`));
   } else app.get('/', (req, res) => res.status(503).send('Frontend not built. Run npm run dev or npm run build.'));
   app.use((error, req, res, next) => {
