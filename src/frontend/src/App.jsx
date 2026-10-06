@@ -9,6 +9,11 @@ export default function App() {
   const [user, setUser] = useState(null); const [ai, setAi] = useState(false); const [loading, setLoading] = useState(true);
   const [error, setError] = useState(''); const [message, setMessage] = useState(''); const [modal, setModal] = useState(null);
   const timeout = useRef(); const dialog = useRef(); const resolver = useRef();
+  useEffect(() => {
+    const robots = document.querySelector('meta[name="robots"]');
+    if (robots) robots.content = user ? 'noindex,nofollow' : 'index,follow';
+    if (!user) document.title = 'Focus Flashcards — เรียนรู้ทีละนิด จดจำได้อีกนาน';
+  }, [user]);
   const drafts = useRef(new Set());
   const registerDraft = useCallback(ref => { drafts.current.add(ref); return () => drafts.current.delete(ref); }, []);
   const hasUnsavedDraft = useCallback(() => [...drafts.current].some(ref => ref.current), []);
