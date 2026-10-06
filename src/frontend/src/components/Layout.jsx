@@ -96,7 +96,7 @@ function WorkspaceLayout() {
         ข้ามไปยังเนื้อหาหลัก
       </a>
       <aside className="sidebar">
-        <Brand />
+        <Brand dark />
         <div className="brand-note">MAKE KNOWLEDGE STICK</div>
         <nav className="nav" aria-label="เมนูหลัก">
           {[
@@ -150,7 +150,7 @@ function WorkspaceLayout() {
             {today}
           </time>
           <div className="mobile-brand">
-            <Brand />
+            <Brand compact />
           </div>
           <div className="row topbar-meta">
             <span className="status">พื้นที่เรียนรู้ของคุณ</span>

@@ -1,4 +1,7 @@
 import { Link } from 'react-router-dom';
+import logo from '../../../../branding/focus-logo.png';
+import darkLogo from '../../../../branding/focus-logo-dark.png';
+import mark from '../../../../branding/focus-mark.png';
 import {
   BookOpen,
   Layers,
@@ -37,15 +40,16 @@ export function Icon({ name, ...props }) {
   const Component = icons[name] || Layers;
   return <Component size={19} strokeWidth={1.7} aria-hidden="true" {...props} />;
 }
-export function Brand() {
+export function Brand({ dark = false, compact = false }) {
   return (
     <div className="brand">
-      <span className="brand-mark" aria-hidden="true">
-        F
-      </span>
-      <div>
-        focus<span>.</span>
-      </div>
+      <img
+        className={compact ? 'brand-image brand-image-compact' : 'brand-image'}
+        src={compact ? mark : dark ? darkLogo : logo}
+        alt="Focus Flashcards"
+        width={compact ? 1072 : 1223}
+        height={compact ? 1079 : 520}
+      />
     </div>
   );
 }

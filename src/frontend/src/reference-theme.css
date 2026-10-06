@@ -29,6 +29,28 @@ h3 {
 .brand {
   color: inherit;
 }
+.brand .brand-image {
+  display: block;
+  width: 190px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+.welcome-story .brand .brand-image {
+  width: 260px;
+}
+.welcome-story > .brand {
+  align-self: flex-start;
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px 12px;
+  border-radius: 16px;
+  background: #fff;
+}
+.mobile-brand .brand .brand-image-compact {
+  width: 42px;
+  height: 42px;
+}
 .brand span {
   color: inherit;
 }

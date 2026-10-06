@@ -9,6 +9,8 @@
 !vite.config.js
 !src/
 !src/**
+!branding/
+!branding/*.png
 **/.env
 **/.env.*
 **/*.pem
