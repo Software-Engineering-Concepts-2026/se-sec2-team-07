@@ -1,43 +1,16 @@
-# Git
-.git
-.gitignore
-
-# Environment & Secrets
-.env
-.env.*
-
-# Python Virtual Environment & Cache
-.venv/
-venv/
-env/
-.supercharged/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Dependencies & Logs
-*.log
-tests/
-coverage/
-
-# IDE / OS specific
-.vscode/
-.idea/
-*.DS_Store
-
-# Documentation
-docs/
-*.md
-
-# Local application data and installed packages
-data/
-.vendor/
-.tools/
-.local/
-node_modules/
-dist/
-test-results/
-playwright-report/
-prototypes/
-team/
+# Allow only build inputs into the context (no secrets, worktrees or reports).
+**
+!Dockerfile
+!package.json
+!package-lock.json
+!prisma.config.ts
+!prisma/
+!prisma/**
+!vite.config.js
+!src/
+!src/**
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/node_modules

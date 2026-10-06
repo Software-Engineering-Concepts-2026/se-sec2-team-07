@@ -1,0 +1,12 @@
+# Use with: docker compose -f compose.yaml -f compose.ca.yaml up --build -d
+services:
+  app:
+    environment:
+      NODE_EXTRA_CA_CERTS: /app/certs/supabase.crt
+    volumes:
+      - type: bind
+        source: ./.local/prod-ca-2021.crt
+        target: /app/certs/supabase.crt
+        read_only: true
+        bind:
+          create_host_path: false
