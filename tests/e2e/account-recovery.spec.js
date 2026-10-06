@@ -11,7 +11,7 @@ test('registration profile retry does not submit registration twice', async ({ p
     failed = false;
   try {
     await page.goto('/');
-    await page.getByRole('button', { name: 'สร้างบัญชีฟรี' }).click();
+    await page.getByRole('tab', { name: 'สมัครใหม่', exact: true }).click();
     await page.route('**/api/register', async (route) => {
       registrations++;
       await route.continue();

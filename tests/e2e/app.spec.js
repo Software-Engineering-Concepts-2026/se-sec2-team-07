@@ -12,20 +12,18 @@ test('register → upload → edit → review → statistics → delete → logi
   page.on('pageerror', (error) => errors.push(error.message));
   try {
     await page.goto('/');
-    await page.getByRole('button', { name: 'สร้างบัญชีฟรี' }).click();
+    await page.getByRole('tab', { name: 'สมัครใหม่', exact: true }).click();
     await page.getByLabel('ชื่อที่อยากให้เราเรียก').fill('นักเรียนทดสอบ');
     await page.getByLabel('อีเมล', { exact: true }).fill(email);
     await page.getByLabel('รหัสผ่าน', { exact: true }).fill('UiTestPassword123');
     await page.getByRole('button', { name: 'สร้างบัญชี', exact: true }).click();
     await expect(page.getByRole('heading', { name: /สวัสดี/ })).toBeVisible();
     await page.getByRole('link', { name: 'สร้างชุดการ์ด', exact: true }).click();
-    await page
-      .getByLabel('อัปโหลดเอกสาร')
-      .setInputFiles({
-        name: 'Data Structures.txt',
-        mimeType: 'text/plain',
-        buffer: Buffer.from('Stack: Last in first out\nQueue: First in first out', 'utf8'),
-      });
+    await page.getByLabel('อัปโหลดเอกสาร').setInputFiles({
+      name: 'Data Structures.txt',
+      mimeType: 'text/plain',
+      buffer: Buffer.from('Stack: Last in first out\nQueue: First in first out', 'utf8'),
+    });
     await expect(page.getByLabel('หรือวางข้อความจากโน้ต')).toHaveValue(/Stack/);
     await page.getByRole('button', { name: /สร้างการ์ดจากเนื้อหา/ }).click();
     await expect(page.getByLabel('ด้านหน้า · คำถาม')).toHaveCount(2);

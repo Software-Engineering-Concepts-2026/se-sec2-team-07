@@ -33,12 +33,10 @@ async function account() {
     .send({ name: 'Planner', email, password: 'TestPassword123' });
   assert.equal(registered.status, 201);
   const uid = (await agent.get('/api/me')).body.user.id;
-  const created = await agent
-    .post('/api/decks')
-    .send({
-      name: 'Plan deck',
-      cards: Array.from({ length: 5 }, (_, i) => ({ front: `Question ${i}`, back: `Answer ${i}` })),
-    });
+  const created = await agent.post('/api/decks').send({
+    name: 'Plan deck',
+    cards: Array.from({ length: 5 }, (_, i) => ({ front: `Question ${i}`, back: `Answer ${i}` })),
+  });
   const deck = (await agent.get(`/api/decks/${created.body.id}`)).body;
   return { agent, uid, deck };
 }

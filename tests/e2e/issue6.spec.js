@@ -31,12 +31,24 @@ test('Issue #6: set daily workload, review a bounded queue, and see the updated 
     await expect(page.getByRole('heading', { name: 'ตารางทบทวน', exact: true })).toBeVisible();
     await page.getByLabel('เวลาทบทวนต่อวัน (นาที)').fill('1');
     await page.getByRole('button', { name: 'บันทึกเวลาและปรับตาราง' }).click();
-    await expect(page.getByText('พร้อมทบทวนตอนนี้ 2 ใบ จากที่ถึงกำหนด 5 ใบ')).toBeVisible();
+    await expect(page.locator('.schedule-today-metrics > div').first()).toContainText('พร้อมทบทวน');
+    await expect(page.locator('.schedule-today-metrics > div').first().locator('dd')).toHaveText(
+      '2 ใบ',
+    );
+    await expect(page.locator('.schedule-today-metrics > div').first()).toContainText(
+      'ถึงกำหนดทั้งหมด 5 ใบ',
+    );
     await page.reload();
     await expect(page.getByLabel('เวลาทบทวนต่อวัน (นาที)')).toHaveValue('1');
     await page.getByLabel('เวลาทบทวนต่อวัน (นาที)').fill('2');
     await page.getByRole('button', { name: 'บันทึกเวลาและปรับตาราง' }).click();
-    await expect(page.getByText('พร้อมทบทวนตอนนี้ 4 ใบ จากที่ถึงกำหนด 5 ใบ')).toBeVisible();
+    await expect(page.locator('.schedule-today-metrics > div').first()).toContainText('พร้อมทบทวน');
+    await expect(page.locator('.schedule-today-metrics > div').first().locator('dd')).toHaveText(
+      '4 ใบ',
+    );
+    await expect(page.locator('.schedule-today-metrics > div').first()).toContainText(
+      'ถึงกำหนดทั้งหมด 5 ใบ',
+    );
     await page.getByLabel('เวลาทบทวนต่อวัน (นาที)').fill('1');
     await page.getByRole('button', { name: 'บันทึกเวลาและปรับตาราง' }).click();
     await page.getByRole('link', { name: 'เริ่มตามแผนวันนี้' }).click();
@@ -70,7 +82,13 @@ test('Issue #6: set daily workload, review a bounded queue, and see the updated 
     await page.goto('/#/review');
     await expect(page.getByRole('heading', { name: 'พักก่อน แล้วค่อยทบทวนต่อ' })).toBeVisible();
     await page.getByRole('link', { name: 'ดูตารางทบทวน' }).click();
-    await expect(page.getByText('พร้อมทบทวนตอนนี้ 0 ใบ จากที่ถึงกำหนด 3 ใบ')).toBeVisible();
+    await expect(page.locator('.schedule-today-metrics > div').first()).toContainText('พร้อมทบทวน');
+    await expect(page.locator('.schedule-today-metrics > div').first().locator('dd')).toHaveText(
+      '0 ใบ',
+    );
+    await expect(page.locator('.schedule-today-metrics > div').first()).toContainText(
+      'ถึงกำหนดทั้งหมด 3 ใบ',
+    );
   } finally {
     await pool.query('DELETE FROM users WHERE email=$1', [email]);
     await pool.end();

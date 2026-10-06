@@ -33,13 +33,14 @@ test('Issue #4: inspect AI drafts, edit, undo deletion, retry save and reopen', 
     });
     await page.goto('/');
     await page.getByRole('link', { name: 'สร้างชุดการ์ด', exact: true }).click();
-    await page.getByLabel('ชื่อชุดการ์ด').fill('Issue 4 draft');
     await page.getByLabel('หรือวางข้อความจากโน้ต').fill('Stack: LIFO\nQueue: FIFO');
+    await page.locator('.creation-settings > summary').click();
     await page.getByLabel('วิธีสร้าง').selectOption('ai');
     await page.getByRole('button', { name: /สร้างการ์ดจากเนื้อหา/ }).click();
     const questions = page.getByRole('textbox', { name: 'ด้านหน้า · คำถาม', exact: true });
     const answers = page.getByRole('textbox', { name: 'ด้านหลัง · คำตอบ', exact: true });
     await expect(questions).toHaveCount(3);
+    await page.getByLabel('ชื่อชุดการ์ด').fill('Issue 4 draft');
     expect(
       (
         await pool.query(
