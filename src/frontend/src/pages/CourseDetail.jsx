@@ -186,32 +186,34 @@ export default function CourseDetail() {
               }}
             />
           </div>
-          {items.length ? (
-            items.slice(page * 8, page * 8 + 8).map((item) => {
-              const linked = course[kind].some((current) => current.id === item.id);
-              return (
-                <article className="shared-content library-picker-item" key={item.id}>
-                  <div className="library-picker-copy">
-                    <h3>{item.front || item.title}</h3>
-                    {item.archived_at && (
-                      <p className="small muted">เรียนจบแล้ว · ไม่อยู่ในคิวทบทวน</p>
-                    )}
-                    <p className="shared-text">{item.back || item.body}</p>
-                    {item.deck_name && <small>ชุดการ์ด: {item.deck_name}</small>}
-                  </div>
-                  <button
-                    className="btn secondary"
-                    disabled={busy || linked}
-                    onClick={() => changeLink(kind, item.id, false)}
-                  >
-                    {linked ? 'เชื่อมแล้ว' : 'เชื่อมกับวิชานี้'}
-                  </button>
-                </article>
-              );
-            })
-          ) : (
-            <p>ไม่พบเนื้อหา ลองเปลี่ยนคำค้นหรือสร้างเนื้อหาในคลังก่อน</p>
-          )}
+          <div className="library-picker-grid">
+            {items.length ? (
+              items.slice(page * 8, page * 8 + 8).map((item) => {
+                const linked = course[kind].some((current) => current.id === item.id);
+                return (
+                  <article className="shared-content library-picker-item" key={item.id}>
+                    <div className="library-picker-copy">
+                      <h3>{item.front || item.title}</h3>
+                      {item.archived_at && (
+                        <p className="small muted">เรียนจบแล้ว · ไม่อยู่ในคิวทบทวน</p>
+                      )}
+                      <p className="shared-text">{item.back || item.body}</p>
+                      {item.deck_name && <small>ชุดการ์ด: {item.deck_name}</small>}
+                    </div>
+                    <button
+                      className="btn secondary"
+                      disabled={busy || linked}
+                      onClick={() => changeLink(kind, item.id, false)}
+                    >
+                      {linked ? 'เชื่อมแล้ว' : 'เชื่อมกับวิชานี้'}
+                    </button>
+                  </article>
+                );
+              })
+            ) : (
+              <p>ไม่พบเนื้อหา ลองเปลี่ยนคำค้นหรือสร้างเนื้อหาในคลังก่อน</p>
+            )}
+          </div>
           {items.length > 8 && (
             <div className="toolbar" aria-label="หน้ารายการในคลัง">
               <button

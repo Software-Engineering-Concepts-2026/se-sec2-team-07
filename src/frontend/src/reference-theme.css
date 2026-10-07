@@ -1637,13 +1637,21 @@ h3 {
     margin-top: 18px;
   }
 }
-.library-picker-item {
+.library-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: 16px;
+  margin: 16px 0;
+}
+.library-picker-grid .library-picker-item {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   justify-content: space-between;
   gap: 20px;
   padding: 16px;
-  margin: 12px 0;
+  margin: 0;
+  min-width: 0;
   border: 1px solid #ddd3f0;
   border-radius: 12px;
 }
@@ -1661,6 +1669,8 @@ h3 {
 }
 .library-picker-item > .btn {
   flex-shrink: 0;
+  width: 100%;
+  margin-top: auto;
 }
 @media (max-width: 600px) {
   .library-picker-item {
