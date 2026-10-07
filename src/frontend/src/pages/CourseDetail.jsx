@@ -151,7 +151,7 @@ export default function CourseDetail() {
       </div>
       {library && (
         <section className="panel" aria-label="เพิ่มจากคลัง">
-          <div className="row between">
+          <div className="row between course-library-heading">
             <h2>เพิ่มจากคลัง</h2>
             <button className="btn secondary" disabled={busy} onClick={() => setLibrary(null)}>
               ปิดคลัง

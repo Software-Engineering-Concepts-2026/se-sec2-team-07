@@ -561,6 +561,17 @@ select:focus {
   gap: 22px;
   margin: 24px 0;
 }
+.course-library-heading {
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+.course-library-heading h2 {
+  margin: 0;
+}
+.course-library-heading .btn {
+  flex-shrink: 0;
+}
 .mission-heading {
   gap: 16px;
   margin-bottom: 16px;
