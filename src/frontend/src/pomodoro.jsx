@@ -76,9 +76,13 @@ export function PomodoroProvider({ children }) {
       message: '',
     });
   };
+  const selectPhase = (phase) => {
+    if (!durations[phase] || current.current.phase === phase) return;
+    update({ phase, remaining: durations[phase], deadline: null, started: false, message: '' });
+  };
   return (
     <PomodoroContext.Provider
-      value={{ ...timer, running: timer.deadline !== null, start, pause, reset }}
+      value={{ ...timer, running: timer.deadline !== null, start, pause, reset, selectPhase }}
     >
       {children}
     </PomodoroContext.Provider>
@@ -140,15 +144,24 @@ export default function PomodoroPage() {
       <div className={`focus-workspace ${resting ? 'resting' : ''}`}>
         <section className="panel pomodoro-panel focus-timer" aria-label="นาฬิกา Pomodoro">
           <div className="focus-phase">
-            <span
+            <button
+              type="button"
+              onClick={() => timer.selectPhase('focus')}
+              aria-pressed={!resting}
               className={!resting ? 'current' : ''}
               aria-current={!resting ? 'step' : undefined}
             >
               01 · เรียน 25 นาที
-            </span>
-            <span className={resting ? 'current' : ''} aria-current={resting ? 'step' : undefined}>
+            </button>
+            <button
+              type="button"
+              onClick={() => timer.selectPhase('break')}
+              aria-pressed={resting}
+              className={resting ? 'current' : ''}
+              aria-current={resting ? 'step' : undefined}
+            >
               02 · พัก 5 นาที
-            </span>
+            </button>
           </div>
           <div className="focus-ring">
             <svg viewBox="0 0 300 300" aria-hidden="true">
@@ -183,6 +196,7 @@ export default function PomodoroPage() {
               </span>
             </div>
           </div>
+          <p className="focus-caption">กดสลับช่วงได้ · เปลี่ยนช่วงแล้วกดเริ่มจับเวลาใหม่</p>
           <p className="focus-intention">
             {resting ? 'พักสักนิด แล้วค่อยไปต่อ' : 'ทีละเรื่อง ก็ไปได้ไกล'}
           </p>

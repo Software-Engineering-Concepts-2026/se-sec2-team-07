@@ -28,6 +28,20 @@ test('Issue #9: pause, resume, reset, break review, navigation and session reset
     await page.goto('/#/pomodoro');
     const timer = page.getByRole('timer');
     await expect(timer).toHaveText('25:00');
+    await page.getByRole('button', { name: '02 · พัก 5 นาที' }).click();
+    await expect(timer).toHaveText('05:00');
+    await expect(page.getByRole('button', { name: '02 · พัก 5 นาที' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await page.getByRole('button', { name: 'เริ่มจับเวลา', exact: true }).click();
+    await page.clock.fastForward(60000);
+    await expect(timer).toHaveText('04:00');
+    await page.getByRole('button', { name: '02 · พัก 5 นาที' }).click();
+    await expect(timer).toHaveText('04:00');
+    await page.getByRole('button', { name: '01 · เรียน 25 นาที' }).click();
+    await page.clock.fastForward(60000);
+    await expect(timer).toHaveText('25:00');
     await page.getByRole('button', { name: 'เริ่มจับเวลา', exact: true }).click();
     await page.clock.fastForward(60000);
     await expect(timer).toHaveText('24:00');

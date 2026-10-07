@@ -314,7 +314,7 @@ select:focus {
 .focus-phase {
   background: #291754;
 }
-.focus-phase span {
+.focus-phase button {
   color: #ddd3ff;
 }
 .focus-phase .active {
@@ -1142,7 +1142,7 @@ h3 {
   color: white;
   text-decoration: underline;
 }
-.focus-phase span,
+.focus-phase button,
 .focus-status,
 .focus-caption,
 .focus-steps li,
