@@ -18,6 +18,19 @@ test('note upload shows progress, extracted text, and retryable errors', async (
     await page.goto('/#/notes');
     const input = page.locator('#note-file');
     await expect(input).toBeEnabled();
+    let releaseRefresh;
+    const refreshPending = new Promise((resolve) => {
+      releaseRefresh = resolve;
+    });
+    await page.route('**/api/notes', async (route) => {
+      await refreshPending;
+      await route.fulfill({ json: { notes: [] } });
+    });
+    const refreshRequest = page.waitForRequest('**/api/notes');
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+    await refreshRequest;
+    await expect(page.locator('#note-title')).toBeDisabled();
+    await expect(input).toBeEnabled();
     let release;
     const pending = new Promise((resolve) => {
       release = resolve;
@@ -34,6 +47,7 @@ test('note upload shows progress, extracted text, and retryable errors', async (
       page.getByRole('status').filter({ hasText: 'กำลังอ่านข้อความจาก lesson.txt' }),
     ).toBeVisible();
     await expect(input).toBeDisabled();
+    releaseRefresh();
     release();
     await expect(page.locator('#note-body')).toHaveValue('ข้อความที่อ่านจากเอกสาร');
     await expect(

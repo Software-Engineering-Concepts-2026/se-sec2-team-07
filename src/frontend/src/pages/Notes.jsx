@@ -149,7 +149,9 @@ export default function Notes() {
     });
   }
   async function readFile(file) {
-    if (!file || locked) return;
+    // Returning from the file picker can trigger a background refresh.
+    // A selected file must still be handled while that read-only request runs.
+    if (!file || busy || mutation.uncertain || inFlight.current) return;
     if (
       draft.body.trim() &&
       !(await confirm('แทนที่ข้อความโน้ต?', 'ข้อความที่อ่านจากไฟล์จะแทนที่ข้อความในช่องเนื้อหา'))
@@ -277,7 +279,7 @@ export default function Notes() {
             id="note-file"
             type="file"
             accept=".pdf,.pptx,.txt,.md"
-            disabled={locked || loading}
+            disabled={busy || mutation.uncertain || loading}
             onChange={(e) => {
               const file = e.target.files[0];
               e.target.value = '';
