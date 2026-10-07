@@ -67,6 +67,8 @@ test('logout cancellation and failed logout preserve note and card drafts', asyn
     await page.getByRole('button', { name: 'บันทึกโน้ต', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Keep this draft', exact: true })).toBeVisible();
     await page.goto('/#/create');
+    await page.getByRole('button', { name: /เขียนเอง เพิ่มคำถาม/ }).click();
+    await page.getByRole('button', { name: 'เพิ่มเอง', exact: true }).click();
     await page.getByLabel('ชื่อชุดการ์ด').fill('Unsaved cards');
     await page.getByRole('button', { name: 'ออกจากระบบ', exact: true }).last().click();
     await expect(page.getByRole('dialog')).toContainText('ร่างนี้จะหายไป');

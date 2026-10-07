@@ -44,7 +44,7 @@ test('register → upload → edit → review → statistics → delete → logi
       'Unsaved description',
     );
     await page.getByRole('button', { name: 'บันทึกชุดการ์ด' }).click();
-    await page.getByRole('link', { name: 'เริ่มทบทวน →' }).click();
+    await page.getByRole('link', { name: 'เริ่มทบทวน →', exact: true }).click();
     await expect(page.getByText('What is a stack?', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'พักเวลา', exact: true }).click();
     await expect(page.getByText('พักสักครู่ แล้วค่อยกลับมาเรียนรู้')).toBeVisible();

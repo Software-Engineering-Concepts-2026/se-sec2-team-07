@@ -3,6 +3,7 @@ assertTestDatabase();
 import { test, expect } from '@playwright/test';
 import pg from 'pg';
 import { randomUUID } from 'node:crypto';
+import { navigateTo } from './helpers/navigation.js';
 
 const first = 'Stack ที่เรียนจบแล้ว';
 const second = 'Queue ที่ยังต้องทบทวน';
@@ -46,7 +47,8 @@ async function fixture(page, run) {
       [reviewId, userId, card.id, 'good', 10, Date.now() / 1000],
     );
     await page.goto('/');
-    await page.getByRole('link', { name: 'จัดเก็บการ์ด', exact: true }).click();
+    await expect(page.locator('.dashboard-hero')).toBeVisible();
+    await navigateTo(page, '#/archive');
     await expect(page.getByRole('heading', { name: 'จัดเก็บการ์ด', exact: true })).toBeVisible();
     await run({ deckId, card, courseId, pool, reviewId });
   } finally {

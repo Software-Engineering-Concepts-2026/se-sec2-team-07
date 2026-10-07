@@ -55,7 +55,7 @@ test('Issue #7: show unique cards, weak topics and history without reviewing fut
     ]);
 
     await page.goto('/#/stats');
-    await expect(page.getByRole('heading', { name: 'ทุกการทบทวนมีความหมาย' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'สถิติการเรียน', exact: true })).toBeVisible();
     const topics = page.getByRole('region', { name: 'สถิติรายชุดการ์ด' });
     await expect(topics.getByRole('article')).toHaveCount(3);
     const weak = topics

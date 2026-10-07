@@ -4,6 +4,7 @@ import { test, expect } from '@playwright/test';
 import pg from 'pg';
 import { randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
+import { navigateTo } from './helpers/navigation.js';
 
 const selectedName = 'ผลงานวิชาโครงสร้างข้อมูล';
 const omittedName = 'ชุดส่วนตัวที่ไม่เลือก';
@@ -51,7 +52,8 @@ async function fixture(page, run) {
       );
     }
     await page.goto('/');
-    await page.getByRole('link', { name: 'ส่งออกผลงาน', exact: true }).click();
+    await expect(page.locator('.dashboard-hero')).toBeVisible();
+    await navigateTo(page, '#/export');
     await expect(page.getByRole('checkbox', { name: selectedName, exact: true })).toBeVisible();
     await run({ id, email });
   } finally {

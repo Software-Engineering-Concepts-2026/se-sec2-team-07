@@ -59,7 +59,7 @@ test('Issue #10: separate sessions sync decks and preserve a stale dirty draft',
     await page.getByLabel('ชื่อชุดการ์ด', { exact: true }).fill('Changed on first device');
     await page.getByRole('button', { name: 'บันทึกชุดการ์ด', exact: true }).click();
     await expect(page).toHaveURL(/#\/decks$/);
-    await sync(other).click();
+    await other.evaluate(() => window.dispatchEvent(new Event('focus')));
     await expect(
       other.getByRole('heading', { name: 'Changed on first device', exact: true }),
     ).toBeVisible();
@@ -128,7 +128,7 @@ test('Issue #10: notes sync across sessions without overwriting an unsaved note'
     await expect(
       page.getByRole('article').filter({ hasText: 'First device saved body' }),
     ).toBeVisible();
-    await sync(other).click();
+    await other.evaluate(() => window.dispatchEvent(new Event('focus')));
     await expect(other.getByLabel('เนื้อหาโน้ต', { exact: true })).toHaveValue(
       'First device saved body',
     );
@@ -179,12 +179,13 @@ for (const kind of ['decks', 'notes']) {
       const title = page.getByLabel(kind === 'decks' ? 'ชื่อชุดการ์ด' : 'ชื่อโน้ต', {
         exact: true,
       });
-      await title.fill('Saved exactly once');
       if (kind === 'decks') {
+        await page.getByRole('button', { name: /เขียนเอง เพิ่มคำถาม/ }).click();
         await page.getByRole('button', { name: 'เพิ่มเอง', exact: true }).click();
         await page.getByLabel('ด้านหน้า · คำถาม', { exact: true }).fill('Unique question');
         await page.getByLabel('ด้านหลัง · คำตอบ', { exact: true }).fill('Unique answer');
       } else await page.getByLabel('เนื้อหาโน้ต', { exact: true }).fill('Unique note body');
+      await title.fill('Saved exactly once');
       const requests = [];
       await page.route(`**/api/${kind}`, async (route) => {
         if (route.request().method() !== 'POST') return route.continue();
@@ -239,7 +240,7 @@ test('Issue #10: failed background reload keeps visible decks and can retry', as
         body: JSON.stringify({ error: 'Temporary sync outage' }),
       }),
     );
-    await sync(page).click();
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
     await expect(page.getByLabel('สถานะการซิงค์', { exact: true })).toContainText(
       /ไม่สำเร็จ|ผิดพลาด|เชื่อมต่อ|Temporary/,
     );
@@ -332,6 +333,17 @@ test('Issue #10: confirmed reload failure preserves editor draft until successfu
     const title = page.getByLabel('ชื่อชุดการ์ด', { exact: true });
     await expect(title).toHaveValue('Reload source deck');
     await title.fill('Do not lose this draft');
+    const saved = await (await page.request.get('/api/decks/' + id)).json();
+    expect(
+      (
+        await page.request.put('/api/decks/' + id, { data: { ...saved, request_id: randomUUID() } })
+      ).ok(),
+    ).toBeTruthy();
+    const conflict = page.waitForResponse(
+      (r) => r.url().endsWith('/api/decks/' + id) && r.request().method() === 'PUT',
+    );
+    await page.getByRole('button', { name: 'บันทึกชุดการ์ด', exact: true }).click();
+    expect((await conflict).status()).toBe(409);
     await page.route(`**/api/decks/${id}`, (route) =>
       route.request().method() === 'GET'
         ? route.fulfill({

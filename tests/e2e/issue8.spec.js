@@ -52,14 +52,15 @@ test('Issue #8: select AI knowledge level, preserve edited drafts on failure and
     const answers = page.getByRole('textbox', { name: 'ด้านหลัง · คำตอบ', exact: true });
     await expect(mode).toHaveValue('local');
     await expect(level).toHaveCount(0);
-    await page.getByLabel('ชื่อชุดการ์ด').fill('Issue 8 levels');
     await sourceInput.fill(source);
+    await page.locator('.creation-settings > summary').click();
     await mode.selectOption('ai');
     await page.getByText('ปรับระดับความรู้และภาษา', { exact: true }).click();
     await expect(level).toHaveValue('intermediate');
     await level.selectOption('beginner');
     await generate.click();
     await expect(questions).toHaveCount(1);
+    await page.getByLabel('ชื่อชุดการ์ด').fill('Issue 8 levels');
     expect(requests[0]).toMatchObject({ mode: 'ai', level: 'beginner', text: source });
     await questions.nth(0).fill('What does LIFO mean?');
     await answers.nth(0).fill('Last in, first out.');

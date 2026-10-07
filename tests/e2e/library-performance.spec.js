@@ -22,11 +22,16 @@ test('library loads without requesting statistics, including refresh', async ({ 
     });
     await page.goto('/#/decks');
     await expect(page.getByRole('heading', { name: 'ชุดการ์ดของฉัน', exact: true })).toBeVisible();
-    const refresh = page.getByRole('button', { name: 'ดึงข้อมูลล่าสุด', exact: true });
-    await refresh.click();
-    await expect(refresh).toBeEnabled();
+    const refreshed = page.waitForResponse(
+      (r) => r.url().endsWith('/api/decks') && r.request().method() === 'GET',
+    );
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+    expect((await refreshed).ok()).toBeTruthy();
     expect(statisticsRequests).toBe(0);
     await page.getByRole('link', { name: 'สร้างชุดการ์ด', exact: true }).click();
+    await expect(page.locator('.source-panel')).toBeVisible();
+    await page.getByRole('button', { name: /เขียนเอง เพิ่มคำถาม/ }).click();
+    await page.getByRole('button', { name: 'เพิ่มเอง', exact: true }).click();
     await expect(page.getByLabel('ชื่อชุดการ์ด')).toBeVisible();
   } finally {
     await pool.query('DELETE FROM users WHERE email=$1', [email]);
