@@ -1410,6 +1410,8 @@ h3 {
 }
 .schedule-settings .schedule-form {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-content: stretch;
   gap: 16px;
 }
 .schedule-settings .schedule-form .field {
@@ -1417,6 +1419,55 @@ h3 {
 }
 .schedule-settings .schedule-form .btn {
   justify-self: start;
+}
+.review-time-presets {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  max-width: 460px;
+}
+.review-time-presets button {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 14px 8px;
+  border: 2px solid #ddd3f0;
+  border-radius: 14px;
+  background: #fff;
+  color: #41345c;
+  cursor: pointer;
+  font: inherit;
+}
+.review-time-presets strong {
+  font-size: 24px;
+  line-height: 1.2;
+}
+.review-time-presets button[aria-pressed='true'] {
+  border-color: #6938ef;
+  background: #eee7ff;
+  color: #4921b1;
+}
+.review-time-presets button:focus-visible {
+  outline: 3px solid #6938ef;
+  outline-offset: 3px;
+}
+.review-time-presets button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.review-time-input {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.review-time-input::-webkit-inner-spin-button,
+.review-time-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.review-time-hint {
+  margin: -6px 0 0;
+  color: #594b70;
+  font-size: 14px;
 }
 .schedule-today {
   background: #f5f1ff;

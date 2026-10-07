@@ -70,10 +70,30 @@ export default function Schedule() {
           <h2>ตั้งเวลาทบทวน</h2>
           <p className="muted">เลือกเวลาที่ไหว แล้วค่อย ๆ เรียนรู้ทุกวัน</p>
           <form className="schedule-form" onSubmit={save}>
+            <div className="review-time-presets" role="group" aria-label="เลือกเวลาทบทวนต่อวัน">
+              {[5, 10, 15, 30].map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={Number(minutes) === value}
+                  disabled={busy}
+                  onClick={() => {
+                    setMinutes(value);
+                    setSaved(false);
+                  }}
+                >
+                  <strong>{value}</strong>
+                  <span>นาที</span>
+                </button>
+              ))}
+            </div>
             <label className="field">
               เวลาทบทวนต่อวัน (นาที)
               <input
+                className="review-time-input"
                 type="number"
+                inputMode="numeric"
+                aria-describedby="review-time-hint"
                 min="1"
                 max="120"
                 step="1"
@@ -86,6 +106,9 @@ export default function Schedule() {
                 }}
               />
             </label>
+            <p id="review-time-hint" className="review-time-hint">
+              เลือกเวลาด้านบน หรือพิมพ์เองได้ตั้งแต่ 1–120 นาที
+            </p>
             <button className="btn" disabled={busy}>
               {busy ? 'กำลังปรับตาราง…' : 'บันทึกเวลาและปรับตาราง'}
             </button>

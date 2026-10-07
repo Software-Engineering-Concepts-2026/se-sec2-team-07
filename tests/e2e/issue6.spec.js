@@ -29,6 +29,16 @@ test('Issue #6: set daily workload, review a bounded queue, and see the updated 
     const deck = await (await page.request.get(`/api/decks/${(await created.json()).id}`)).json();
     await page.goto('/#/schedule');
     await expect(page.getByRole('heading', { name: 'ตารางทบทวน', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: '15 นาที', exact: true }).click();
+    await expect(page.getByRole('button', { name: '15 นาที', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await expect(page.getByLabel('เวลาทบทวนต่อวัน (นาที)')).toHaveValue('15');
+    await page.getByRole('button', { name: 'บันทึกเวลาและปรับตาราง' }).click();
+    await expect(page.getByRole('status').filter({ hasText: 'บันทึกเวลาแล้ว' })).toBeVisible();
+    await page.reload();
+    await expect(page.getByLabel('เวลาทบทวนต่อวัน (นาที)')).toHaveValue('15');
     await page.getByLabel('เวลาทบทวนต่อวัน (นาที)').fill('1');
     await page.getByRole('button', { name: 'บันทึกเวลาและปรับตาราง' }).click();
     await expect(page.locator('.schedule-today-metrics > div').first()).toContainText('พร้อมทบทวน');
