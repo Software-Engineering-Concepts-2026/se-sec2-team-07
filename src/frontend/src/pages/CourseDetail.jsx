@@ -242,32 +242,38 @@ export default function CourseDetail() {
           <h2>
             {type === 'cards' ? 'การ์ด' : 'โน้ต'} ({course[type].length})
           </h2>
+          <p className="small muted">การแก้ต้นฉบับมีผลกับทุกวิชาที่เชื่อม</p>
           {course[type].length ? (
-            course[type].map((item) => (
-              <article className="shared-content" key={item.id}>
-                <h3>{item.front || item.title}</h3>
-                {item.archived_at && <p className="small muted">เรียนจบแล้ว · ไม่อยู่ในคิวทบทวน</p>}
-                <p className="shared-text">{item.back || item.body}</p>
-                {item.deck_name && <p className="small muted">ชุดต้นฉบับ: {item.deck_name}</p>}
-                <CourseLinks courses={item.courses} />
-                <p className="small muted">การแก้ต้นฉบับมีผลกับทุกวิชาที่เชื่อม</p>
-                <div className="toolbar">
-                  <Link
-                    className="btn secondary"
-                    to={type === 'cards' ? `/edit/${item.deck_id}` : `/notes?edit=${item.id}`}
-                  >
-                    แก้ต้นฉบับ
-                  </Link>
-                  <button
-                    className="btn secondary"
-                    disabled={busy}
-                    onClick={() => changeLink(type, item.id, true)}
-                  >
-                    นำออกจากวิชา
-                  </button>
-                </div>
-              </article>
-            ))
+            <div className="course-content-grid">
+              {course[type].map((item) => (
+                <article className="shared-content course-content-card" key={item.id}>
+                  <h3>{item.front || item.title}</h3>
+                  {item.archived_at && (
+                    <p className="small muted">เรียนจบแล้ว · ไม่อยู่ในคิวทบทวน</p>
+                  )}
+                  <p className="shared-text">{item.back || item.body}</p>
+                  <div className="course-content-details">
+                    {item.deck_name && <p className="small muted">ชุดต้นฉบับ: {item.deck_name}</p>}
+                    <CourseLinks courses={item.courses} />
+                  </div>
+                  <div className="toolbar">
+                    <Link
+                      className="btn secondary"
+                      to={type === 'cards' ? `/edit/${item.deck_id}` : `/notes?edit=${item.id}`}
+                    >
+                      แก้ต้นฉบับ
+                    </Link>
+                    <button
+                      className="btn secondary"
+                      disabled={busy}
+                      onClick={() => changeLink(type, item.id, true)}
+                    >
+                      นำออกจากวิชา
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
           ) : (
             <Empty title={type === 'cards' ? 'ยังไม่มีการ์ดในวิชานี้' : 'ยังไม่มีโน้ตในวิชานี้'}>
               <p>กดเพิ่มจากคลังเพื่อเลือกเนื้อหาเดิม</p>

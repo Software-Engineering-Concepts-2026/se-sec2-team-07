@@ -1679,3 +1679,44 @@ h3 {
     gap: 12px;
   }
 }
+.course-content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+.course-content-grid .course-content-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 12px;
+  margin: 0;
+  padding: 20px;
+  border: 1px solid #ddd3f0;
+  border-radius: 14px;
+  overflow-wrap: anywhere;
+}
+.course-content-card h3,
+.course-content-card p {
+  margin: 0;
+}
+.course-content-card > .shared-text {
+  max-height: 9em;
+  overflow: auto;
+}
+.course-content-details {
+  display: grid;
+  gap: 6px;
+  background: #f5f1ff;
+  border-radius: 8px;
+  padding: 12px;
+}
+.course-content-card > .toolbar {
+  margin: auto 0 0;
+  padding-top: 4px;
+  gap: 8px;
+}
+.course-content-card > .toolbar > .btn {
+  flex: 1 1 120px;
+  text-align: center;
+}
