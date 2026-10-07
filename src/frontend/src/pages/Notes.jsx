@@ -19,6 +19,7 @@ export default function Notes() {
     [draft, setDraft] = useState(blank),
     [editing, setEditing] = useState(null);
   const [conflict, setConflict] = useState(false);
+  const [fileStatus, setFileStatus] = useState('');
   const [actionError, setActionError] = useState(''),
     [busy, setBusy] = useState(false),
     [query, setQuery] = useState('');
@@ -33,6 +34,7 @@ export default function Notes() {
     setDraft(blank());
     setActionError('');
     setConflict(false);
+    setFileStatus('');
   }, [target]);
   const sync = useRemoteSync({
     resource: `notes:${target}`,
@@ -78,6 +80,7 @@ export default function Notes() {
     try {
       await action();
     } catch (e) {
+      setFileStatus('');
       setConflict(e.status === 409);
       setActionError(e.message);
     } finally {
@@ -98,6 +101,7 @@ export default function Notes() {
     dirty.current = false;
     setEditing(note);
     setDraft(note ? { title: note.title, body: note.body } : blank());
+    setFileStatus('');
     setActionError('');
     setConflict(false);
     setParams(note ? { edit: note.id } : {});
@@ -123,6 +127,7 @@ export default function Notes() {
       });
       dirty.current = false;
       setDraft(blank());
+      setFileStatus('');
       setEditing(null);
       setParams({});
       notify('บันทึกโน้ตแล้ว');
@@ -151,7 +156,12 @@ export default function Notes() {
     )
       return;
     await run(async () => {
+      setFileStatus('');
+      if (!/\.(pdf|pptx|txt|md)$/i.test(file.name))
+        throw Error('รูปแบบไฟล์ไม่รองรับ กรุณาเลือก PDF, PPTX, TXT หรือ MD');
+      if (!file.size) throw Error('ไฟล์ว่าง กรุณาเลือกไฟล์ที่มีข้อความ');
       if (file.size > 20 * 1024 * 1024) throw Error('ไฟล์ต้องมีขนาดไม่เกิน 20 MB');
+      setFileStatus(`กำลังอ่านข้อความจาก ${file.name} — หากต้องใช้ OCR อาจใช้เวลา 1–3 นาที`);
       const content = await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result.split(',')[1]);
@@ -166,6 +176,11 @@ export default function Notes() {
         title: d.title || file.name.replace(/\.[^.]+$/, '').slice(0, 120),
         body: result.text,
       }));
+      setFileStatus(
+        `อ่าน ${file.name} สำเร็จ — ข้อความอยู่ในช่องเนื้อหาโน้ตด้านบน ยังไม่ได้บันทึก${
+          result.requiresReview ? ' · ใช้ OCR กรุณาตรวจสระ วรรณยุกต์ และลำดับข้อความก่อนบันทึก' : ''
+        }`,
+      );
       notify('อ่านข้อความแล้ว กรุณาตรวจและบันทึกโน้ต');
     });
   }
@@ -269,6 +284,11 @@ export default function Notes() {
               readFile(file);
             }}
           />
+          {fileStatus && (
+            <p className="notice" role="status">
+              {fileStatus}
+            </p>
+          )}
           {actionError && <p role="alert">{actionError}</p>}
           <div className="toolbar">
             <button
