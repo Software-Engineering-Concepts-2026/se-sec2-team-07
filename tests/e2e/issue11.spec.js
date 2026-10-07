@@ -87,3 +87,41 @@ test('Issue #11: reuse cards and notes across courses without losing originals',
     await pool.end();
   }
 });
+
+test('link a whole deck atomically and skip existing links', async ({ page }) => {
+  const email = `bulk-${randomUUID()}@example.com`;
+  const pool = new pg.Pool({ connectionString: process.env.TEST_DATABASE_URL });
+  try {
+    await page.request.post('/api/register', {
+      data: { name: 'Bulk', email, password: 'TestPassword123' },
+    });
+    const deck = await (
+      await page.request.post('/api/decks', {
+        data: {
+          name: 'Whole deck',
+          cards: Array.from({ length: 3 }, (_, i) => ({ front: `Q${i}`, back: `A${i}` })),
+        },
+      })
+    ).json();
+    const course = await (
+      await page.request.post('/api/courses', { data: { name: 'Bulk course' } })
+    ).json();
+    const original = await (await page.request.get(`/api/decks/${deck.id}`)).json();
+    await page.request.put(`/api/courses/${course.id}/cards/${original.cards[0].id}`, { data: {} });
+    await page.goto(`/#/courses/${course.id}`);
+    await page.getByRole('button', { name: 'เพิ่มจากคลัง', exact: true }).click();
+    await page.getByRole('button', { name: 'เชื่อมทั้งชุด', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'เชื่อมครบแล้ว', exact: true })).toBeDisabled();
+    expect((await (await page.request.get(`/api/courses/${course.id}`)).json()).cards).toHaveLength(
+      3,
+    );
+    expect(
+      await (
+        await page.request.put(`/api/courses/${course.id}/decks/${deck.id}`, { data: {} })
+      ).json(),
+    ).toEqual({ added: 0 });
+  } finally {
+    await pool.query('DELETE FROM users WHERE email=$1', [email]);
+    await pool.end();
+  }
+});

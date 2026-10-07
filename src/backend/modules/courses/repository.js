@@ -80,6 +80,34 @@ export function courseRepository(pool) {
       if (!(await pool.query('DELETE FROM courses WHERE id=$1 AND user_id=$2', [id, uid])).rowCount)
         throw notFound();
     },
+    async linkDeck(uid, courseId, deckId) {
+      return transaction(pool, async (client) => {
+        // Use the same source-before-course lock order as individual links.
+        if (
+          !(
+            await client.query('SELECT id FROM decks WHERE id=$1 AND user_id=$2 FOR UPDATE', [
+              deckId,
+              uid,
+            ])
+          ).rowCount
+        )
+          throw notFound();
+        if (
+          !(
+            await client.query('SELECT id FROM courses WHERE id=$1 AND user_id=$2 FOR UPDATE', [
+              courseId,
+              uid,
+            ])
+          ).rowCount
+        )
+          throw notFound();
+        const result = await client.query(
+          'INSERT INTO course_cards(course_id,card_id) SELECT $1,id FROM cards WHERE deck_id=$2 ON CONFLICT DO NOTHING',
+          [courseId, deckId],
+        );
+        return result.rowCount;
+      });
+    },
     async link(uid, courseId, kind, sourceId, add) {
       return transaction(pool, async (client) => {
         // Lock source before course: deck edits/deletions take this same deck lock.

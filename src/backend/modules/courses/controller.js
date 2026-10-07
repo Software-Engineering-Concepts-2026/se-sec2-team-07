@@ -27,6 +27,14 @@ export function courseController(repo) {
     await repo.remove(req.user.id, idSchema.parse(req.params.id));
     res.json({ ok: true });
   });
+  router.put('/:id/decks/:deckId', async (req, res) => {
+    const added = await repo.linkDeck(
+      req.user.id,
+      idSchema.parse(req.params.id),
+      idSchema.parse(req.params.deckId),
+    );
+    res.json({ added });
+  });
   for (const kind of ['cards', 'notes']) {
     for (const method of ['put', 'delete'])
       router[method](`/:id/${kind}/:sourceId`, async (req, res) => {

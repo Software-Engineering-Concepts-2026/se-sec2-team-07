@@ -102,6 +102,13 @@ export default function CourseDetail() {
           .includes(query.toLowerCase()),
       )
     : [];
+  const decks = library
+    ? [
+        ...new Map(
+          library.cards.map((card) => [card.deck_id, { id: card.deck_id, name: card.deck_name }]),
+        ).values(),
+      ].filter((deck) => deck.name.toLowerCase().includes(query.toLowerCase()))
+    : [];
   return (
     <>
       <PageTitle
@@ -186,6 +193,45 @@ export default function CourseDetail() {
               }}
             />
           </div>
+          <div className="library-picker-grid">
+            {kind === 'cards' &&
+              decks.map((deck) => {
+                const cards = library.cards.filter((card) => card.deck_id === deck.id);
+                const linkedCount = cards.filter((card) =>
+                  course.cards.some((current) => current.id === card.id),
+                ).length;
+                return (
+                  <article className="shared-content library-picker-item" key={`deck-${deck.id}`}>
+                    <div className="library-picker-copy">
+                      <small>ชุดการ์ด</small>
+                      <h3>{deck.name}</h3>
+                      <p>
+                        {cards.length} ใบ · เชื่อมแล้ว {linkedCount} ใบ
+                      </p>
+                    </div>
+                    <button
+                      className="btn"
+                      disabled={busy || linkedCount === cards.length}
+                      onClick={() =>
+                        run(async () => {
+                          await api(`/courses/${id}/decks/${deck.id}`, 'PUT', {});
+                          await refresh();
+                          notify('เชื่อมชุดการ์ดแล้ว');
+                        })
+                      }
+                    >
+                      {linkedCount === cards.length ? 'เชื่อมครบแล้ว' : 'เชื่อมทั้งชุด'}
+                    </button>
+                  </article>
+                );
+              })}
+          </div>
+          {kind === 'cards' && (
+            <p className="small muted">
+              เชื่อมการ์ดทุกใบที่มีในชุดตอนนี้ รวมการ์ดที่เรียนจบแล้ว หากเพิ่มใบใหม่ภายหลัง
+              กดเชื่อมทั้งชุดอีกครั้งได้
+            </p>
+          )}
           <div className="library-picker-grid">
             {items.length ? (
               items.slice(page * 8, page * 8 + 8).map((item) => {
