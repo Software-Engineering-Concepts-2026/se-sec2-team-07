@@ -1,5 +1,36 @@
 # จุดแก้ไขโค้ดหลัก
 
+## ผล regression ล่าสุด — 2026-10-07
+
+ข้อจำกัดเรื่อง browser suite ที่ไม่ผ่านในบันทึกวันที่ 2026-10-06 ด้านล่างแก้แล้ว:
+Build และ format check ผ่าน; unit 49/49, integration 36/36 และ browser 68/68 ผ่าน
+รวม 153 tests ไม่มี fail หรือ skip ในรอบยืนยันสุดท้าย
+
+แก้เฉพาะตัวทดสอบให้ตรง UI ปัจจุบัน: เลือกเขียนเองก่อนเพิ่มการ์ด, กรอกชื่อหลังสร้างการ์ด,
+เปิดตัวเลือก AI, ระบุลิงก์ทบทวนแบบ exact, ใช้การซิงค์อัตโนมัติเมื่อไม่มี error,
+สร้าง revision conflict ก่อนทดสอบ recovery และเปิดเมนูเพิ่มเติมบนมือถือ
+ยังคงตรวจร่างไม่หาย, retry ไม่สร้างซ้ำ, owner isolation, daily budget และ review history
+ไม่มีการ skip tests, เพิ่ม timeout มาตรฐาน หรือเปลี่ยน production code เพื่อให้ tests ผ่าน
+
+ใช้ Chrome บน Windows, desktop และ mobile emulation รวม viewport 320/768/844/1024px
+ฐานข้อมูลทดสอบ PostgreSQL แยกบน localhost; ไม่เขียน Supabase production
+รายงาน browser รอบสุดท้ายอยู่ที่ `.local/regression-full.json` (ไม่ commit)
+ผลนี้ไม่ใช่การรับรอง AI/OCR provider จริง, Docker end-to-end หรือ Safari/อุปกรณ์จริง
+
+รันซ้ำ: เปิด `npm run db:test:local` ใน terminal แยก และกำหนด TEST_DATABASE_URL
+สำหรับฐานข้อมูลทดสอบ จากนั้นรันตามลำดับ:
+
+```powershell
+npm run build
+npm run format:check
+npm test
+npm run test:integration
+npm run test:e2e
+```
+
+รอแต่ละคำสั่งจบและตรวจผลก่อนคำสั่งถัดไป ห้ามรัน integration กับ browser พร้อมกัน
+เพราะ integration มีกรณีทดสอบ migration และการเตรียม schema
+
 รอบนี้แยกหน้าที่โดยคง API, schema, CSS และเส้นทางเดิม ไม่เปลี่ยนระบบ AI หรือฐานข้อมูล
 
 | ต้องการแก้ | ไฟล์ |
