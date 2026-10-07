@@ -335,6 +335,14 @@ select:focus {
   min-height: calc(100dvh - 64px);
   padding-top: 24px;
 }
+.main:has(.review-surface .review-card) > .topbar {
+  background: var(--purple);
+  color: #fff;
+  border-color: transparent;
+}
+.main:has(.review-surface .review-card) > .topbar time {
+  color: #fff;
+}
 .review-surface .review-wrap:not(.finish) {
   max-width: 760px;
   color: white;
