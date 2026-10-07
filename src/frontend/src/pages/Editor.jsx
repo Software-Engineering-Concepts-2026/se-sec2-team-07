@@ -163,7 +163,7 @@ export default function Editor() {
                       setReviewed(false);
                     }}
                     placeholder={
-                      'Stack: โครงสร้างข้อมูลแบบเข้าทีหลังออกก่อน\nQueue: โครงสร้างข้อมูลแบบเข้าก่อนออกก่อน'
+                      'วางโน้ต สรุปบทเรียน หรือคำศัพท์ที่ต้องการทำเป็นการ์ดที่นี่\n\nตัวอย่างคำศัพท์\napple: แอปเปิล\nbeautiful: สวยงาม'
                     }
                   />
                 </label>
