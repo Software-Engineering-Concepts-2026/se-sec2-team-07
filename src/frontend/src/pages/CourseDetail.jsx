@@ -20,6 +20,7 @@ export default function CourseDetail() {
   const [query, setQuery] = useState(''),
     [kind, setKind] = useState('cards'),
     [version, setVersion] = useState(0);
+  const [page, setPage] = useState(0);
   const dirty = useRef(false),
     inFlight = useRef(false);
   useUnsavedChanges(dirty);
@@ -140,6 +141,7 @@ export default function CourseDetail() {
           onClick={() =>
             run(async () => {
               setLibrary(await api('/courses/library'));
+              setPage(0);
             })
           }
         >
@@ -158,32 +160,45 @@ export default function CourseDetail() {
             </button>
           </div>
           <div className="toolbar">
-            <select
-              aria-label="ประเภทเนื้อหา"
-              value={kind}
-              disabled={busy}
-              onChange={(e) => setKind(e.target.value)}
-            >
-              <option value="cards">การ์ด</option>
-              <option value="notes">โน้ต</option>
-            </select>
+            <div className="toolbar" role="group" aria-label="ประเภทเนื้อหา">
+              {['cards', 'notes'].map((type) => (
+                <button
+                  key={type}
+                  className={`btn ${kind === type ? '' : 'secondary'}`}
+                  aria-pressed={kind === type}
+                  disabled={busy}
+                  onClick={() => {
+                    setKind(type);
+                    setPage(0);
+                  }}
+                >
+                  {type === 'cards' ? 'การ์ด' : 'โน้ต'} ({library[type].length})
+                </button>
+              ))}
+            </div>
             <input
               aria-label="ค้นหาเนื้อหาในคลัง"
               placeholder="ค้นหาเนื้อหา…"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setPage(0);
+              }}
             />
           </div>
           {items.length ? (
-            items.map((item) => {
+            items.slice(page * 8, page * 8 + 8).map((item) => {
               const linked = course[kind].some((current) => current.id === item.id);
               return (
-                <article className="shared-content" key={item.id}>
-                  <h3>{item.front || item.title}</h3>
-                  {item.archived_at && (
-                    <p className="small muted">เรียนจบแล้ว · ไม่อยู่ในคิวทบทวน</p>
-                  )}
-                  <p className="shared-text">{item.back || item.body}</p>
+                <article className="shared-content library-picker-item" key={item.id}>
+                  <div className="library-picker-copy">
+                    <h3>{item.front || item.title}</h3>
+                    {item.archived_at && (
+                      <p className="small muted">เรียนจบแล้ว · ไม่อยู่ในคิวทบทวน</p>
+                    )}
+                    <p className="shared-text">{item.back || item.body}</p>
+                    {item.deck_name && <small>ชุดการ์ด: {item.deck_name}</small>}
+                  </div>
                   <button
                     className="btn secondary"
                     disabled={busy || linked}
@@ -196,6 +211,27 @@ export default function CourseDetail() {
             })
           ) : (
             <p>ไม่พบเนื้อหา ลองเปลี่ยนคำค้นหรือสร้างเนื้อหาในคลังก่อน</p>
+          )}
+          {items.length > 8 && (
+            <div className="toolbar" aria-label="หน้ารายการในคลัง">
+              <button
+                className="btn secondary"
+                disabled={page === 0}
+                onClick={() => setPage(page - 1)}
+              >
+                ก่อนหน้า
+              </button>
+              <span role="status">
+                หน้า {page + 1} / {Math.ceil(items.length / 8)} · {items.length} รายการ
+              </span>
+              <button
+                className="btn secondary"
+                disabled={(page + 1) * 8 >= items.length}
+                onClick={() => setPage(page + 1)}
+              >
+                ถัดไป
+              </button>
+            </div>
           )}
         </section>
       )}

@@ -39,7 +39,10 @@ test('Issue #11: reuse cards and notes across courses without losing originals',
       const picker = page.getByRole('region', { name: 'เพิ่มจากคลัง', exact: true });
       await picker.getByRole('button', { name: 'เชื่อมกับวิชานี้', exact: true }).click();
       await expect(picker.getByRole('button', { name: 'เชื่อมแล้ว', exact: true })).toBeDisabled();
-      await page.getByLabel('ประเภทเนื้อหา').selectOption('notes');
+      await page
+        .getByRole('group', { name: 'ประเภทเนื้อหา' })
+        .getByRole('button', { name: /^โน้ต/ })
+        .click();
       await picker.getByRole('button', { name: 'เชื่อมกับวิชานี้', exact: true }).click();
       await expect(picker.getByRole('button', { name: 'เชื่อมแล้ว', exact: true })).toBeDisabled();
       await page.getByRole('button', { name: 'ปิดคลัง' }).click();

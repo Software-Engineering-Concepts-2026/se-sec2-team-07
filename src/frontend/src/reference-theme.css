@@ -1637,3 +1637,35 @@ h3 {
     margin-top: 18px;
   }
 }
+.library-picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px;
+  margin: 12px 0;
+  border: 1px solid #ddd3f0;
+  border-radius: 12px;
+}
+.library-picker-copy {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.library-picker-copy h3,
+.library-picker-copy .shared-text {
+  margin: 0 0 6px;
+}
+.library-picker-copy .shared-text {
+  max-height: 5em;
+  overflow: auto;
+}
+.library-picker-item > .btn {
+  flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .library-picker-item {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
