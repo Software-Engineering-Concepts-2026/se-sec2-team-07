@@ -3,7 +3,7 @@ import { Icon } from '../UI';
 export default function StarterMissions({ missions }) {
   return (
     <section className="panel">
-      <div className="row between">
+      <div className="row between mission-heading">
         <h2>ภารกิจเริ่มต้น</h2>
         <span className="badge">
           {missions.filter((m) => m.done).length} / {missions.length}

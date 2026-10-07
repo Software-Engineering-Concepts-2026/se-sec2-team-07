@@ -553,6 +553,17 @@ select:focus {
   gap: 22px;
   margin: 24px 0;
 }
+.mission-heading {
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: center;
+}
+.mission-heading h2 {
+  margin: 0;
+}
+.mission-heading .badge {
+  flex-shrink: 0;
+}
 .mission-list {
   display: grid;
   gap: 12px;
