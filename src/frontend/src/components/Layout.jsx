@@ -155,7 +155,6 @@ function WorkspaceLayout() {
           <div className="row topbar-meta">
             <span className="status">พื้นที่เรียนรู้ของคุณ</span>
             <time dateTime={localDate}>วันนี้ {today}</time>
-            {logoutButton}
           </div>
         </header>
         <div className={`content ${pathname.startsWith('/review') ? 'review-surface' : ''}`}>
