@@ -39,7 +39,7 @@ test('Issue #4: inspect AI drafts, edit, undo deletion, retry save and reopen', 
     await page.getByRole('button', { name: /สร้างการ์ดจากเนื้อหา/ }).click();
     const questions = page.getByRole('textbox', { name: 'ด้านหน้า · คำถาม', exact: true });
     const answers = page.getByRole('textbox', { name: 'ด้านหลัง · คำตอบ', exact: true });
-    await expect(questions).toHaveCount(3);
+    await expect(questions).toHaveCount(1);
     await page.getByLabel('ชื่อชุดการ์ด').fill('Issue 4 draft');
     expect(
       (
@@ -51,12 +51,15 @@ test('Issue #4: inspect AI drafts, edit, undo deletion, retry save and reopen', 
     ).toBe(0);
     await questions.nth(0).fill('What is a stack?');
     await answers.nth(0).fill('LIFO');
+    await page.getByRole('button', { name: 'ถัดไป', exact: true }).click();
     await page.getByRole('button', { name: 'ลบการ์ด 2', exact: true }).click();
-    await expect(questions).toHaveCount(2);
-    await expect(questions.nth(1)).toHaveValue('Queue?');
+    await expect(questions).toHaveCount(1);
+    await page.getByRole('button', { name: 'ถัดไป', exact: true }).click();
+    await expect(questions).toHaveValue('Queue?');
     await page.getByRole('button', { name: 'คืนการ์ดที่ลบล่าสุด' }).click();
-    await expect(questions.nth(1)).toHaveValue('Unwanted?');
     await expect(answers.nth(0)).toHaveValue('LIFO');
+    await page.getByRole('button', { name: 'ถัดไป', exact: true }).click();
+    await expect(questions).toHaveValue('Unwanted?');
     await page.getByRole('button', { name: 'ลบการ์ด 2', exact: true }).click();
     await answers.nth(0).fill('   ');
     await page.getByRole('button', { name: 'บันทึกชุดการ์ด' }).click();

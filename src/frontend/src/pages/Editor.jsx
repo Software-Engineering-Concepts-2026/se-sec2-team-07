@@ -49,6 +49,10 @@ export default function Editor() {
     remove,
     exportDeck,
   } = useDeckEditor();
+  const activeIndex = Math.max(
+    0,
+    deck.cards.findIndex((card) => card.draftKey === selectedCard),
+  );
   if (loading) return <div className="loading">กำลังเปิดชุดการ์ด…</div>;
   if (id && !deck.id && sync.error) return <ErrorPanel error={sync.error} retry={sync.reload} />;
   return (
@@ -299,8 +303,10 @@ export default function Editor() {
                 className="btn secondary"
                 disabled={locked || deck.cards.length >= 500}
                 onClick={() => {
-                  setSelectedCard('');
-                  change('cards', [...deck.cards, draftCard({ front: '', back: '' })]);
+                  const card = draftCard({ front: '', back: '' });
+                  setSelectedCard(card.draftKey);
+                  change('cards', [...deck.cards, card]);
+                  cardsSection.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
               >
                 <Icon name="plus" />
@@ -308,16 +314,16 @@ export default function Editor() {
               </button>
             </div>
             <p className="notice">การแก้ไขและการลบจะมีผลเมื่อกดบันทึกชุดการ์ดเท่านั้น</p>
-            {id && deck.cards.length > 0 && (
+            {deck.cards.length > 0 && (
               <section className="panel stack" aria-label="เลือกการ์ดเพื่อแก้ไข">
                 <label className="field">
                   เลือกการ์ดที่ต้องการแก้ไข
                   <select
-                    value={selectedCard}
+                    value={id ? selectedCard : deck.cards[activeIndex].draftKey}
                     disabled={locked}
                     onChange={(e) => setSelectedCard(e.target.value)}
                   >
-                    <option value="">แสดงการ์ดทั้งหมด ({deck.cards.length} ใบ)</option>
+                    {id && <option value="">แสดงการ์ดทั้งหมด ({deck.cards.length} ใบ)</option>}
                     {deck.cards.map((card, index) => (
                       <option key={card.draftKey} value={card.draftKey}>
                         การ์ด {index + 1}: {card.front.trim().slice(0, 80) || 'ยังไม่มีคำถาม'}
@@ -325,6 +331,38 @@ export default function Editor() {
                     ))}
                   </select>
                 </label>
+                {!id && (
+                  <div className="toolbar" aria-label="เปลี่ยนการ์ดที่ตรวจ">
+                    <button
+                      className="btn secondary"
+                      disabled={locked || activeIndex === 0}
+                      onClick={() => setSelectedCard(deck.cards[activeIndex - 1].draftKey)}
+                    >
+                      ก่อนหน้า
+                    </button>
+                    <span role="status">
+                      ใบที่ {activeIndex + 1} จาก {deck.cards.length}
+                    </span>
+                    <button
+                      className="btn secondary"
+                      disabled={locked || activeIndex === deck.cards.length - 1}
+                      onClick={() => setSelectedCard(deck.cards[activeIndex + 1].draftKey)}
+                    >
+                      ถัดไป
+                    </button>
+                    <button
+                      className="btn secondary"
+                      onClick={() => {
+                        document.getElementById('deck-name')?.focus();
+                        document
+                          .getElementById('deck-summary')
+                          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }}
+                    >
+                      ไปขั้นตอนที่ 3 · ตั้งชื่อและบันทึก
+                    </button>
+                  </div>
+                )}
                 <p className="small muted">
                   สลับการ์ดได้โดยร่างที่แก้ไขยังอยู่ ปุ่มบันทึกชุดการ์ดจะบันทึกการเปลี่ยนแปลงทุกใบ
                   รวมใบที่ไม่ได้แสดง
@@ -347,7 +385,9 @@ export default function Editor() {
               {deck.cards.length ? (
                 deck.cards.map(
                   (card, index) =>
-                    (!id || !selectedCard || selectedCard === card.draftKey) && (
+                    (id
+                      ? !selectedCard || selectedCard === card.draftKey
+                      : index === activeIndex) && (
                       <article className="draft-card" key={card.draftKey}>
                         <div className="row between">
                           <span className="draft-number">
@@ -413,7 +453,11 @@ export default function Editor() {
             </div>
           </section>
         </div>
-        <aside hidden={!id && !deck.cards.length} className="panel stack sticky deck-summary">
+        <aside
+          id="deck-summary"
+          hidden={!id && !deck.cards.length}
+          className="panel stack sticky deck-summary"
+        >
           <div>
             <span className="editor-step">{id ? 'ชุดการ์ดของคุณ' : 'ขั้นตอนที่ 3'}</span>
             <h2>ตั้งชื่อและบันทึก</h2>
@@ -422,6 +466,7 @@ export default function Editor() {
           <label className="field">
             ชื่อชุดการ์ด
             <input
+              id="deck-name"
               value={deck.name}
               maxLength={120}
               disabled={locked}
