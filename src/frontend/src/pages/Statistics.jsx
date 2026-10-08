@@ -96,25 +96,45 @@ export default function Statistics() {
         ) : (
           <p>ยังไม่มีชุดที่เข้าเกณฑ์แนะนำ ชุดที่ทบทวนน้อยกว่า 3 ครั้งยังมีข้อมูลไม่เพียงพอ</p>
         )}
-        {stats.topics.map((topic) => (
-          <article className="panel shared-content" key={topic.id}>
-            <h3>{topic.name}</h3>
-            <p>
-              {topic.total} ครั้ง · {topic.uniqueCards} ใบไม่ซ้ำ · ความแม่นยำ {topic.accuracy}%
-            </p>
-            <p>
-              จำไม่ได้ {topic.again} ครั้ง · ยาก {topic.hard} ครั้ง
-            </p>
-            {topic.recommended ? (
-              <p className="notice">แนะนำให้ทบทวน: ความแม่นยำต่ำกว่า 70%</p>
-            ) : topic.total < 3 ? (
-              <p className="small muted">ข้อมูลยังไม่เพียงพอสำหรับคำแนะนำ</p>
-            ) : null}
-            <Link className="btn secondary" to={`/review/${topic.id}`}>
-              ทบทวนชุดนี้ตามตาราง
-            </Link>
-          </article>
-        ))}
+        <div className="statistics-topic-grid">
+          {stats.topics.map((topic) => (
+            <article
+              className={`statistics-topic-card ${topic.recommended ? 'recommended' : ''}`}
+              key={topic.id}
+            >
+              <h3>{topic.name}</h3>
+              <div className="topic-accuracy">
+                <span>ความแม่นยำ</span>
+                <strong>{topic.accuracy}%</strong>
+              </div>
+              <dl className="topic-metrics">
+                <div>
+                  <dt>ทบทวนแล้ว</dt>
+                  <dd>
+                    {topic.total} <small>ครั้ง</small>
+                  </dd>
+                </div>
+                <div>
+                  <dt>การ์ดไม่ซ้ำ</dt>
+                  <dd>
+                    {topic.uniqueCards} <small>ใบ</small>
+                  </dd>
+                </div>
+              </dl>
+              <p className="small muted">
+                จำไม่ได้ {topic.again} ครั้ง · ยาก {topic.hard} ครั้ง
+              </p>
+              {topic.recommended ? (
+                <p className="notice">แนะนำให้ทบทวน: ความแม่นยำต่ำกว่า 70%</p>
+              ) : topic.total < 3 ? (
+                <p className="small muted">ข้อมูลยังไม่เพียงพอสำหรับคำแนะนำ</p>
+              ) : null}
+              <Link className="btn secondary" to={`/review/${topic.id}`}>
+                ทบทวนชุดนี้ตามตาราง
+              </Link>
+            </article>
+          ))}
+        </div>
         <p className="small muted">
           แสดงเฉพาะชุดที่มีประวัติ · การทบทวนยังจำกัดตามวันครบกำหนดและเวลารายวัน
         </p>

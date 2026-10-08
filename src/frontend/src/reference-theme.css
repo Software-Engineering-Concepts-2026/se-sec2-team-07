@@ -1756,3 +1756,66 @@ h3 {
   outline: 3px solid #6938ef;
   outline-offset: 2px;
 }
+.statistics-topic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 20px;
+}
+.statistics-topic-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid #ddd3f0;
+  border-radius: 16px;
+  min-width: 0;
+  background: #fff;
+}
+.statistics-topic-card.recommended {
+  border: 2px solid #9167ef;
+  background: #fcfaff;
+}
+.statistics-topic-card h3 {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 21px;
+}
+.statistics-topic-card p {
+  margin: 0;
+}
+.topic-accuracy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #f1ebff;
+  border-radius: 12px;
+  color: #4921b1;
+}
+.topic-accuracy strong {
+  font-size: 28px;
+}
+.topic-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 0;
+}
+.topic-metrics dt {
+  font-size: 14px;
+  color: #594b70;
+}
+.topic-metrics dd {
+  margin: 4px 0 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+.topic-metrics small {
+  font-size: 14px;
+  font-weight: 400;
+}
+.statistics-topic-card > .btn {
+  margin-top: auto;
+  width: 100%;
+}

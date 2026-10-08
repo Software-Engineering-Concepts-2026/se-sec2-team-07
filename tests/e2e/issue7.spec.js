@@ -61,13 +61,14 @@ test('Issue #7: show unique cards, weak topics and history without reviewing fut
     const weak = topics
       .getByRole('article')
       .filter({ has: page.getByRole('heading', { name: 'Weak topic', exact: true }) });
-    await expect(weak).toContainText('3 ครั้ง · 1 ใบไม่ซ้ำ · ความแม่นยำ 33%');
+    await expect(weak.locator('.topic-accuracy strong')).toHaveText('33%');
+    await expect(weak.getByRole('definition')).toHaveText(['3 ครั้ง', '1 ใบ']);
     await expect(weak).toContainText('จำไม่ได้ 1 ครั้ง · ยาก 1 ครั้ง');
     await expect(weak).toContainText('แนะนำให้ทบทวน');
     const strong = topics
       .getByRole('article')
       .filter({ has: page.getByRole('heading', { name: 'Strong topic', exact: true }) });
-    await expect(strong).toContainText('ความแม่นยำ 100%');
+    await expect(strong.locator('.topic-accuracy strong')).toHaveText('100%');
     await expect(strong).not.toContainText('แนะนำให้ทบทวน');
     const recent = topics
       .getByRole('article')
