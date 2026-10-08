@@ -58,5 +58,10 @@
     "prisma": "^7.10.0",
     "supertest": "^7.1.0",
     "vite": "^7.3.0"
+  },
+  "overrides": {
+    "deepmerge-ts": "8.0.2",
+    "mysql2": "3.24.5",
+    "shell-quote": "1.12.0"
   }
 }
