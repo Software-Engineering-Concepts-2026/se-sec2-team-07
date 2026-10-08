@@ -152,30 +152,34 @@ export default function Export() {
               ))}
             </div>
           </fieldset>
-          <div className="stack">
+          <div className="export-settings">
             <fieldset className="panel export-section" disabled={busy}>
               <legend>2. เลือกข้อมูลและรูปแบบ</legend>
-              <label className="export-choice">
+              <label className="export-choice export-option">
                 <input
                   type="checkbox"
+                  aria-label="เนื้อหาแฟลชการ์ด"
                   checked={includeCards}
                   onChange={(e) => setIncludeCards(e.target.checked)}
                 />
-                <span>เนื้อหาแฟลชการ์ด</span>
+                <span>
+                  <strong>เนื้อหาแฟลชการ์ด</strong>
+                  <small className="muted">คำถามและคำตอบทุกใบในชุดที่เลือก</small>
+                </span>
               </label>
-              <p className="muted small">คำถามและคำตอบทุกใบในชุดที่เลือก</p>
-              <label className="export-choice">
+              <label className="export-choice export-option">
                 <input
                   type="checkbox"
+                  aria-label="สรุปการเรียนรู้"
                   checked={includeLearning}
                   onChange={(e) => setIncludeLearning(e.target.checked)}
                 />
-                <span>สรุปการเรียนรู้</span>
+                <span>
+                  <strong>สรุปการเรียนรู้</strong>
+                  <small className="muted">ประวัติการทบทวนและการประเมินความจำด้วยตนเอง</small>
+                </span>
               </label>
-              <p className="muted small">
-                สรุปจากประวัติการทบทวนและการประเมินความจำด้วยตนเอง
-                ไม่ใช่คะแนนสอบหรือหลักฐานรับรองความสามารถ
-              </p>
+              <p className="muted small">ไม่ใช่คะแนนสอบหรือหลักฐานรับรองความสามารถ</p>
               <label className="field" htmlFor="export-format">
                 รูปแบบไฟล์
               </label>

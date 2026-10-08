@@ -1819,3 +1819,69 @@ h3 {
   margin-top: auto;
   width: 100%;
 }
+.export-layout {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 24px;
+}
+.export-settings {
+  display: contents;
+}
+.export-layout .export-section {
+  padding: 24px;
+  border-color: #ddd3f0;
+  box-shadow: 0 3px 0 #201a39;
+}
+.export-option {
+  padding: 16px;
+  margin: 0 0 12px;
+  border: 1px solid #ddd3f0;
+  border-radius: 12px;
+  align-items: flex-start;
+}
+.export-option:has(input:checked) {
+  background: #f3eeff;
+  border-color: #9167ef;
+}
+.export-option input {
+  margin-top: 3px;
+}
+.export-option small {
+  margin-top: 5px;
+  line-height: 1.6;
+}
+.export-layout .export-summary {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 300px);
+  gap: 12px 28px;
+  align-items: center;
+  padding: 24px;
+}
+.export-summary h2,
+.export-summary p {
+  margin: 0;
+}
+.export-summary > * {
+  grid-column: 1;
+}
+.export-summary > .btn {
+  grid-column: 2;
+  grid-row: 1 / span 4;
+  min-height: 52px;
+}
+.export-summary > p[aria-live] {
+  font-size: 18px;
+}
+@media (max-width: 900px) {
+  .export-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .export-layout .export-summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .export-summary > .btn {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
