@@ -1748,6 +1748,10 @@ h3 {
   font-size: 24px;
   cursor: pointer;
 }
+.pomodoro-dismiss svg {
+  display: block;
+  margin: 0;
+}
 .pomodoro-dismiss:focus-visible {
   outline: 3px solid #6938ef;
   outline-offset: 2px;

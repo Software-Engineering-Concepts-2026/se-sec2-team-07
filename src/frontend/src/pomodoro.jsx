@@ -124,7 +124,7 @@ export function PomodoroBanner() {
           title="ซ่อนกล่อง โดยไม่หยุดหรือรีเซ็ตเวลา"
           onClick={() => timer.setWidgetHidden(true)}
         >
-          ×
+          <Icon name="close" size={18} />
         </button>
       </div>
       <div className="pomodoro-float-controls">

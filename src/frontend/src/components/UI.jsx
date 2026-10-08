@@ -18,6 +18,7 @@ import {
   Check,
   Flame,
   LogOut,
+  X,
 } from 'lucide-react';
 const icons = {
   home: BookOpen,
@@ -35,6 +36,7 @@ const icons = {
   check: Check,
   flame: Flame,
   logout: LogOut,
+  close: X,
 };
 export function Icon({ name, ...props }) {
   const Component = icons[name] || Layers;
