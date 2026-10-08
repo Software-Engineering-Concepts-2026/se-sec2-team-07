@@ -5,6 +5,7 @@ import { useApp } from '../context';
 import { useUnsavedChanges } from '../hooks/useUnsavedChanges';
 import { PageTitle, Empty, ErrorPanel } from '../components/UI';
 import CourseLinks from '../components/CourseLinks';
+import CourseContentEditor from '../components/CourseContentEditor';
 
 export default function CourseDetail() {
   const { id } = useParams(),
@@ -21,6 +22,7 @@ export default function CourseDetail() {
     [kind, setKind] = useState('cards'),
     [version, setVersion] = useState(0);
   const [page, setPage] = useState(0);
+  const [editingContent, setEditingContent] = useState(null);
   const dirty = useRef(false),
     inFlight = useRef(false);
   useUnsavedChanges(dirty);
@@ -303,12 +305,12 @@ export default function CourseDetail() {
                     <CourseLinks courses={item.courses} />
                   </div>
                   <div className="toolbar">
-                    <Link
+                    <button
                       className="btn secondary"
-                      to={type === 'cards' ? `/edit/${item.deck_id}` : `/notes?edit=${item.id}`}
+                      onClick={() => setEditingContent({ item, kind: type })}
                     >
                       แก้ต้นฉบับ
-                    </Link>
+                    </button>
                     <button
                       className="btn secondary"
                       disabled={busy}
@@ -327,6 +329,20 @@ export default function CourseDetail() {
           )}
         </section>
       ))}
+      {editingContent && (
+        <CourseContentEditor
+          {...editingContent}
+          onClose={() => setEditingContent(null)}
+          onSaved={() => {
+            setEditingContent(null);
+            run(async () => {
+              await refresh();
+              if (library) setLibrary(await api('/courses/library'));
+              notify('บันทึกการแก้ไขแล้ว');
+            });
+          }}
+        />
+      )}
     </>
   );
 }
