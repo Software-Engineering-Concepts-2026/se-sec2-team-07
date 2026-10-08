@@ -21,6 +21,7 @@ const PomodoroContext = createContext(null);
 export function PomodoroProvider({ children }) {
   const { notify } = useApp();
   const [timer, setTimer] = useState(initialTimer);
+  const [widgetHidden, setWidgetHidden] = useState(false);
   const current = useRef(timer);
   const update = useCallback((next) => {
     current.current = next;
@@ -82,7 +83,16 @@ export function PomodoroProvider({ children }) {
   };
   return (
     <PomodoroContext.Provider
-      value={{ ...timer, running: timer.deadline !== null, start, pause, reset, selectPhase }}
+      value={{
+        ...timer,
+        running: timer.deadline !== null,
+        start,
+        pause,
+        reset,
+        selectPhase,
+        widgetHidden,
+        setWidgetHidden,
+      }}
     >
       {children}
     </PomodoroContext.Provider>
@@ -94,6 +104,7 @@ export function PomodoroBanner() {
   const { pathname } = useLocation();
   if (
     !timer ||
+    timer.widgetHidden ||
     pathname === '/pomodoro' ||
     (!timer.started && !timer.message && timer.phase === 'focus')
   )
@@ -106,6 +117,15 @@ export function PomodoroBanner() {
           Pomodoro
         </Link>
         <span>{phaseName(timer.phase)}</span>
+        <button
+          type="button"
+          className="pomodoro-dismiss"
+          aria-label="ซ่อนกล่อง Pomodoro"
+          title="ซ่อนกล่อง โดยไม่หยุดหรือรีเซ็ตเวลา"
+          onClick={() => timer.setWidgetHidden(true)}
+        >
+          ×
+        </button>
       </div>
       <div className="pomodoro-float-controls">
         <div>
@@ -220,6 +240,12 @@ export default function PomodoroPage() {
               รีเซ็ตช่วงนี้
             </button>
           </div>
+          <button
+            className="btn secondary"
+            onClick={() => timer.setWidgetHidden(!timer.widgetHidden)}
+          >
+            {timer.widgetHidden ? 'แสดงกล่องเวลาบนหน้าอื่น' : 'ซ่อนกล่องเวลาบนหน้าอื่น'}
+          </button>
           {timer.message && (
             <p className="notice" role="status">
               {timer.message}
