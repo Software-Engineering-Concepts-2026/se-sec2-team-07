@@ -5,12 +5,8 @@ export function useOverview({ includeStats = true } = {}) {
   const [data, setData] = useState(null);
   const sync = useRemoteSync({
     resource: includeStats ? 'overview' : 'decks',
-    load: (signal) =>
-      Promise.all([
-        api('/decks', 'GET', undefined, signal),
-        includeStats ? api('/stats', 'GET', undefined, signal) : Promise.resolve(null),
-      ]),
-    apply: ([d, stats]) => setData({ decks: d.decks, stats }),
+    load: (signal) => api(includeStats ? '/stats/overview' : '/decks', 'GET', undefined, signal),
+    apply: (value) => setData({ decks: value.decks, stats: value.stats ?? null }),
   });
   return {
     ...data,

@@ -76,6 +76,15 @@ test('statistics isolate review and deck owners, count repeats once, and preserv
     },
   ]);
   assert.equal(result.body.history.at(-1).count, 3);
+  assert.equal((await request(app).get('/api/stats/overview')).status, 401);
+  const overview = await own.agent.get('/api/stats/overview');
+  assert.equal(overview.status, 200);
+  assert.deepEqual(overview.body.stats, result.body);
+  assert.deepEqual(overview.body.decks, (await own.agent.get('/api/decks')).body.decks);
+  assert.deepEqual(
+    overview.body.decks.map((deck) => deck.id),
+    [own.deck.id],
+  );
   assert.equal((await other.agent.get('/api/stats')).body.total, 1);
   assert.deepEqual((await own.agent.get('/api/review/plan')).body, beforePlan);
   assert.equal(

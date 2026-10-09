@@ -4,14 +4,14 @@ import App from './App';
 import Schedule from './pages/Schedule';
 import Courses from './pages/Courses';
 import Archive from './pages/Archive';
+import Review from './pages/Review';
+import Notes from './pages/Notes';
+import Statistics from './pages/Statistics';
 const Layout = lazy(() => import('./components/Layout'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Library = lazy(() => import('./pages/Library'));
 const Editor = lazy(() => import('./pages/Editor'));
-const Review = lazy(() => import('./pages/Review'));
 const CourseDetail = lazy(() => import('./pages/CourseDetail'));
-const Notes = lazy(() => import('./pages/Notes'));
-const Statistics = lazy(() => import('./pages/Statistics'));
 const Export = lazy(() => import('./pages/Export'));
 const PomodoroPage = lazy(() => import('./pomodoro'));
 

@@ -69,7 +69,7 @@ export function createApp(pool, config) {
   app.use('/api/notes', noteController(noteRepository(pool)));
   app.use('/api/documents', documentController(documentRepository(pool)));
   app.use('/api/review', reviewController(reviewRepository(pool)));
-  app.use('/api/stats', statsController(statsRepository(pool)));
+  app.use('/api/stats', statsController(statsRepository(pool), deckRepository(pool)));
   app.use('/api/exports', exportController(exportRepository(pool)));
   const generation = generationController(config);
   app.use('/api', generation);
