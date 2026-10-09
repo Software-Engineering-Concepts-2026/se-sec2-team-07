@@ -60,9 +60,15 @@ h3 {
   padding: 0;
   background: transparent;
 }
-.mobile-brand .brand .brand-image-compact {
-  width: 42px;
-  height: 42px;
+.mobile-brand .brand .brand-image {
+  width: 150px;
+  height: auto;
+}
+.mobile-brand .brand-white-wordmark {
+  filter: none;
+}
+.main:has(.review-surface .review-card) > .topbar .brand-white-wordmark {
+  filter: brightness(0) invert(1);
 }
 .brand span {
   color: inherit;

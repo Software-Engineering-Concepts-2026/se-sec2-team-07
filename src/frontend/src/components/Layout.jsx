@@ -150,7 +150,7 @@ function WorkspaceLayout() {
             {today}
           </time>
           <div className="mobile-brand">
-            <Brand compact />
+            <Brand whiteText />
           </div>
           <div className="row topbar-meta">
             <span className="status">พื้นที่เรียนรู้ของคุณ</span>
