@@ -13,6 +13,7 @@ export default function Archive() {
   const { confirm, notify } = useApp();
   const [result, setResult] = useState({ archived, cards: [] });
   const [query, setQuery] = useState('');
+  const [page, setPage] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const inFlight = useRef(false);
@@ -28,6 +29,10 @@ export default function Archive() {
       .toLowerCase()
       .includes(query.trim().toLowerCase()),
   );
+  const pageSize = 24;
+  const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, pages - 1);
+  const visibleCards = filtered.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
   async function change(card) {
     if (inFlight.current) return;
     inFlight.current = true;
@@ -60,6 +65,7 @@ export default function Archive() {
   function select(value) {
     setError('');
     setQuery('');
+    setPage(0);
     setParams(value ? { status: 'completed' } : {});
   }
   return (
@@ -101,7 +107,10 @@ export default function Archive() {
           label="ค้นหาการ์ดเพื่อจัดเก็บ"
           placeholder="ค้นหาคำถาม คำตอบ หรือชื่อชุดการ์ด…"
           value={query}
-          onChange={setQuery}
+          onChange={(value) => {
+            setQuery(value);
+            setPage(0);
+          }}
         />
       </div>
       {error && (
@@ -118,7 +127,7 @@ export default function Archive() {
           </p>
           {filtered.length ? (
             <div className="archive-grid">
-              {filtered.map((card) => (
+              {visibleCards.map((card) => (
                 <article className="panel archive-card" key={card.id}>
                   <div className="row between wrap">
                     <Link to={`/edit/${card.deck_id}`}>{card.deck_name}</Link>
@@ -161,6 +170,27 @@ export default function Archive() {
                 </p>
               </Empty>
             )
+          )}
+          {pages > 1 && (
+            <nav className="row between wrap" aria-label="แบ่งหน้าการ์ดจัดเก็บ">
+              <button
+                className="btn secondary"
+                disabled={currentPage === 0}
+                onClick={() => setPage(currentPage - 1)}
+              >
+                ก่อนหน้า
+              </button>
+              <span>
+                หน้า {currentPage + 1} จาก {pages} · หน้าละ {pageSize} ใบ
+              </span>
+              <button
+                className="btn secondary"
+                disabled={currentPage === pages - 1}
+                onClick={() => setPage(currentPage + 1)}
+              >
+                ถัดไป
+              </button>
+            </nav>
           )}
         </>
       )}

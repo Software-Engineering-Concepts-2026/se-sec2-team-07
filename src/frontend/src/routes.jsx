@@ -3,6 +3,7 @@ import { createHashRouter, Navigate } from 'react-router-dom';
 import App from './App';
 import Schedule from './pages/Schedule';
 import Courses from './pages/Courses';
+import Archive from './pages/Archive';
 const Layout = lazy(() => import('./components/Layout'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Library = lazy(() => import('./pages/Library'));
@@ -12,7 +13,6 @@ const CourseDetail = lazy(() => import('./pages/CourseDetail'));
 const Notes = lazy(() => import('./pages/Notes'));
 const Statistics = lazy(() => import('./pages/Statistics'));
 const Export = lazy(() => import('./pages/Export'));
-const Archive = lazy(() => import('./pages/Archive'));
 const PomodoroPage = lazy(() => import('./pomodoro'));
 
 export const router = createHashRouter([

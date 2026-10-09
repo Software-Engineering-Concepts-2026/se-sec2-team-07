@@ -59,6 +59,31 @@ async function fixture(page, run) {
 
 const cardArticle = (page) => page.getByRole('article').filter({ hasText: first });
 
+test('archive bounds rendered cards and searches across all pages', async ({ page }) => {
+  await fixture(page, async ({ deckId }) => {
+    const cards = Array.from({ length: 50 }, (_, index) => ({
+      id: index + 1000,
+      deck_id: deckId,
+      deck_name: 'Pagination deck',
+      front: `Pagination card ${String(index + 1).padStart(2, '0')}`,
+      back: 'Answer',
+      archived_at: null,
+    }));
+    await page.route('**/api/cards?archived=false', (route) => route.fulfill({ json: { cards } }));
+    await page.reload();
+    await expect(page.locator('.archive-card')).toHaveCount(24);
+    const pagination = page.getByRole('navigation', { name: 'แบ่งหน้าการ์ดจัดเก็บ' });
+    await pagination.getByRole('button', { name: 'ถัดไป', exact: true }).click();
+    await pagination.getByRole('button', { name: 'ถัดไป', exact: true }).click();
+    await expect(page.locator('.archive-card')).toHaveCount(2);
+    await expect(pagination.getByRole('button', { name: 'ถัดไป', exact: true })).toBeDisabled();
+    await page.getByPlaceholder('ค้นหาคำถาม คำตอบ หรือชื่อชุดการ์ด…').fill('Pagination card 01');
+    await expect(page.locator('.archive-card')).toHaveCount(1);
+    await expect(page.locator('.archive-card')).toContainText('Pagination card 01');
+    await expect(pagination).toHaveCount(0);
+  });
+});
+
 test('Issue #16: archive and restore a shared card without losing identity, links or review history', async ({
   page,
 }, testInfo) => {
