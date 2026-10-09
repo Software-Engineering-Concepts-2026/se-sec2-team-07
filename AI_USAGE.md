@@ -211,3 +211,216 @@ EXPOSE 8000
 USER nobody
 
 CMD ["python", "-m", "http.server", "8000", "--directory", "prototypes/sprint1"]
+
+# AI Usage Disclosure (Lab 7)
+
+## 1. เครื่องมือที่ใช้ (Tools Used)
+
+- GitHub Copilot และ ChatGPT (GPT-4o)
+
+---
+
+## 2. Prompts ที่ใช้งานจริง (Prompts Used)
+
+### Prompt 1:
+
+"ช่วยดูโค้ดในโฟลเดอร์ prototype/ ของโปรเจกต์นี้ให้หน่อย มีตรงไหนที่เป็น code smell บ้าง "
+
+### Prompt 2
+
+"อ่าน src/ ของโปรเจกต์นี้ แล้ว list 5 code smells ที่เจอบ่อยที่สุด พร้อม file/line และเหตุผล
+
+- **Smell ที่เจอ**: อะไร, ที่ไหน (file/line), ทำไมถือว่า smell
+
+- **AI usage**: prompt ที่ใช้ + output (ถ้ามี) + ส่วนที่ทีมเขียนเอง
+
+- **Before/After**: ความยาว function, coupling, testability
+
+- **Lesson**: อะไรที่เรียนรู้ + AI workflow ที่ใช้"
+
+### Prompt 3:
+
+"smell name คืออะไร"
+
+---
+
+## 3. ส่วนที่รับมาจาก AI
+
+## 1
+
+เนื่องจากโปรเจกต์ในสพรินต์นี้ยังเป็นโครงสร้างในส่วนของ Frontend Prototypes และ Documentation เป็นหลัก และยังไม่ได้มีระบบ Backend ที่ซับซ้อน ปัญหา Code Smell ที่เหมาะสมที่สุดสำหรับการหยิบมาทำ Lab 7 ในเวลา 30-45 นาที ตามเงื่อนไขของโจทย์ Lab07-W7_Refactoring_Milestone1 คือ:
+
+แนะนำเลือกใช้ 1 ใน 2 ปัญหาชาเลนจ์นี้:
+
+1. Duplicated Code / Repeated HTML Structure (ในหน้า Prototypes)ลักษณะปัญหา: ไฟล์ HTML ของสมาชิกแต่ละคน (เช่น Nattapon_upload_prototype.html, Waritsara_Dashboard_prototype.html) อาจมีการเขียนโครงสร้าง CSS, Navbar, หรือ Footer ซ้ำ ๆ กันหลายหน้าวิธีแก้เบื้องต้น: ทำการแยกส่วนที่ซ้ำกันออกเป็นส่วนกลาง หรือจัดระเบียบ CSS ให้เป็นระเบียบ (ตามหลัก DRY - Don't Repeat Yourself) เหมาะสำหรับตั้งชื่อ Branch: feature/lab7-refactor-duplicated-code
+
+2. Poor Naming / Semantic Drift (ชื่อตัวแปร คลาส หรือไฟล์ไม่สื่อความหมาย)ลักษณะปัญหา: ชื่อไฟล์ HTML, Class CSS หรือ ID ในหน้า Prototype บางจุดอาจตั้งชื่อตามใจชอบในช่วงแรก ทำให้ไม่สื่อถึงบทบาทหน้าที่ (Role-focused naming) ตามหลัก Pragmatic Programmer วิธีแก้เบื้องต้น: ทำการ Rename ชื่อคลาสหรือไฟล์ให้สื่อความหมายและเป็นมาตรฐานเดียวกันทั้งทีม เหมาะสำหรับตั้งชื่อ Branch: feature/lab7-refactor-poor-naming
+
+## 2
+
+### Refactoring Journal
+
+#### 1. Smell ที่เจอ (Code Smells Identification)
+
+- **Smell ที่เจอ:** Duplicated Code (หรือ Long Method / Poor Naming)
+- **ที่ไหน (File/Line):** ระบุชื่อไฟล์และบรรทัดที่พบ เช่น `prototypes/sprint1/Nattapon_upload_prototype.html` (บริเวณโครงสร้างโค้ดซ้ำ ๆ หรือฟังก์ชันที่มีขนาดยาวเกินไป)
+- **ทำไมจึงถือว่าเป็น smell:** ละเมิดหลักการ **DRY (Don't Repeat Yourself)** ทำให้เมื่อต้องการแก้ไขดีไซน์หรือโค้ดส่วนกลาง ต้องตามไปแก้หลายจุด เสี่ยงต่อการเกิด Bug ตกหล่น และดูแลรักษายาก (Maintainability ต่ำ)
+
+---
+
+#### 2. AI Usage
+
+- **Prompt ที่ใช้:**
+  > `"ช่วยอ่าน source code โครงสร้างหน้า Prototype นี้ แล้วแนะนำวิธี Refactor โค้ดส่วนที่ซ้ำซ้อนให้เป็นระเบียบตามหลัก DRY"`
+- **Output ที่ได้ (จาก AI):** AI เสนอแนวทางการแยกส่วนโครงสร้างที่ซ้ำซ้อนหรือยุบรวมฟังก์ชัน
+- **ส่วนที่ทีมเขียนเอง:** ทีมทำการคัดเลือกโครงสร้างที่เหมาะสมที่สุด ลงมือแก้ไขโค้ดจริงด้วยตนเอง $\ge$ 70% และตรวจสอบความถูกต้องผ่านการรันเทสจริง
+
+---
+
+#### 3. Before / After
+
+- **ความยาว Function / บรรทัดโค้ด:** ลดจำนวนบรรทัดที่ซ้ำซ้อนลง (เช่น จากเดิมมีโค้ดชุดเดียวกันกระจายอยู่หลายหน้า เหลือเพียงชุดเดียวหรือจัดระเบียบให้สะอาดขึ้น)
+- **Coupling:** ลดความผูกพันแน่นหนาของโค้ดแต่ละส่วน ทำให้แต่ละไฟล์มีความเป็นอิสระมากขึ้น
+- **Testability:** โค้ดมีความเป็นระเบียบและตรวจสอบพฤติกรรมได้ง่ายขึ้น
+
+---
+
+#### 4. Lesson Learned
+
+- **สิ่งที่เรียนรู้:** การทำ Refactor ทีละนิดอย่างมีวินัย (_Refactor Early, Refactor Often_ ตามปรัชญา Pragmatic Programmer) และการยึดหลัก _Tests pass ก่อนลงมือแก้_
+- **AI Workflow ที่ใช้:** ใช้ GenAI เป็น Co-pilot ตามแนวทาง **Explain → Propose → Apply → Test** โดยทีมต้องเป็นผู้ทำความเข้าใจและเขียนโค้ดเอง ไม่ปล่อยให้ AI ทำทั้งหมด (_PP Tip 62 - Deliberate Programming_)
+
+## 3
+
+คำว่า smell name ในชื่อ Branch (feature/lab7-refactor-smell-name) คือ ชื่อของ Code Smell (กลิ่นของโค้ดที่ไม่ดี) ที่คุณเลือกนำมาทำการ Refactor ใน Lab 7 ครับ
+
+เวลาลงมือสร้าง Branch จริง คุณจะต้องเปลี่ยนคำว่า smell name ให้เป็นชื่อย่อหรือชื่อของปัญหานั้น ๆ เป็นภาษาอังกฤษแบบกระชับ เช่น:ถ้าคุณเลือกแก้ปัญหาฟังก์ชันยาวเกินไป (Long Method)
+
+อาจตั้งชื่อว่า:feature/lab7-refactor-long-methodถ้าคุณเลือกแก้ปัญหาการตั้งชื่อตัว/ฟังก์ชันไม่สื่อความหมาย (Poor Naming / Semantic Drift)
+
+อาจตั้งชื่อว่า:feature/lab7-refactor-poor-namingถ้าคุณเลือกแก้ปัญหาโค้ดซ้ำซ้อน (Duplicated Code)
+
+อาจตั้งชื่อว่า:feature/lab7-refactor-duplicated-codeสรุปคือ:
+
+แทนที่จะพิมพ์คำว่าsmell name ตรง ๆ ให้เลือก 1 ปัญหาที่คุณเจอในโค้ดของทีม แล้วเอามาใส่ต่อท้ายแทนครับ
+
+# AI Usage Disclosure (Lab 9)
+
+## 1. Tools Used
+
+- **Tool:** ChatGPT
+- **Role:** Co-pilot ช่วยออกแบบ Test Cases, วิเคราะห์ Test Coverage และตรวจสอบคุณภาพของ Unit Test และ Property-Based Test สำหรับระบบ Focus Flashcards
+
+## 2. Prompts Used
+
+### Prompt 1: Generate Test Cases
+
+> **Prompt:**  
+> "ช่วยเขียน Unit Test อย่างน้อย 5 tests สำหรับฟังก์ชัน `calculate_next_review(score)` ของระบบ Focus Flashcards โดยใช้ Equivalence Partitioning และ Boundary Value Analysis และเขียน test ตามรูปแบบ Arrange-Act-Assert (AAA)"
+
+### Output จาก AI
+
+AI แนะนำ Test Cases สำหรับ `calculate_next_review(score)` ได้แก่:
+
+1. `score = 0` → ควรคืนค่า 1 วัน
+2. `score = 1` → ควรคืนค่า 1 วัน
+3. `score = 3` → ควรคืนค่า 7 วัน
+4. `score = 5` → ควรคืนค่า 30 วัน
+5. `score = 6` → ต้องเกิด `ValueError`
+
+ตัวอย่าง Unit Test ที่ได้รับ:
+
+```python
+def test_score_zero_returns_one_day():
+    # Arrange
+    score = 0
+
+    # Act
+    result = calculate_next_review(score)
+
+    # Assert
+    assert result == 1
+```
+
+### Prompt 2: Identify Testing Gaps
+
+> **Prompt:**
+> "ช่วยตรวจสอบ Unit Tests ของ calculate_next_review(score) ว่ายังมีกรณีหรือ behavior ใดที่ Test ไม่ครอบคลุม และแนะนำ Property-Based Tests ด้วย Hypothesis ที่เหมาะสม"
+
+### Output จาก AI
+
+AI พบว่า Unit Tests แบบกำหนดค่าทีละตัวอาจยังไม่ตรวจสอบ invariant ของ business logic สำหรับ input หลายค่า จึงแนะนำ Property-Based Tests จำนวน 3 properties:
+
+1. Valid score 0–5 ต้องให้ review interval ที่มากกว่า 0 เสมอ
+2. เมื่อ score เพิ่มขึ้น review interval ต้องไม่ลดลง
+3. score ที่อยู่นอกช่วง 0–5 ต้องเกิด ValueError
+
+### Prompt 3: Review Test Quality
+
+> **Prompt:**
+> "ช่วย review คุณภาพของ Test Suite สำหรับ Focus Flashcards โดยตรวจสอบว่า Unit Tests ครอบคลุม boundary values, Property-Based Tests ตรวจสอบ behavior จริง และ tests สามารถตรวจจับ bug ได้หรือไม่"
+
+### Output จาก AI
+
+AI แนะนำให้ทดสอบคุณภาพของ Test Suite ด้วย Saboteur Testing โดยจงใจเปลี่ยน boundary condition ใน calculate_next_review() จาก:
+
+> if score <= 1:
+
+เป็น:
+
+> if score < 1:
+
+การเปลี่ยนดังกล่าวทำให้ behavior ของ score = 1 ผิดพลาด
+Unit Test test_score_one_returns_one_day สามารถตรวจจับ bug ดังกล่าวได้ และ GitHub Actions CI เปลี่ยนสถานะเป็น Failed หลัง push sabotage commit
+หลังจากคืน condition เป็น score <= 1 แล้ว Test Suite กลับมาผ่านทั้งหมด
+
+# AI Usage Disclosure (Lab 12)
+
+เครื่องมือที่ใช้: ChatGPT
+
+> **Prompt:**  
+> ตรง step 1 ช่วยยกตัวอย่างการเขียน unit test ให้ผมที 2 ข้อ
+
+### Output จาก AI
+
+ตัวอย่าง Unit Test สำหรับฟังก์ชัน calculate_next_review(score) จำนวน 2 ข้อ:
+
+```python
+def test_score_two_returns_three_days():
+    assert calculate_next_review(2) == 3
+
+
+def test_negative_score_raises_error():
+    with pytest.raises(ValueError):
+        calculate_next_review(-1)
+```
+
+Test แรกตรวจสอบกรณีปกติว่าเมื่อ score = 2 ฟังก์ชันควรคืนค่า 3 วัน
+
+Test ที่สองตรวจสอบกรณี error ว่าเมื่อใส่ score ติดลบ ฟังก์ชันควรเกิด ValueError
+
+> **Prompt:**  
+> ตรงขั้นตอนทดสอบ Safety Net ช่วยยกตัวอย่างการใส่ bug แบบง่าย ๆ ให้ผม 1 จุด เพื่อให้ผมลองแก้โค้ดและรัน test เอง
+
+### Output จาก AI
+
+สามารถลองสร้าง bug ที่เงื่อนไขของ calculate_next_review(score) เช่น เปลี่ยนเงื่อนไขจาก
+
+if score <= 1:
+
+เป็น
+
+if score < 1:
+
+การเปลี่ยนแบบนี้จะทำให้กรณี score = 1 ได้ผลลัพธ์ผิดจากที่กำหนดไว้
+
+จากนั้นให้ลองทำตามขั้นตอน:
+
+python -m pytest
+git add .
+git commit -m "test: introduce bug for safety net"
+git push
+
+ตรวจสอบว่า Test หรือ CI สามารถตรวจพบ bug และขึ้นสถานะไม่ผ่านหรือไม่
+
+หลังจากทดสอบเสร็จ ให้แก้เงื่อนไขกลับเป็นค่าที่ถูกต้อง แล้วรัน Test อีกครั้งเพื่อยืนยันว่า Test ผ่านก่อน merge เข้า main
