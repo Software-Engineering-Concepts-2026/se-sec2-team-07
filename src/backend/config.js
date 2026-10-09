@@ -34,9 +34,13 @@ export function readConfig(env = process.env) {
     production,
     cookieSecure,
     databaseSsl: supabase || env.DATABASE_SSL === 'true',
+    databaseSslVerify: env.DATABASE_SSL_VERIFY !== 'false',
     port: Number(env.PORT || 8000),
     host: env.HOST || '127.0.0.1',
     origin: env.APP_ORIGIN,
+    deploymentOrigins: [env.VERCEL_URL, env.VERCEL_BRANCH_URL]
+      .filter((host) => typeof host === 'string' && /^[a-z0-9-]+\.vercel\.app$/i.test(host))
+      .map((host) => `https://${host.toLowerCase()}`),
     trustProxy: Number(env.TRUST_PROXY || 0),
     ...readAiConfig(env),
   };

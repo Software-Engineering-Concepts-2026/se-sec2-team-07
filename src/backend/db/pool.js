@@ -5,7 +5,7 @@ import { connectionOptions } from './targets.js';
 
 export function createPool(config) {
   const pool = new pg.Pool({
-    ...connectionOptions(config.databaseUrl, config.databaseSsl),
+    ...connectionOptions(config.databaseUrl, config.databaseSsl, config.databaseSslVerify),
     max: 10,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,

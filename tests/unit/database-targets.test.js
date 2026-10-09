@@ -60,3 +60,16 @@ test('Supabase certificate verification cannot be overridden by URL parameters',
   assert.equal(new URL(options.connectionString).searchParams.has('sslmode'), false);
   assert.equal(options.ssl.rejectUnauthorized, true);
 });
+
+test('explicit certificate opt-out retains TLS and strips conflicting URL options', () => {
+  const options = connectionOptions('postgresql://u:p@example.com/db?sslmode=disable', true, false);
+  assert.deepEqual(options.ssl, { rejectUnauthorized: false });
+  assert.equal(new URL(options.connectionString).searchParams.has('sslmode'), false);
+  const env = {
+    NODE_ENV: 'test',
+    DATABASE_URL: 'postgresql://u:p@localhost/test',
+    JWT_SECRET: 'x'.repeat(32),
+  };
+  assert.equal(readConfig(env).databaseSslVerify, true);
+  assert.equal(readConfig({ ...env, DATABASE_SSL_VERIFY: 'false' }).databaseSslVerify, false);
+});

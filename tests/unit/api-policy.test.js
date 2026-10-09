@@ -4,15 +4,35 @@ import express from 'express';
 import request from 'supertest';
 import { apiPolicy } from '../../src/backend/middleware/api-policy.js';
 import { errorHandler } from '../../src/backend/middleware/error-handler.js';
+import { readConfig } from '../../src/backend/config.js';
 
-function fixture() {
+function fixture(config = { origin: 'https://focus.example' }) {
   const app = express();
-  app.use(apiPolicy({ origin: 'https://focus.example' }));
+  app.use(apiPolicy(config));
   app.use(express.json());
   app.all('/', (req, res) => res.json({ ok: true }));
   app.use(errorHandler);
   return app;
 }
+
+test('Vercel preview accepts only its exact deployment origins behind an HTTP proxy', async () => {
+  const config = readConfig({
+    NODE_ENV: 'test',
+    DATABASE_URL: 'postgresql://test:test@localhost/test',
+    JWT_SECRET: 'x'.repeat(32),
+    APP_ORIGIN: 'http://localhost:5173',
+    VERCEL_URL: 'focus-preview-123.vercel.app',
+    VERCEL_BRANCH_URL: 'focus-git-feature.vercel.app',
+  });
+  const app = fixture(config);
+  for (const origin of config.deploymentOrigins)
+    await request(app).post('/').set('Origin', origin).send({}).expect(200);
+  for (const origin of [
+    'https://other.vercel.app',
+    'https://focus-preview-123.vercel.app.evil.com',
+  ])
+    await request(app).post('/').set('Origin', origin).send({}).expect(403);
+});
 
 test('API keeps private headers and rejects cross-origin writes', async () => {
   const app = fixture();

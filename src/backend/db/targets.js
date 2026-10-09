@@ -25,13 +25,13 @@ export function assertTestDatabase(env = process.env) {
   return env.TEST_DATABASE_URL;
 }
 
-export function connectionOptions(databaseUrl, verifyTls = false) {
-  if (!verifyTls) return { connectionString: databaseUrl };
+export function connectionOptions(databaseUrl, useTls = false, verifyCertificate = true) {
+  if (!useTls) return { connectionString: databaseUrl };
   const url = new URL(databaseUrl);
   // URL sslmode would otherwise override pg's explicit certificate verification.
   for (const key of ['sslmode', 'ssl', 'sslcert', 'sslkey', 'sslrootcert'])
     url.searchParams.delete(key);
-  return { connectionString: url.toString(), ssl: { rejectUnauthorized: true } };
+  return { connectionString: url.toString(), ssl: { rejectUnauthorized: verifyCertificate } };
 }
 
 export function assertSupabaseTarget(raw, projectRef, { migration = false } = {}) {
