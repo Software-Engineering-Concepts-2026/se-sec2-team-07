@@ -25,22 +25,20 @@ export async function assertCardsUnlinked(client, ids) {
 
 export function courseRepository(pool) {
   async function contents(uid, courseId = null) {
-    const cards = (
-      await pool.query(
+    const [cardResult, noteResult] = await Promise.all([
+      pool.query(
         `SELECT c.*,d.name deck_name,${cardCoursesSql} courses
       FROM cards c JOIN decks d ON d.id=c.deck_id WHERE d.user_id=$1
       AND ($2::int IS NULL OR EXISTS(SELECT 1 FROM course_cards cc WHERE cc.card_id=c.id AND cc.course_id=$2)) ORDER BY c.id`,
         [uid, courseId],
-      )
-    ).rows;
-    const notes = (
-      await pool.query(
+      ),
+      pool.query(
         `SELECT n.*,${noteCoursesSql} courses FROM notes n WHERE n.user_id=$1
       AND ($2::int IS NULL OR EXISTS(SELECT 1 FROM course_notes cn WHERE cn.note_id=n.id AND cn.course_id=$2)) ORDER BY n.id`,
         [uid, courseId],
-      )
-    ).rows;
-    return { cards, notes };
+      ),
+    ]);
+    return { cards: cardResult.rows, notes: noteResult.rows };
   }
   return {
     async list(uid) {

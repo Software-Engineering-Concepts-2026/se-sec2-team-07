@@ -1,13 +1,13 @@
 import { lazy } from 'react';
 import { createHashRouter, Navigate } from 'react-router-dom';
 import App from './App';
+import Schedule from './pages/Schedule';
+import Courses from './pages/Courses';
 const Layout = lazy(() => import('./components/Layout'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Library = lazy(() => import('./pages/Library'));
 const Editor = lazy(() => import('./pages/Editor'));
 const Review = lazy(() => import('./pages/Review'));
-const Schedule = lazy(() => import('./pages/Schedule'));
-const Courses = lazy(() => import('./pages/Courses'));
 const CourseDetail = lazy(() => import('./pages/CourseDetail'));
 const Notes = lazy(() => import('./pages/Notes'));
 const Statistics = lazy(() => import('./pages/Statistics'));

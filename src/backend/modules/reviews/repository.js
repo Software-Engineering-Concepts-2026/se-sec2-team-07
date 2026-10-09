@@ -12,20 +12,15 @@ export function reviewRepository(pool) {
       )
         throw notFound();
       const now = Date.now() / 1000;
-      const user = (await pool.query('SELECT review_minutes FROM users WHERE id=$1', [uid]))
-        .rows[0];
-      const usage = (
-        await pool.query('SELECT seconds FROM review_days WHERE user_id=$1 AND day=$2', [
-          uid,
-          bangkokDate(now),
-        ])
-      ).rows[0];
-      const average = (
+      const settings = (
         await pool.query(
-          'SELECT avg(seconds) value FROM (SELECT seconds FROM reviews WHERE user_id=$1 AND seconds>0 ORDER BY created DESC LIMIT 100) recent',
-          [uid],
+          `SELECT u.review_minutes,
+          COALESCE((SELECT seconds FROM review_days WHERE user_id=u.id AND day=$2),0) spent_seconds,
+          (SELECT avg(seconds) FROM (SELECT seconds FROM reviews WHERE user_id=$1 AND seconds>0 ORDER BY created DESC LIMIT 100) recent) average_seconds
+          FROM users u WHERE u.id=$1`,
+          [uid, bangkokDate(now)],
         )
-      ).rows[0].value;
+      ).rows[0];
       const cards = (
         await pool.query(
           `SELECT c.*, d.name deck_name FROM cards c JOIN decks d ON d.id=c.deck_id
@@ -34,7 +29,13 @@ export function reviewRepository(pool) {
           [uid, deckId, courseId],
         )
       ).rows;
-      return planReviews(cards, user.review_minutes, usage?.seconds || 0, average, now);
+      return planReviews(
+        cards,
+        settings.review_minutes,
+        settings.spent_seconds,
+        settings.average_seconds,
+        now,
+      );
     },
     async setMinutes(uid, minutes) {
       await pool.query('UPDATE users SET review_minutes=$1 WHERE id=$2', [minutes, uid]);
