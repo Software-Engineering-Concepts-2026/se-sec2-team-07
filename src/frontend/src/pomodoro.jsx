@@ -1,7 +1,8 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useApp } from './context';
 import { Icon, PageTitle } from './components/UI';
+import { PomodoroContext } from './pomodoro-context';
 
 const durations = { focus: 25 * 60 * 1000, break: 5 * 60 * 1000 };
 const phaseName = (phase) => (phase === 'focus' ? 'ช่วงเรียน' : 'ช่วงพัก');
@@ -16,7 +17,6 @@ const initialTimer = () => ({
   started: false,
   message: '',
 });
-const PomodoroContext = createContext(null);
 
 export function PomodoroProvider({ children }) {
   const { notify } = useApp();
