@@ -1,3 +1,5 @@
+import { clearReadCache, resetReadCacheSession } from './hooks/readCache.js';
+
 export async function api(path, method = 'GET', body, signal) {
   let response;
   try {
@@ -11,6 +13,11 @@ export async function api(path, method = 'GET', body, signal) {
   } catch (e) {
     if (e.name === 'AbortError') throw e;
     throw new Error('เชื่อมต่อไม่ได้ กรุณาตรวจอินเทอร์เน็ตแล้วลองอีกครั้ง');
+  }
+  if (response.status === 401) resetReadCacheSession();
+  if (response.ok && !['GET', 'HEAD'].includes(method.toUpperCase())) {
+    if (['/login', '/register', '/logout'].includes(path)) resetReadCacheSession();
+    else clearReadCache();
   }
   let data;
   try {

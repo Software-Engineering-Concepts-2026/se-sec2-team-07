@@ -54,27 +54,28 @@ export function authService(repo, config) {
       res.clearCookie('focus_token', cookieOptions);
     },
     async authenticate(req, res, next) {
+      let token;
       try {
-        const token = jwt.verify(req.cookies.focus_token || '', config.jwtSecret, {
+        token = jwt.verify(req.cookies.focus_token || '', config.jwtSecret, {
           algorithms: ['HS256'],
           issuer: 'focus-flashcards',
           audience: 'focus-web',
         });
         if (!/^\d+$/.test(token.sub)) throw new Error('Invalid subject');
+      } catch {
+        return next(new HttpError(401, 'กรุณาเข้าสู่ระบบอีกครั้ง'));
+      }
+      try {
         const user = await repo.byId(Number(token.sub));
-        if (!user || token.ver !== user.token_version) throw new Error('Revoked');
+        if (!user || token.ver !== user.token_version)
+          return next(new HttpError(401, 'กรุณาเข้าสู่ระบบอีกครั้ง'));
         req.user = user;
         // Sliding 30-minute inactivity timeout, with no server-side session store.
         res.cookie('focus_token', issue(user), cookieOptions);
         next();
       } catch (error) {
-        if (
-          error.code?.startsWith('08') ||
-          error.code?.startsWith('P') ||
-          error.code === 'ECONNREFUSED'
-        )
-          return next(error);
-        next(new HttpError(401, 'กรุณาเข้าสู่ระบบอีกครั้ง'));
+        // A transient database failure must not log the user out as if JWT expired.
+        next(error);
       }
     },
   };

@@ -12,25 +12,24 @@ export function reviewRepository(pool) {
       )
         throw notFound();
       const now = Date.now() / 1000;
-      const settings = (
-        await pool.query(
+      const [settingsResult, cardsResult] = await Promise.all([
+        pool.query(
           `SELECT u.review_minutes,
           COALESCE((SELECT seconds FROM review_days WHERE user_id=u.id AND day=$2),0) spent_seconds,
           (SELECT avg(seconds) FROM (SELECT seconds FROM reviews WHERE user_id=$1 AND seconds>0 ORDER BY created DESC LIMIT 100) recent) average_seconds
           FROM users u WHERE u.id=$1`,
           [uid, bangkokDate(now)],
-        )
-      ).rows[0];
-      const cards = (
-        await pool.query(
+        ),
+        pool.query(
           `SELECT c.*, d.name deck_name FROM cards c JOIN decks d ON d.id=c.deck_id
         WHERE d.user_id=$1 AND c.archived_at IS NULL AND ($2::int IS NULL OR d.id=$2)
         AND ($3::int IS NULL OR EXISTS(SELECT 1 FROM course_cards cc WHERE cc.card_id=c.id AND cc.course_id=$3))`,
           [uid, deckId, courseId],
-        )
-      ).rows;
+        ),
+      ]);
+      const settings = settingsResult.rows[0];
       return planReviews(
-        cards,
+        cardsResult.rows,
         settings.review_minutes,
         settings.spent_seconds,
         settings.average_seconds,

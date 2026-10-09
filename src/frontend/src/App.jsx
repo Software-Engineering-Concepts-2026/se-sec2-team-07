@@ -4,9 +4,14 @@ import { AppContext } from './context';
 import { api } from './api';
 import Auth from './pages/Auth';
 import { ErrorPanel } from './components/UI';
+import { setReadCacheUser } from './hooks/readCache';
 
 export default function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUserState] = useState(null);
+  const setUser = useCallback((value) => {
+    setReadCacheUser(value?.id);
+    setUserState(value);
+  }, []);
   const [ai, setAi] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -61,7 +66,7 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [setUser]);
   useEffect(() => {
     boot();
     const expired = () => {
@@ -73,7 +78,7 @@ export default function App() {
       window.removeEventListener('focus:unauthorized', expired);
       clearTimeout(timeout.current);
     };
-  }, [boot, notify]);
+  }, [boot, notify, setUser]);
   return (
     <AppContext.Provider
       value={{ user, setUser, ai, setAi, notify, confirm, registerDraft, hasUnsavedDraft }}

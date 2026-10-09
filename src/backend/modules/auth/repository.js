@@ -4,10 +4,8 @@ export function authRepository(pool) {
       return pool.prisma.user.findUnique({ where: { email } });
     },
     async byId(id) {
-      return pool.prisma.user.findUnique({
-        where: { id },
-        select: { id: true, name: true, email: true, token_version: true },
-      });
+      return (await pool.query('SELECT id,name,email,token_version FROM users WHERE id=$1', [id]))
+        .rows[0];
     },
     async create({ name, email, password }) {
       return pool.prisma.user.create({
