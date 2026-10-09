@@ -41,6 +41,17 @@ async function setup() {
 const text = '\uFEFFสรุปวิชา: โครงสร้างข้อมูล\r\nStack stores items in LIFO order.\r\n';
 const upload = { name: 'บทเรียน.md', content: Buffer.from(text).toString('base64') };
 
+test('large private API responses are compressed without losing note content', async () => {
+  const agent = await setup();
+  const body = 'ข้อมูลสำหรับทบทวนและค้นหา '.repeat(300);
+  assert.equal((await agent.post('/api/notes').send({ title: 'Compression', body })).status, 201);
+  const response = await agent.get('/api/notes').set('Accept-Encoding', 'gzip');
+  assert.equal(response.status, 200);
+  assert.equal(response.headers['content-encoding'], 'gzip');
+  assert.equal(response.headers['cache-control'], 'no-store');
+  assert.equal(response.body.notes[0].body, body.trim());
+});
+
 test('documents persist originals byte for byte, searchable extracted text, rename, and deletion', async () => {
   const agent = await setup();
   const created = await agent.post('/api/documents').send(upload);

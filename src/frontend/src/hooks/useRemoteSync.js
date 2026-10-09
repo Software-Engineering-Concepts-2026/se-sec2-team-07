@@ -1,7 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useApp } from '../context';
+import {
+  cacheReadResource,
+  isReadCacheGenerationCurrent,
+  isReadCacheSessionCurrent,
+  readCachedResource,
+  readCacheSession,
+} from './readCache';
 
 // Read-only refreshes never replay writes or replace an unsaved draft.
 export function useRemoteSync({ resource, load, apply, blocked = () => false, enabled = true }) {
+  const userId = useApp()?.user?.id ?? null;
+  const owner = useRef(userId);
+  owner.current = userId;
   const latest = useRef({ load, apply, blocked });
   latest.current = { load, apply, blocked };
   const execute = useRef(() => {});
@@ -16,6 +27,12 @@ export function useRemoteSync({ resource, load, apply, blocked = () => false, en
     let active = true,
       request = null;
     setState({ loading: enabled, refreshing: false, error: '', lastSynced: null });
+    const session = readCacheSession(userId);
+    const cached = enabled && !latest.current.blocked() && readCachedResource(session, resource);
+    if (cached && !latest.current.blocked()) {
+      latest.current.apply(cached.value);
+      setState({ loading: false, refreshing: false, error: '', lastSynced: cached.lastSynced });
+    }
     async function refresh(force = false) {
       if (!enabled || request) return;
       if (!force && latest.current.blocked()) {
@@ -26,11 +43,27 @@ export function useRemoteSync({ resource, load, apply, blocked = () => false, en
       request = controller;
       setState((s) => ({ ...s, refreshing: true }));
       try {
-        const value = await latest.current.load(controller.signal);
-        if (!active || controller.signal.aborted) return;
-        if (!force && latest.current.blocked()) return;
-        latest.current.apply(value);
-        setState({ loading: false, refreshing: false, error: '', lastSynced: new Date() });
+        while (active && !controller.signal.aborted) {
+          const requestSession = readCacheSession(userId);
+          const value = await latest.current.load(controller.signal);
+          if (
+            !active ||
+            controller.signal.aborted ||
+            owner.current !== userId ||
+            (requestSession && !isReadCacheSessionCurrent(requestSession))
+          )
+            return;
+          if (!force && latest.current.blocked()) {
+            setState((s) => ({ ...s, loading: false }));
+            return;
+          }
+          // A write completed while this read was pending. Fetch a new snapshot.
+          if (requestSession && !isReadCacheGenerationCurrent(requestSession)) continue;
+          latest.current.apply(value);
+          cacheReadResource(requestSession, resource, value);
+          setState({ loading: false, refreshing: false, error: '', lastSynced: new Date() });
+          return;
+        }
       } catch (e) {
         if (active && !controller.signal.aborted)
           setState((s) => ({ ...s, loading: false, error: e.message }));
@@ -57,6 +90,6 @@ export function useRemoteSync({ resource, load, apply, blocked = () => false, en
       window.removeEventListener('online', resume);
       document.removeEventListener('visibilitychange', resume);
     };
-  }, [resource, enabled]);
+  }, [resource, enabled, userId]);
   return { ...state, reload };
 }

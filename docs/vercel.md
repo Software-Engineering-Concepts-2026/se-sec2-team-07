@@ -13,9 +13,12 @@ database server's identity is not verified. No SUPABASE_CA_CERT is required in
 this mode. This affects PostgreSQL only, not HTTPS/AI requests. To restore
 verification, set DATABASE_SSL_VERIFY=true in Vercel and configure the CA below.
 
-This setup runs the frontend and API together using Vercel Container Images
-(Beta). Use the repository root, not `src/frontend`, as the project root.
-`Dockerfile.vercel` is detected automatically; leave build/output overrides unset.
+This setup uses Vercel Services (Beta) in one project and on one domain.
+The `web` service builds Vite to `dist` and serves HTML, JavaScript, fonts and images
+from the CDN. The `api` service runs `Dockerfile.vercel` in Singapore; only `/api`
+requests reach the container. Static page files no longer wait for an API cold start.
+Use the repository root, not `src/frontend`, as the project root.
+Service build/output settings are in `vercel.json`; leave dashboard overrides unset.
 The existing Dockerfile and Docker Hub release are independent.
 
 ## Project settings
@@ -59,9 +62,9 @@ Configure the environment variables above, then create a preview:
 npx vercel@latest deploy
 ```
 
-Use a stable preview alias and set APP_ORIGIN to that exact origin, then redeploy.
-Preview and production need their own APP_ORIGIN settings. A different preview URL
-will not automatically be trusted. Do not disable origin checking to work around this.
+Vercel deployment and branch URLs are accepted from VERCEL_URL and VERCEL_BRANCH_URL.
+Enable automatic system environment variables so these are supplied at runtime.
+Set APP_ORIGIN to your production/custom HTTPS origin; do not disable origin checking.
 
 After preview verification, deploy production explicitly:
 
@@ -75,6 +78,10 @@ npx vercel@latest deploy --prod
 - Verify login/logout, secure cookies, saving a deck, notes and course links.
 - Test text upload, image-based PDF OCR and AI generation through the deployed URL.
 - OCR cache lives in ephemeral `/tmp`; it may be downloaded again after scale-down.
+- An API cold start can still occur after inactivity, particularly on previews.
+  Read-only route data is kept briefly in memory for the signed-in account so returning
+  to a page can show its last data while refreshing. Writes and account changes clear
+  it. Review queues always load fresh, and no private response is cached by the CDN.
 - Container Functions still have platform payload, memory and duration limits.
   The application's 20 MB file allowance is not a guarantee that Vercel accepts it:
   base64 JSON increases request size. Large uploads may require direct object-storage
@@ -87,6 +94,7 @@ Preparing these files does not deploy the app or prove Vercel runtime compatibil
 References:
 
 - https://vercel.com/docs/functions/container-images
+- https://vercel.com/docs/services
 - https://vercel.com/docs/functions/limitations
 - https://vercel.com/docs/deployments/vercel-ignore
 - https://vercel.com/docs/projects/deploy-from-cli
