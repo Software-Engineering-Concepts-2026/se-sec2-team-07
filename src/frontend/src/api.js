@@ -1,16 +1,23 @@
 export async function api(path, method = 'GET', body, signal) {
   let response;
-  try { response = await fetch(`/api${path}`, {
-    method, credentials: 'same-origin', signal,
-    headers: body === undefined ? {} : { 'Content-Type': 'application/json' },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  }); } catch (e) {
+  try {
+    response = await fetch(`/api${path}`, {
+      method,
+      credentials: 'same-origin',
+      signal,
+      headers: body === undefined ? {} : { 'Content-Type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  } catch (e) {
     if (e.name === 'AbortError') throw e;
     throw new Error('เชื่อมต่อไม่ได้ กรุณาตรวจอินเทอร์เน็ตแล้วลองอีกครั้ง');
   }
   let data;
-  try { data = await response.json(); }
-  catch { throw new Error('เซิร์ฟเวอร์ไม่พร้อมใช้งาน กรุณาลองใหม่'); }
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error('เซิร์ฟเวอร์ไม่พร้อมใช้งาน กรุณาลองใหม่');
+  }
   if (!response.ok) {
     if (response.status === 401 && !['/login', '/register', '/me'].includes(path)) {
       window.dispatchEvent(new Event('focus:unauthorized'));

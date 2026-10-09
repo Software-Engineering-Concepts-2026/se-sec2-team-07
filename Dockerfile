@@ -8,6 +8,7 @@ COPY prisma.config.ts ./
 RUN npm ci
 COPY vite.config.js ./
 COPY src ./src
+COPY branding ./branding
 RUN npm run build
 RUN npm prune --omit=dev --ignore-scripts
 

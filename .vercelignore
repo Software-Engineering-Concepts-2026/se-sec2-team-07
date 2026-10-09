@@ -1,0 +1,22 @@
+# Upload only container build inputs.
+*
+!Dockerfile.vercel
+!.dockerignore
+!package.json
+!package-lock.json
+!prisma.config.ts
+!vite.config.js
+!vercel.json
+!prisma
+!prisma/**
+!src
+!src/**
+!branding
+!branding/*.png
+!deploy
+!deploy/vercel-start.mjs
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/node_modules/**

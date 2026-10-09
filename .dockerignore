@@ -1,14 +1,19 @@
 # Allow only build inputs into the context (no secrets, worktrees or reports).
 **
 !Dockerfile
+!Dockerfile.vercel
+!deploy
+!deploy/vercel-start.mjs
 !package.json
 !package-lock.json
 !prisma.config.ts
-!prisma/
+!prisma
 !prisma/**
 !vite.config.js
-!src/
+!src
 !src/**
+!branding
+!branding/*.png
 **/.env
 **/.env.*
 **/*.pem

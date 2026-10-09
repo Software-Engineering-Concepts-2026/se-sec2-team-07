@@ -9,13 +9,33 @@ import { migrate } from '../../src/backend/db/migrate.js';
 import { createApp } from '../../src/backend/app.js';
 
 if (!process.env.TEST_DATABASE_URL) throw Error('Dedicated TEST_DATABASE_URL required');
-const config = { databaseUrl: process.env.TEST_DATABASE_URL, jwtSecret: 'documents-test-secret-at-least-32-characters', cookieSecure: false, production: false, trustProxy: 0 };
-const pool = createPool(config), app = createApp(pool, config), emails = [];
+const config = {
+  databaseUrl: process.env.TEST_DATABASE_URL,
+  jwtSecret: 'documents-test-secret-at-least-32-characters',
+  cookieSecure: false,
+  production: false,
+  trustProxy: 0,
+};
+const pool = createPool(config),
+  app = createApp(pool, config),
+  emails = [];
 before(() => migrate(pool));
-after(async () => { await pool.query('DELETE FROM users WHERE email=ANY($1::text[])', [emails]); await pool.end(); });
+after(async () => {
+  await pool.query('DELETE FROM users WHERE email=ANY($1::text[])', [emails]);
+  await pool.end();
+});
 async function setup() {
-  const agent = request.agent(app), email = `${randomUUID()}@example.com`; emails.push(email);
-  assert.equal((await agent.post('/api/register').send({ name: 'Documents', email, password: 'TestPassword123' })).status, 201);
+  const agent = request.agent(app),
+    email = `${randomUUID()}@example.com`;
+  emails.push(email);
+  assert.equal(
+    (
+      await agent
+        .post('/api/register')
+        .send({ name: 'Documents', email, password: 'TestPassword123' })
+    ).status,
+    201,
+  );
   return agent;
 }
 const text = '\uFEFFสรุปวิชา: โครงสร้างข้อมูล\r\nStack stores items in LIFO order.\r\n';
@@ -38,7 +58,10 @@ test('documents persist originals byte for byte, searchable extracted text, rena
   assert.equal(file.headers['content-type'], 'application/octet-stream');
   assert.match(file.headers['content-disposition'], /^attachment;/);
   assert.deepEqual(file.body, Buffer.from(text));
-  assert.equal((await agent.put(`/api/documents/${id}`).send({ title: '  Renamed lesson  ' })).status, 200);
+  assert.equal(
+    (await agent.put(`/api/documents/${id}`).send({ title: '  Renamed lesson  ' })).status,
+    200,
+  );
   assert.equal((await agent.get('/api/documents')).body.documents[0].title, 'Renamed lesson');
   assert.equal((await agent.put(`/api/documents/${id}`).send({ title: ' ' })).status, 400);
   assert.equal((await agent.delete(`/api/documents/${id}`).send({})).status, 200);
@@ -47,7 +70,8 @@ test('documents persist originals byte for byte, searchable extracted text, rena
 });
 
 test('document operations isolate owners and require authentication', async () => {
-  const owner = await setup(), other = await setup();
+  const owner = await setup(),
+    other = await setup();
   const id = (await owner.post('/api/documents').send(upload)).body.id;
   assert.equal((await request(app).get('/api/documents')).status, 401);
   assert.equal((await request(app).get(`/api/documents/${id}/download`)).status, 401);
@@ -66,9 +90,12 @@ test('invalid documents never persist and download names discard path and contro
     { ...upload, content: 'not base64!' },
     { ...upload, title: '' },
     { ...upload, content: Buffer.from('tiny').toString('base64') },
-  ]) assert.equal((await agent.post('/api/documents').send(input)).status, 400);
+  ])
+    assert.equal((await agent.post('/api/documents').send(input)).status, 400);
   assert.deepEqual((await agent.get('/api/documents')).body.documents, []);
-  const created = await agent.post('/api/documents').send({ ...upload, name: '../folder\\safe\r\n.md' });
+  const created = await agent
+    .post('/api/documents')
+    .send({ ...upload, name: '../folder\\safe\r\n.md' });
   assert.equal(created.status, 201);
   assert.equal((await agent.get('/api/documents')).body.documents[0].name, 'safe.md');
   const file = await agent.get(`/api/documents/${created.body.id}/download`);
