@@ -6,6 +6,7 @@
 !package-lock.json
 !prisma.config.ts
 !vite.config.js
+!vercel.json
 !prisma
 !prisma/**
 !src

@@ -1,5 +1,12 @@
 # Vercel container deployment (preview first)
 
+`vercel.json` places the container function in Singapore (`sin1`), next to this
+project's Supabase pooler in `ap-southeast-1`. If the database region changes,
+update this setting. The Vercel container skips the synchronous startup database
+check (`DATABASE_STARTUP_CHECK=false`) so HTML and assets can be served immediately.
+`/api/health` still checks the database, and authenticated APIs still verify users
+against the database. Ordinary Docker/local startup checks remain enabled.
+
 Database TLS certificate verification is disabled in Dockerfile.vercel at the
 user's request (`DATABASE_SSL_VERIFY=false`). Traffic remains encrypted, but the
 database server's identity is not verified. No SUPABASE_CA_CERT is required in
