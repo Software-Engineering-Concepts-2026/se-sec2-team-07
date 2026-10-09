@@ -39,13 +39,26 @@ h3 {
 .welcome-story .brand .brand-image {
   width: 260px;
 }
+.brand-white-text {
+  position: relative;
+}
+/* The transparent asset separates the card symbol and wordmark at 40% width. */
+.brand-white-text > .brand-image:first-child {
+  clip-path: inset(0 60% 0 0);
+}
+.brand-white-text > .brand-white-wordmark {
+  position: absolute;
+  inset: 0;
+  filter: brightness(0) invert(1);
+  clip-path: inset(0 0 0 40%);
+  pointer-events: none;
+}
 .welcome-story > .brand {
   align-self: flex-start;
   width: fit-content;
   max-width: 100%;
-  padding: 4px 12px;
-  border-radius: 16px;
-  background: #fff;
+  padding: 0;
+  background: transparent;
 }
 .mobile-brand .brand .brand-image-compact {
   width: 42px;

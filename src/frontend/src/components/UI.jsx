@@ -42,9 +42,9 @@ export function Icon({ name, ...props }) {
   const Component = icons[name] || Layers;
   return <Component size={19} strokeWidth={1.7} aria-hidden="true" {...props} />;
 }
-export function Brand({ dark = false, compact = false }) {
+export function Brand({ dark = false, compact = false, whiteText = false }) {
   return (
-    <div className="brand">
+    <div className={whiteText && !compact ? 'brand brand-white-text' : 'brand'}>
       <img
         className={compact ? 'brand-image brand-image-compact' : 'brand-image'}
         src={compact ? mark : dark ? darkLogo : logo}
@@ -52,6 +52,16 @@ export function Brand({ dark = false, compact = false }) {
         width={compact ? 1072 : 1223}
         height={compact ? 1079 : 520}
       />
+      {whiteText && !compact && (
+        <img
+          className="brand-image brand-white-wordmark"
+          src={logo}
+          alt=""
+          aria-hidden="true"
+          width={1223}
+          height={520}
+        />
+      )}
     </div>
   );
 }

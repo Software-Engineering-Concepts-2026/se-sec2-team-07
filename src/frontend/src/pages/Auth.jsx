@@ -34,7 +34,7 @@ export default function Auth() {
   return (
     <main className="auth welcome-page">
       <section className="auth-story welcome-story">
-        <Brand />
+        <Brand whiteText />
         <div className="welcome-copy">
           <span className="welcome-tag">
             <Icon name="decks" />
