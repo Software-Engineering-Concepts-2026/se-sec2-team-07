@@ -1,34 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { PageTitle, Empty, ErrorPanel } from '../components/UI';
+import SyncStatus from '../components/SyncStatus';
+import { useRemoteSync } from '../hooks/useRemoteSync';
 
 export default function Courses() {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]),
     [name, setName] = useState('');
-  const [loading, setLoading] = useState(true),
-    [error, setError] = useState(''),
-    [actionError, setActionError] = useState(''),
+  const [actionError, setActionError] = useState(''),
     [busy, setBusy] = useState(false);
-  const [version, setVersion] = useState(0);
-  useEffect(() => {
-    const controller = new AbortController();
-    setLoading(true);
-    setError('');
-    api('/courses', 'GET', undefined, controller.signal)
-      .then((data) => setCourses(data.courses))
-      .catch((e) => {
-        if (!controller.signal.aborted) setError(e.message);
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
-      });
-    return () => controller.abort();
-  }, [version]);
+  const inFlight = useRef(false);
+  const sync = useRemoteSync({
+    resource: 'courses',
+    blocked: () => inFlight.current,
+    load: (signal) => api('/courses', 'GET', undefined, signal),
+    apply: (data) => setCourses(data.courses),
+  });
+  const { loading, error } = sync;
   async function create(event) {
     event.preventDefault();
-    if (busy) return;
+    if (inFlight.current || sync.refreshing) return;
+    inFlight.current = true;
     setBusy(true);
     setActionError('');
     try {
@@ -37,6 +31,7 @@ export default function Courses() {
     } catch (e) {
       setActionError(e.message);
     } finally {
+      inFlight.current = false;
       setBusy(false);
     }
   }
@@ -62,15 +57,21 @@ export default function Courses() {
           disabled={busy}
           placeholder="เช่น โครงสร้างข้อมูล"
         />
-        <button className="btn" disabled={busy || !name.trim()}>
+        <button className="btn" disabled={busy || sync.refreshing || !name.trim()}>
           {busy ? 'กำลังสร้าง…' : 'สร้างรายวิชา'}
         </button>
       </form>
       {actionError && <p role="alert">{actionError}</p>}
+      {sync.refreshing && !loading && (
+        <p className="small muted" role="status">
+          กำลังตรวจรายวิชาล่าสุด…
+        </p>
+      )}
+      {courses.length > 0 && <SyncStatus sync={sync} />}
       {loading ? (
         <p className="loading">กำลังเปิดรายวิชา…</p>
-      ) : error ? (
-        <ErrorPanel error={error} retry={() => setVersion((v) => v + 1)} />
+      ) : error && !courses.length ? (
+        <ErrorPanel error={error} retry={sync.reload} />
       ) : (
         <div className="deck-grid">
           {courses.length ? (

@@ -229,3 +229,147 @@ test('a read delayed across a successful mutation is discarded and fetched again
     fresh.resolve();
   }
 });
+
+test('courses reuse the list while validation preserves a typed course name', async ({ page }) => {
+  const gate = deferred();
+  let reads = 0;
+  await mockApi(page, async (route, path) => {
+    if (path !== '/api/courses') return false;
+    const read = ++reads;
+    if (read > 1) await gate.promise;
+    await route.fulfill({
+      json: {
+        courses: [
+          {
+            id: 1,
+            name: read === 1 ? 'Known course' : 'Fresh course',
+            card_count: 0,
+            note_count: 0,
+          },
+        ],
+      },
+    });
+    return true;
+  });
+  try {
+    await page.goto('/#/courses');
+    await expect(page.getByRole('heading', { name: 'Known course', exact: true })).toBeVisible();
+    await navigateTo(page, '#/notes');
+    await expect(page.getByLabel('ชื่อโน้ต')).toBeEnabled();
+    const refreshing = page.waitForRequest('**/api/courses');
+    await navigateTo(page, '#/courses');
+    await refreshing;
+    await expect(page.getByRole('heading', { name: 'Known course', exact: true })).toBeVisible();
+    await expect(page.getByText('กำลังตรวจรายวิชาล่าสุด…', { exact: true })).toBeVisible();
+    await page.getByLabel('ชื่อรายวิชาใหม่').fill('Unsaved course name');
+    await expect(page.getByRole('button', { name: 'สร้างรายวิชา', exact: true })).toBeDisabled();
+    gate.resolve();
+    await expect(page.getByRole('heading', { name: 'Fresh course', exact: true })).toBeVisible();
+    await expect(page.getByLabel('ชื่อรายวิชาใหม่')).toHaveValue('Unsaved course name');
+    await expect(page.getByRole('button', { name: 'สร้างรายวิชา', exact: true })).toBeEnabled();
+  } finally {
+    gate.resolve();
+  }
+});
+
+test('schedule cache validates before settings writes and protects unsaved minutes', async ({
+  page,
+}) => {
+  const gate = deferred();
+  let reads = 0;
+  let savedMinutes = 30;
+  const plan = (minutes) => ({
+    minutes,
+    cards: [],
+    days: [],
+    remaining_seconds: minutes * 60,
+    spent_seconds: 0,
+    due_count: 0,
+    deferred_count: 0,
+    seconds_per_card: 30,
+    next_due: null,
+    beyond_week: 0,
+  });
+  await mockApi(page, async (route, path, method) => {
+    if (path !== '/api/review/plan') return false;
+    if (method === 'PUT') {
+      savedMinutes = route.request().postDataJSON().minutes;
+      await route.fulfill({ json: plan(savedMinutes) });
+    } else {
+      const read = ++reads;
+      if (read === 2) await gate.promise;
+      await route.fulfill({ json: plan(read === 1 ? 10 : savedMinutes) });
+    }
+    return true;
+  });
+  try {
+    await page.goto('/#/schedule');
+    const input = page.getByLabel('เวลาทบทวนต่อวัน (นาที)');
+    await expect(input).toBeEnabled();
+    await expect(input).toHaveValue('10');
+    await navigateTo(page, '#/courses');
+    await expect(page.getByRole('heading', { name: 'ยังไม่มีรายวิชา', exact: true })).toBeVisible();
+    const refreshing = page.waitForRequest('**/api/review/plan');
+    await navigateTo(page, '#/schedule');
+    await refreshing;
+    await expect(input).toHaveValue('10');
+    await expect(input).toBeDisabled();
+    await expect(page.getByText('กำลังตรวจตารางล่าสุด…', { exact: true })).toBeVisible();
+    gate.resolve();
+    await expect(input).toBeEnabled();
+    await expect(input).toHaveValue('30');
+    await input.fill('25');
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+    expect(reads).toBe(2);
+    await expect(input).toHaveValue('25');
+    await page.getByRole('button', { name: 'บันทึกเวลาและปรับตาราง', exact: true }).click();
+    await expect(
+      page.getByText('บันทึกเวลาแล้ว ตารางปรับตามเวลาที่เลือก', { exact: true }),
+    ).toBeVisible();
+    const validated = page.waitForResponse('**/api/review/plan');
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+    await validated;
+    await expect(input).toHaveValue('25');
+    await expect(
+      page.getByText('บันทึกเวลาแล้ว ตารางปรับตามเวลาที่เลือก', { exact: true }),
+    ).toBeVisible();
+  } finally {
+    gate.resolve();
+  }
+});
+
+test('dashboard seeds the library snapshot before its first delayed read', async ({ page }) => {
+  const gate = deferred();
+  await mockApi(page, async (route, path) => {
+    if (path === '/api/stats/overview') {
+      await route.fulfill({
+        json: {
+          decks: [deck('Overview deck')],
+          stats: { total: 0, today: 0, streak: 0, weekly: [] },
+        },
+      });
+      return true;
+    }
+    if (path !== '/api/decks') return false;
+    await gate.promise;
+    await route.fulfill({ json: { decks: [deck('Validated library deck')] } });
+    return true;
+  });
+  try {
+    await page.goto('/#/');
+    await expect(page.getByRole('heading', { name: 'Overview deck', exact: true })).toBeVisible();
+    const refreshing = page.waitForRequest('**/api/decks');
+    await navigateTo(page, '#/decks');
+    await refreshing;
+    await expect(page.getByRole('heading', { name: 'Overview deck', exact: true })).toBeVisible({
+      timeout: 1000,
+    });
+    await expect(page.getByText('กำลังเปิดคลังการ์ด…', { exact: true })).toHaveCount(0);
+    gate.resolve();
+    await expect(
+      page.getByRole('heading', { name: 'Validated library deck', exact: true }),
+    ).toBeVisible();
+  } finally {
+    gate.resolve();
+  }
+});

@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 export default defineConfig({
   testDir: './e2e',
   testMatch: 'read-cache.spec.js',
+  outputDir: fileURLToPath(new URL('../.local/read-cache-tests', import.meta.url)),
   timeout: 30000,
   workers: 1,
   use: { baseURL: 'http://127.0.0.1:5175', channel: 'chrome', trace: 'retain-on-failure' },

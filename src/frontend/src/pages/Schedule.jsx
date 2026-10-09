@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { PageTitle, ErrorPanel } from '../components/UI';
+import SyncStatus from '../components/SyncStatus';
+import { useRemoteSync } from '../hooks/useRemoteSync';
 
 const minutesText = (seconds) => {
   const total = Math.max(0, Math.round(seconds));
@@ -23,27 +25,29 @@ export default function Schedule() {
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
   const inFlight = useRef(false);
-  useEffect(() => {
-    const controller = new AbortController();
-    api('/review/plan', 'GET', undefined, controller.signal)
-      .then((value) => {
-        setPlan(value);
-        setMinutes(value.minutes);
-      })
-      .catch((e) => {
-        if (!controller.signal.aborted) setError(e.message);
-      });
-    return () => controller.abort();
-  }, []);
+  const dirty = useRef(false);
+  const sync = useRemoteSync({
+    resource: 'schedule',
+    blocked: () => dirty.current || inFlight.current,
+    load: (signal) => api('/review/plan', 'GET', undefined, signal),
+    apply: (value) => {
+      setPlan(value);
+      setMinutes(value.minutes);
+    },
+  });
+  const locked = busy || sync.refreshing;
   async function save(e) {
     e.preventDefault();
-    if (inFlight.current) return;
+    if (inFlight.current || sync.refreshing) return;
     inFlight.current = true;
     setBusy(true);
     setError('');
     setSaved(false);
     try {
-      setPlan(await api('/review/plan', 'PUT', { minutes: Number(minutes) }));
+      const value = await api('/review/plan', 'PUT', { minutes: Number(minutes) });
+      setPlan(value);
+      setMinutes(value.minutes);
+      dirty.current = false;
       setSaved(true);
     } catch (e) {
       setError(e.message);
@@ -53,8 +57,8 @@ export default function Schedule() {
     }
   }
   if (!plan)
-    return error ? (
-      <ErrorPanel error={error} />
+    return sync.error ? (
+      <ErrorPanel error={sync.error} retry={sync.reload} />
     ) : (
       <div className="loading">กำลังจัดตารางทบทวน…</div>
     );
@@ -65,6 +69,12 @@ export default function Schedule() {
         title="ตารางทบทวน"
         subtitle="แบ่งเวลาให้พอดีกับภาระงานของคุณ"
       />
+      {sync.refreshing && !sync.loading && (
+        <p className="small muted" role="status">
+          กำลังตรวจตารางล่าสุด…
+        </p>
+      )}
+      <SyncStatus sync={sync} />
       <section className="panel stack schedule-settings">
         <div className="schedule-preferences">
           <h2>ตั้งเวลาทบทวน</h2>
@@ -76,8 +86,9 @@ export default function Schedule() {
                   key={value}
                   type="button"
                   aria-pressed={Number(minutes) === value}
-                  disabled={busy}
+                  disabled={locked}
                   onClick={() => {
+                    dirty.current = value !== plan.minutes;
                     setMinutes(value);
                     setSaved(false);
                   }}
@@ -99,8 +110,9 @@ export default function Schedule() {
                 step="1"
                 required
                 value={minutes}
-                disabled={busy}
+                disabled={locked}
                 onChange={(e) => {
+                  dirty.current = Number(e.target.value) !== plan.minutes;
                   setMinutes(e.target.value);
                   setSaved(false);
                 }}
@@ -109,7 +121,7 @@ export default function Schedule() {
             <p id="review-time-hint" className="review-time-hint">
               เลือกเวลาด้านบน หรือพิมพ์เองได้ตั้งแต่ 1–120 นาที
             </p>
-            <button className="btn" disabled={busy}>
+            <button className="btn" disabled={locked}>
               {busy ? 'กำลังปรับตาราง…' : 'บันทึกเวลาและปรับตาราง'}
             </button>
           </form>
