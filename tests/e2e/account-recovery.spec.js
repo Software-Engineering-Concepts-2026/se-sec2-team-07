@@ -3,6 +3,7 @@ assertTestDatabase();
 import { test, expect } from '@playwright/test';
 import pg from 'pg';
 import { randomUUID } from 'node:crypto';
+import { clickLogout } from './helpers/navigation.js';
 
 test('registration profile retry does not submit registration twice', async ({ page }) => {
   const email = `recover-${randomUUID()}@example.com`;
@@ -55,12 +56,12 @@ test('logout cancellation and failed logout preserve note and card drafts', asyn
       logoutRequests++;
       await route.fulfill({ status: 503, json: { error: 'ลองออกจากระบบอีกครั้ง' } });
     });
-    await page.getByRole('button', { name: 'ออกจากระบบ', exact: true }).last().click();
+    await clickLogout(page);
     await expect(page.getByRole('dialog')).toContainText('ร่างนี้จะหายไป');
     await page.getByRole('button', { name: 'ยกเลิก', exact: true }).click();
     expect(logoutRequests).toBe(0);
     await expect(page.getByLabel('เนื้อหาโน้ต', { exact: true })).toHaveValue('Unsaved content');
-    await page.getByRole('button', { name: 'ออกจากระบบ', exact: true }).last().click();
+    await clickLogout(page);
     await page.getByRole('button', { name: 'ยืนยัน', exact: true }).click();
     await expect(page.locator('#toast')).toContainText('ลองออกจากระบบอีกครั้ง');
     await expect(page.getByLabel('เนื้อหาโน้ต', { exact: true })).toHaveValue('Unsaved content');
@@ -70,12 +71,12 @@ test('logout cancellation and failed logout preserve note and card drafts', asyn
     await page.getByRole('button', { name: /เขียนเอง เพิ่มคำถาม/ }).click();
     await page.getByRole('button', { name: 'เพิ่มเอง', exact: true }).click();
     await page.getByLabel('ชื่อชุดการ์ด').fill('Unsaved cards');
-    await page.getByRole('button', { name: 'ออกจากระบบ', exact: true }).last().click();
+    await clickLogout(page);
     await expect(page.getByRole('dialog')).toContainText('ร่างนี้จะหายไป');
     await page.getByRole('button', { name: 'ยกเลิก', exact: true }).click();
     await expect(page.getByLabel('ชื่อชุดการ์ด')).toHaveValue('Unsaved cards');
     await page.unroute('**/api/logout');
-    await page.getByRole('button', { name: 'ออกจากระบบ', exact: true }).last().click();
+    await clickLogout(page);
     await page.getByRole('button', { name: 'ยืนยัน', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'ยินดีต้อนรับกลับมา' })).toBeVisible();
   } finally {

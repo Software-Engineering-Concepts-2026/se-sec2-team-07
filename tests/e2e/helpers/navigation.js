@@ -11,3 +11,13 @@ export async function navigateTo(page, href) {
   }
   await expect(page).toHaveURL(new RegExp(href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$'));
 }
+
+export async function clickLogout(page) {
+  const visibleButton = page
+    .getByRole('button', { name: 'ออกจากระบบ', exact: true })
+    .filter({ visible: true });
+  if (!(await visibleButton.count())) {
+    await page.getByRole('button', { name: /เพิ่มเติม/ }).click();
+  }
+  await visibleButton.click();
+}
