@@ -145,33 +145,27 @@ refactor/xxx — ปรับโครงสร้าง Code
 
 _เอกสารนี้ทบทวนและปรับปรุงได้ในทุก Sprint Retrospective โดยต้องได้รับความเห็นชอบจากทุกคนในทีม_
 
-## 🚀 Getting Started
+## 🚀 Getting Started — Current Application
 
-This section explains how to get a local copy of the project up and running for development and testing purposes.
+แอปปัจจุบันใช้ **React + Vite + Plain CSS / Node.js + Express / PostgreSQL / JWT HttpOnly cookies** ตาม [Tech Stack](docs/architecture/tech_stack.md)
 
-### Prerequisites
+```bash
+npm ci
+# Configure Supabase in .env first.
+npm run db:check:supabase
+npm run db:deploy:supabase
+npm run dev
+```
 
-- Git
-- Python 3.10+
-- Docker & Docker Compose
+เปิด http://127.0.0.1:5173 เพื่อพัฒนา หรือ `npm run build` ตามด้วย `npm start` แล้วเปิด http://127.0.0.1:8000
 
-### Running the Application (with Docker)
+See [current Supabase setup and testing instructions](docs/development.md). The app no longer uses a local application database.
 
-1.  **Clone the repository:**
-
-    ```bash
-    git clone [your-repository-url]
-    cd [your-project-folder]
-    ```
-
-2.  **Run the services:**
-    _(This section will be updated in later weeks when using Docker Compose)_
-    ```bash
-    # Example for a single service
-    cd services/stats-service
-    docker build -t your-team/stats-service .
-    docker run -p 5001:5000 your-team/stats-service
-    ```
+- สร้างบัญชีและเพิ่มชุดการ์ดจาก PDF/PPTX/TXT/MD หรือข้อความ
+- แก้ไขและบันทึกการ์ด ทบทวนตาม SRS และดูสถิติจริง
+- AI เปิดใช้เมื่อกำหนด `OPENAI_API_KEY` และ `OPENAI_MODEL` ฝั่งเซิร์ฟเวอร์ โหมดแยกข้อความและเพิ่มเองใช้ได้โดยไม่มีคีย์
+- Docker: configure Supabase and JWT_SECRET, then `docker compose up --build`.
+- รายละเอียดการรัน การย้ายข้อมูลเดิม การทดสอบ และ deploy: **[Development guide](docs/development.md)**
 
 ---
 

@@ -10,6 +10,12 @@ __pycache__/
 venv/
 ENV/
 
+# Python test reports
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
 # Node.js
 node_modules/
 .next/
@@ -18,3 +24,16 @@ dist/
 # OS Header files
 .DS_Store
 Thumbs.db
+
+# Local application data and dependencies
+data/
+.vendor/
+.venv/
+*.log
+.tools/
+.local/
+test-results/
+playwright-report/
+.vercel/
+.vercel
+.env*

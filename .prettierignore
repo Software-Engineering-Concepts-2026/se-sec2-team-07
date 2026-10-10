@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.local/
+.git/
+package-lock.json
+AI_USAGE.md
+.env*
+test-results/
+playwright-report/

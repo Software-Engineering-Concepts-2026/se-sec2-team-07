@@ -1,5 +1,7 @@
 # Architectural Tech Stack & Decision Rationale
 
+> Implementation updated 2026-09-11: the active app follows this stack. See [ADR 0002](adr/0002-implement-selected-tech-stack.md) and [Development guide](../development.md). OpenAI is the selected AI provider; no AI key is required for manual/local creation. Historical Next.js/Firebase diagrams are superseded for the active implementation.
+
 ## Tech Stack Overview (6 Layers)
 
 | Layer                            | Choice (เทคโนโลยีที่เลือก)                   | Rationale (เหตุผลเชิง Context)                                                                                                                                                                 | Alternative (ทางเลือกอื่นที่พิจารณา)       |

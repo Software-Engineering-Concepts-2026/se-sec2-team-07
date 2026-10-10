@@ -1,0 +1,30 @@
+# syntax=docker/dockerfile:1
+FROM node:22-bookworm-slim AS build
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+COPY package.json package-lock.json ./
+COPY prisma ./prisma
+COPY prisma.config.ts ./
+RUN npm ci
+# Frontend is built by the Vite service and served from the CDN.
+COPY src/backend ./src/backend
+RUN npm prune --omit=dev --ignore-scripts
+
+FROM node:22-bookworm-slim AS runtime
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+# Set PORT=8000 in Vercel project settings as well (its default is 80).
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=8000 COOKIE_SECURE=true
+# User-selected TLS without CA verification; affects only the database connection.
+ENV DATABASE_SSL_VERIFY=false
+# Serve static files immediately; API/health requests report database failures.
+ENV DATABASE_STARTUP_CHECK=false
+COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/src/backend ./src/backend
+COPY deploy/vercel-start.mjs ./deploy/vercel-start.mjs
+# OCR resolves .local/ocr; only /tmp needs to be writable at runtime.
+RUN ln -s /tmp/focus-flashcards /app/.local
+USER node
+EXPOSE 8000
+CMD ["node", "deploy/vercel-start.mjs"]

@@ -1,6 +1,6 @@
 # ADR-001: Use RESTful APIs for Internal Service Communication
 
-**Status:** Accepted
+**Status:** Superseded for the active application by [ADR 0002](0002-implement-selected-tech-stack.md), following the user's explicit selection of `tech_stack.md` on 2026-09-11.
 
 **Context:**
 Our project, Focus Flashcards, is an AI-powered web application designed to help university students and lifelong learners transform study materials into digital flashcards for efficient learning and exam preparation.

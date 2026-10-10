@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             Int           @id @default(autoincrement())
+  name           String
+  email          String        @unique
+  password       String
+  token_version  Int           @default(0)
+  review_minutes Int           @default(10)
+  decks          Deck[]
+  reviews        Review[]
+  review_days    ReviewDay[]
+  courses        Course[]
+  notes          Note[]
+  documents      Document[]
+  sync_receipts  SyncReceipt[]
+
+  @@map("users")
+}
+
+model Deck {
+  id          Int    @id @default(autoincrement())
+  user_id     Int
+  name        String
+  description String @default("")
+  category    String @default("ทั่วไป")
+  color       String @default("purple")
+  created     Float  @db.DoublePrecision
+  metadata    Json   @default("{}")
+  revision    Int    @default(1)
+  user        User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  cards       Card[]
+
+  @@index([user_id], map: "decks_owner")
+  @@map("decks")
+}
+
+model Card {
+  id             Int          @id @default(autoincrement())
+  deck_id        Int
+  front          String
+  back           String
+  due            Float        @db.DoublePrecision
+  interval       Float        @default(0) @db.DoublePrecision
+  reviews        Int          @default(0)
+  metadata       Json         @default("{}")
+  archived_at    DateTime?    @db.Timestamptz(6)
+  deck           Deck         @relation(fields: [deck_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  review_records Review[]
+  course_cards   CourseCard[]
+
+  @@index([deck_id, due], map: "cards_deck_due")
+  @@map("cards")
+}
+
+model Review {
+  id      String @id
+  user_id Int
+  card_id Int
+  rating  String
+  seconds Int
+  created Float  @db.DoublePrecision
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  card    Card   @relation(fields: [card_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id, created], map: "reviews_owner_created")
+  @@map("reviews")
+}
+
+model ReviewDay {
+  user_id Int
+  day     DateTime @db.Date
+  seconds Int      @default(0)
+  user    User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, day])
+  @@map("review_days")
+}
+
+model Course {
+  id           Int          @id @default(autoincrement())
+  user_id      Int
+  name         String
+  user         User         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  course_cards CourseCard[]
+  course_notes CourseNote[]
+
+  @@index([user_id], map: "courses_owner")
+  @@map("courses")
+}
+
+model Note {
+  id           Int          @id @default(autoincrement())
+  user_id      Int
+  title        String
+  body         String
+  revision     Int          @default(1)
+  user         User         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  course_notes CourseNote[]
+
+  @@index([user_id], map: "notes_owner")
+  @@map("notes")
+}
+
+model CourseCard {
+  course_id Int
+  card_id   Int
+  course    Course @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  card      Card   @relation(fields: [card_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([course_id, card_id])
+  @@index([card_id], map: "course_cards_source")
+  @@map("course_cards")
+}
+
+model CourseNote {
+  course_id Int
+  note_id   Int
+  course    Course @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  note      Note   @relation(fields: [note_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([course_id, note_id])
+  @@index([note_id], map: "course_notes_source")
+  @@map("course_notes")
+}
+
+model Document {
+  id      Int      @id @default(autoincrement())
+  user_id Int
+  title   String
+  name    String
+  body    String
+  content Bytes
+  created DateTime @default(now()) @db.Timestamptz(6)
+  user    User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id], map: "documents_owner")
+  @@map("documents")
+}
+
+model SyncReceipt {
+  user_id    Int
+  kind       String
+  request_id String   @db.Uuid
+  input_hash String
+  result_id  Int
+  created    DateTime @default(now()) @db.Timestamptz(6)
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, kind, request_id])
+  @@map("sync_receipts")
+}
+
+model SchemaMigration {
+  name       String    @id
+  applied_at DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@map("schema_migrations")
+}

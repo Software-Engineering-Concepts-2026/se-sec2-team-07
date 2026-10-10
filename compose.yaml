@@ -1,0 +1,26 @@
+# Local production-build preview over HTTP; online deployment must use HTTPS.
+services:
+  app:
+    build: .
+    init: true
+    environment:
+      SUPABASE_PROJECT_REF: ${SUPABASE_PROJECT_REF:?Set Supabase project ref}
+      SUPABASE_DATABASE_URL: ${SUPABASE_DATABASE_URL:?Set Supabase runtime connection}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
+      OPENAI_API_MODE: ${OPENAI_API_MODE:-}
+      NODE_ENV: development
+      HOST: 0.0.0.0
+      PORT: '8000'
+      APP_ORIGIN: http://localhost:8000
+      COOKIE_SECURE: 'false'
+      TRUST_PROXY: '0'
+    ports:
+      - '127.0.0.1:8000:8000'
+    volumes:
+      - ocr-cache:/app/.local/ocr
+    stop_grace_period: 30s
+volumes:
+  ocr-cache:
