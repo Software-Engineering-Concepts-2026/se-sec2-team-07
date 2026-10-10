@@ -3,6 +3,8 @@ assertTestDatabase();
 import { test, expect } from '@playwright/test';
 import pg from 'pg';
 import { randomUUID } from 'node:crypto';
+import { expectDraftCount, selectDraftCard } from './helpers/editor.js';
+import { clickLogout } from './helpers/navigation.js';
 
 test('register → upload → edit → review → statistics → delete → login', async ({
   page,
@@ -26,7 +28,11 @@ test('register → upload → edit → review → statistics → delete → logi
     });
     await expect(page.getByLabel('หรือวางข้อความจากโน้ต')).toHaveValue(/Stack/);
     await page.getByRole('button', { name: /สร้างการ์ดจากเนื้อหา/ }).click();
-    await expect(page.getByLabel('ด้านหน้า · คำถาม')).toHaveCount(2);
+    await expectDraftCount(page, 2);
+    await selectDraftCard(page, 2);
+    await expect(page.getByLabel('ด้านหน้า · คำถาม')).toHaveValue('Queue');
+    await expect(page.getByLabel('ด้านหลัง · คำตอบ')).toHaveValue('First in first out');
+    await selectDraftCard(page, 1);
     await page.getByLabel('ด้านหน้า · คำถาม').first().fill('What is a stack?');
     await page.getByLabel('ชื่อชุดการ์ด').fill('My Data Structures');
     await page.locator('summary').filter({ hasText: 'รายละเอียดเพิ่มเติม' }).click();
@@ -89,7 +95,7 @@ test('register → upload → edit → review → statistics → delete → logi
     await expect(
       page.getByRole('heading', { name: 'เริ่มจากความรู้เรื่องที่คุณสนใจ' }),
     ).toBeVisible();
-    await page.locator('.topbar').getByRole('button', { name: 'ออกจากระบบ' }).click();
+    await clickLogout(page);
     await page.getByLabel('อีเมล', { exact: true }).fill(email);
     await page.getByLabel('รหัสผ่าน', { exact: true }).fill('UiTestPassword123');
     await page.getByRole('button', { name: 'เข้าสู่ระบบ', exact: true }).click();

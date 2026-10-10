@@ -3,6 +3,7 @@ assertTestDatabase();
 import { test, expect } from '@playwright/test';
 import pg from 'pg';
 import { randomUUID } from 'node:crypto';
+import { clickLogout } from './helpers/navigation.js';
 
 test('Issue #9: pause, resume, reset, break review, navigation and session reset', async ({
   page,
@@ -93,7 +94,7 @@ test('Issue #9: pause, resume, reset, break review, navigation and session reset
     await page.clock.fastForward(60000);
     await page.reload();
     await expect(timer).toHaveText('25:00');
-    await page.locator('.topbar').getByRole('button', { name: 'ออกจากระบบ' }).click();
+    await clickLogout(page);
     await expect(page.getByRole('button', { name: 'เข้าสู่ระบบ', exact: true })).toBeVisible();
     await page.getByLabel('อีเมล', { exact: true }).fill(email);
     await page.getByLabel('รหัสผ่าน', { exact: true }).fill('TestPassword123');

@@ -218,6 +218,10 @@ function WorkspaceLayout() {
                 {label}
               </NavLink>
             ))}
+          <button className="btn secondary" disabled={busy} onClick={logout}>
+            <Icon name="logout" />
+            ออกจากระบบ
+          </button>
         </section>
       )}
     </>

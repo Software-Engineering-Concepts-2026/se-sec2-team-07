@@ -3,6 +3,7 @@ assertTestDatabase();
 import { test, expect } from '@playwright/test';
 import pg from 'pg';
 import { randomUUID } from 'node:crypto';
+import { expectDraftCount, selectDraftCard } from './helpers/editor.js';
 
 test('Issue #3: extract notes, preserve drafts on file and AI errors, retry and save', async ({
   page,
@@ -61,11 +62,13 @@ test('Issue #3: extract notes, preserve drafts on file and AI errors, retry and 
     });
     await expect(page.getByLabel('ชื่อชุดการ์ด')).toHaveValue('Issue 3 notes');
     await page.getByRole('button', { name: /สร้างการ์ดจากเนื้อหา/ }).click();
-    await expect(questions).toHaveCount(2);
-    await expect(questions.nth(0)).toHaveValue('Stack');
-    await expect(answers.nth(0)).toHaveValue('LIFO');
-    await expect(questions.nth(1)).toHaveValue('Queue');
-    await expect(answers.nth(1)).toHaveValue('FIFO');
+    await expectDraftCount(page, 2);
+    await expect(questions).toHaveValue('Stack');
+    await expect(answers).toHaveValue('LIFO');
+    await selectDraftCard(page, 2);
+    await expect(questions).toHaveValue('Queue');
+    await expect(answers).toHaveValue('FIFO');
+    await selectDraftCard(page, 1);
 
     await page.route('**/api/extract', (route) => route.fulfill({ json: {} }));
     await upload.setInputFiles({
@@ -75,7 +78,7 @@ test('Issue #3: extract notes, preserve drafts on file and AI errors, retry and 
     });
     await expect(page.getByRole('alert')).toContainText('เซิร์ฟเวอร์ส่งข้อความจากไฟล์ไม่ครบ');
     await expect(notes).toHaveValue(source);
-    await expect(questions).toHaveCount(2);
+    await expectDraftCount(page, 2);
     await page.unroute('**/api/extract');
 
     await upload.setInputFiles({
@@ -85,7 +88,7 @@ test('Issue #3: extract notes, preserve drafts on file and AI errors, retry and 
     });
     await expect(page.getByRole('alert')).toContainText('รูปแบบไฟล์');
     await expect(notes).toHaveValue(source);
-    await expect(questions).toHaveCount(2);
+    await expectDraftCount(page, 2);
     const extraction = page.waitForResponse(
       (response) =>
         response.url().endsWith('/api/extract') && response.request().method() === 'POST',
@@ -98,7 +101,7 @@ test('Issue #3: extract notes, preserve drafts on file and AI errors, retry and 
     expect((await extraction).ok()).toBeFalsy();
     await expect(page.getByRole('alert')).toContainText('เนื้อหาเดิมยังอยู่');
     await expect(notes).toHaveValue(source);
-    await expect(questions).toHaveCount(2);
+    await expectDraftCount(page, 2);
     await expect(answers.nth(0)).toHaveValue('LIFO');
 
     await page.route('**/api/extract', (route) =>
@@ -148,11 +151,12 @@ test('Issue #3: extract notes, preserve drafts on file and AI errors, retry and 
     await page.getByRole('button', { name: /สร้างการ์ดจากเนื้อหา/ }).click();
     await expect(page.getByRole('alert')).toContainText('สร้างการ์ดด้วย AI ไม่สำเร็จ');
     await expect(notes).toHaveValue(source);
-    await expect(questions).toHaveCount(2);
+    await expectDraftCount(page, 2);
     await page.getByRole('button', { name: /สร้างการ์ดจากเนื้อหา/ }).click();
-    await expect(questions).toHaveCount(3);
+    await expectDraftCount(page, 3);
     expect(attempts).toBe(2);
-    await expect(questions.nth(2)).toHaveValue('โครงสร้างใดใช้ FIFO?');
+    await selectDraftCard(page, 3);
+    await expect(questions).toHaveValue('โครงสร้างใดใช้ FIFO?');
     expect(
       (
         await pool.query(

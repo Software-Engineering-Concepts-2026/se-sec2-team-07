@@ -3,6 +3,7 @@ assertTestDatabase();
 import { test, expect } from '@playwright/test';
 import pg from 'pg';
 import { randomUUID } from 'node:crypto';
+import { expectDraftCount, selectDraftCard } from './helpers/editor.js';
 
 test('Issue #8: select AI knowledge level, preserve edited drafts on failure and save mixed levels', async ({
   page,
@@ -76,13 +77,16 @@ test('Issue #8: select AI knowledge level, preserve edited drafts on failure and
     await expect(questions.nth(0)).toHaveValue('What does LIFO mean?');
     await expect(answers.nth(0)).toHaveValue('Last in, first out.');
     await generate.click();
-    await expect(questions).toHaveCount(2);
+    await expectDraftCount(page, 2);
     expect(requests[2]).toMatchObject({ mode: 'ai', level: 'advanced', text: source });
     await expect(questions.nth(0)).toHaveValue('What does LIFO mean?');
     await expect(answers.nth(0)).toHaveValue('Last in, first out.');
-    await expect(questions.nth(1)).toHaveValue(
-      'Which structure returns the earliest item, and why?',
-    );
+    await selectDraftCard(page, 2);
+    await expect(questions).toHaveValue('Which structure returns the earliest item, and why?');
+    await expect(answers).toHaveValue('Queue, because it uses FIFO.');
+    await selectDraftCard(page, 1);
+    await expect(questions).toHaveValue('What does LIFO mean?');
+    await expect(answers).toHaveValue('Last in, first out.');
     await mode.selectOption('local');
     await expect(level).toHaveCount(0);
     await page.getByRole('button', { name: 'บันทึกชุดการ์ด' }).click();
