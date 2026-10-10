@@ -63,8 +63,12 @@ npx vercel@latest deploy
 ```
 
 Vercel deployment and branch URLs are accepted from VERCEL_URL and VERCEL_BRANCH_URL.
-Enable automatic system environment variables so these are supplied at runtime.
-Set APP_ORIGIN to your production/custom HTTPS origin; do not disable origin checking.
+Production also accepts the project's exact vercel.app domain from VERCEL_PROJECT_PRODUCTION_URL
+when VERCEL_ENV=production. This stable domain differs from the generated deployment URL.
+Enable access to system environment variables so these are supplied at runtime.
+Set APP_ORIGIN in the Production environment to the HTTPS origin your visitors use
+(for example, https://focus-flashcards.vercel.app). Custom domains require APP_ORIGIN.
+Do not disable origin checking or trust arbitrary forwarded hosts.
 
 After preview verification, deploy production explicitly:
 
