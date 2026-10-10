@@ -3,9 +3,10 @@
 `vercel.json` places the container function in Singapore (`sin1`), next to this
 project's Supabase pooler in `ap-southeast-1`. If the database region changes,
 update this setting. The Vercel container skips the synchronous startup database
-check (`DATABASE_STARTUP_CHECK=false`) so HTML and assets can be served immediately.
-`/api/health` still checks the database, and authenticated APIs still verify users
-against the database. Ordinary Docker/local startup checks remain enabled.
+check (`DATABASE_STARTUP_CHECK=false`) so the API can start without waiting for that
+round trip. HTML and assets are served independently by the CDN. `/api/health`
+still checks the database, and authenticated APIs still verify users against it.
+Ordinary Docker/local startup checks remain enabled. See [ADR 0009](architecture/adr/0009-vercel-services.md).
 
 Database TLS certificate verification is disabled in Dockerfile.vercel at the
 user's request (`DATABASE_SSL_VERIFY=false`). Traffic remains encrypted, but the
@@ -42,8 +43,10 @@ Set these in Vercel Settings → Environment Variables for the appropriate envir
 | OPENAI_API_KEY        | Your provider secret                                                          |
 
 Do not upload `.env`, put secrets in build arguments, or prefix secrets with `VITE_`.
-Do not copy Windows NODE_EXTRA_CA_CERTS paths: the launcher writes SUPABASE_CA_CERT
-to `/tmp` and starts Node with the Linux certificate path. TLS verification stays enabled.
+When DATABASE_SSL_VERIFY=true, do not copy Windows NODE_EXTRA_CA_CERTS paths:
+the launcher writes SUPABASE_CA_CERT to `/tmp` and starts Node with that Linux path.
+In the current DATABASE_SSL_VERIFY=false mode, this certificate is not loaded;
+PostgreSQL encryption remains enabled but server identity verification is disabled.
 Set TRUST_PROXY only after verifying the trusted proxy chain in the deployed environment;
 do not blindly enable trust for arbitrary forwarding headers.
 
@@ -62,6 +65,15 @@ Configure the environment variables above, then create a preview:
 npx vercel@latest deploy
 ```
 
+If the CLI reports Not authorized, check the account with `npx vercel@latest whoami`
+and select the team that owns the existing project. For this project's current team:
+
+```powershell
+npx vercel@latest deploy --scope nattapon-aonsris-projects
+```
+
+Use the correct team slug for another account; do not create a new project to work around missing permissions.
+
 Vercel deployment and branch URLs are accepted from VERCEL_URL and VERCEL_BRANCH_URL.
 Production also accepts the project's exact vercel.app domain from VERCEL_PROJECT_PRODUCTION_URL
 when VERCEL_ENV=production. This stable domain differs from the generated deployment URL.
@@ -75,6 +87,11 @@ After preview verification, deploy production explicitly:
 ```powershell
 npx vercel@latest deploy --prod
 ```
+
+For the current team, the explicit command is `npx vercel@latest deploy --prod --scope nattapon-aonsris-projects`.
+Deploying a Preview alone does not update the Production domain. After deploying, verify
+`/api/health`, then registration/login through the Production URL. A rejected Origin
+requires checking APP_ORIGIN/system variables and redeploying; do not disable the policy.
 
 ## Checks before production
 

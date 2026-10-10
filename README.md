@@ -167,13 +167,22 @@ See [current Supabase setup and testing instructions](docs/development.md). The 
 - Docker: configure Supabase and JWT_SECRET, then `docker compose up --build`.
 - รายละเอียดการรัน การย้ายข้อมูลเดิม การทดสอบ และ deploy: **[Development guide](docs/development.md)**
 
+## คู่มือและเอกสารระบบ
+
+| ผู้อ่าน            | เอกสาร                                                                                              |
+| ------------------ | --------------------------------------------------------------------------------------------------- |
+| ผู้ใช้งานเว็บ      | [คู่มือผู้ใช้](docs/user_guide.md): สมัคร สร้างและทบทวนการ์ด โน้ต รายวิชา Pomodoro สถิติและส่งออก   |
+| ผู้พัฒนา           | [Development guide](docs/development.md) และ [Code maintenance](docs/code-maintenance.md)           |
+| ผู้ดูแล deployment | [Vercel](docs/vercel.md) และ [Docker](docs/docker.md)                                               |
+| ผู้ตรวจสถาปัตยกรรม | [ภาพรวมและดัชนี ADR](docs/architecture/README.md) และ [Tech stack](docs/architecture/tech_stack.md) |
+
 ---
 
 ## 🏛️ Architecture & Design
 
 Key architectural decisions and diagrams are documented in the `/docs/architecture` directory.
 
-- **[C4 Models & Tech Stack](./docs/architecture/README.md)**
+- **[Current Architecture, Planning C4 Models & Tech Stack](./docs/architecture/README.md)**
 - **[Architectural Decision Records (ADRs)](./docs/architecture/adr/)**
 
 ## 👥 Requirements

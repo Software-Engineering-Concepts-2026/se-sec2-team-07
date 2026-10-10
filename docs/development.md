@@ -1,6 +1,6 @@
 # Development: Supabase + Prisma
 
-The active application is React/Vite + Express + Prisma/pg on Supabase PostgreSQL. Runtime no longer falls back to a local application database. Historical prototype pages and the placeholder Python service have been removed. AI configuration remains unchanged.
+The active application is React/Vite + Express + Prisma/pg on Supabase PostgreSQL. Runtime does not fall back to a local application database. Python files in `src` are course-lab exercises, not the web backend. For end-user workflows see the [user guide](user_guide.md); current decisions are indexed in the [architecture guide](architecture/README.md).
 
 ## Run
 
@@ -16,7 +16,7 @@ npm run db:deploy:supabase
 npm run dev
 ```
 
-Open http://127.0.0.1:5173. For a production build use `npm run build` followed by `npm start` (port 8000). Restart after environment changes. Set the CA variable again in a new terminal if required. Never disable TLS verification.
+Open http://127.0.0.1:5173. For a production build use `npm run build` followed by `npm start` (port 8000). Restart after environment changes. Set the CA variable again in a new terminal if required. Ordinary runtime verifies database certificates by default. The explicit Vercel exception and its restoration procedure are documented in the [Vercel guide](vercel.md).
 
 ## Tests
 
@@ -34,7 +34,7 @@ Tests reject remote database destinations before cleanup. Browser tests run agai
 
 ## Docker
 
-Deploy Prisma migrations from the host first, then `docker compose up --build`. Compose starts only the app connected to Supabase. It does not create a local application database. Local Compose binds port 8000 to loopback and uses development cookies; public deployment requires HTTPS and production cookie settings. For additional certificate trust, mount the CA read-only and set NODE_EXTRA_CA_CERTS inside the container. Docker execution has not been verified in this cleanup.
+Deploy Prisma migrations from the host first, then `docker compose up --build`. Compose starts only the app connected to Supabase. It does not create a local application database. Local Compose binds port 8000 to loopback and uses development cookies; public deployment requires HTTPS and production cookie settings. For additional certificate trust, mount the CA read-only and set NODE_EXTRA_CA_CERTS inside the container. See the dated verification and operating instructions in the [Docker guide](docker.md).
 
 ## Features and history
 
