@@ -1,46 +1,46 @@
-# ADR 0009: Static frontend on CDN and container API on Vercel
+# ADR 0009: ส่วนแสดงผลบน CDN และ API container บน Vercel
 
-Status: Implemented; recorded 2026-10-10. Describes the current `vercel.json` deployment, not a new runtime change.
+สถานะ: นำมาใช้แล้ว บันทึกเมื่อ 2026-10-10 อธิบาย deployment ใน `vercel.json` ปัจจุบัน ไม่ใช่การเปลี่ยน runtime ใหม่
 
-## Context
+## บริบทและปัญหา
 
-Serving the whole website through a sleeping container made initial page loads wait for API startup.
-HTTPS cookies and origin checks also needed to work across generated Preview URLs and the stable Production domain.
+การเสิร์ฟทั้งเว็บผ่าน container ที่หยุดพักเมื่อไม่มีผู้ใช้ทำให้การเปิดหน้าครั้งแรกต้องรอ API เริ่มทำงาน
+นอกจากนี้ cookie บน HTTPS และการตรวจต้นทางของคำขอต้องรองรับทั้ง URL Preview ที่สร้างใหม่และโดเมน Production ที่คงเดิม
 
-## Decision
+## การตัดสินใจ
 
-- Use Vercel Services (Beta) in one project on the same public origin.
-- `web` builds React/Vite to `dist`; HTML, JavaScript, CSS, fonts and images come from the CDN.
-- Route `/api` and `/api/*` to `api` using `Dockerfile.vercel`; other requests go to `web`.
-- Keep API business modules in one Express modular monolith, not one microservice per feature.
-- Run the API in `sin1`, matching the current Supabase pooler's region. Build location is a separate setting.
-- Skip the blocking startup database check on Vercel only. Never migrate at startup. Health checks and authenticated requests still use the database.
-- Keep API responses private with `Cache-Control: no-store`; static assets alone receive long-lived CDN caching.
-- Keep secure HttpOnly cookies and exact origin checks. System variables supply generated Vercel/branch URLs. Accept the stable `vercel.app` Production domain from `VERCEL_PROJECT_PRODUCTION_URL` only when `VERCEL_ENV=production`. Custom origins use `APP_ORIGIN`.
-- Use CLI deployments for this project's current workflow. Production requires explicit `deploy --prod`; automatic Git deployment needs separate integration and permission setup.
-- Ordinary Docker/Compose and Docker Hub releases stay independent of Vercel deployments.
+- ใช้ Vercel Services (Beta) ภายในโปรเจกต์เดียวและต้นทางเว็บเดียวกัน
+- `web` build React/Vite ไปยัง `dist` โดยเสิร์ฟ HTML, JavaScript, CSS, ฟอนต์ และภาพจาก CDN
+- ส่ง `/api` และ `/api/*` ไปยัง `api` ที่ใช้ `Dockerfile.vercel` ส่วนคำขออื่นไปยัง `web`
+- รวมโมดูลธุรกิจของ API ใน Express แบบ Modular Monolith เดียว ไม่แยกแต่ละฟีเจอร์เป็น microservice
+- รัน API ใน `sin1` ให้ตรงกับภูมิภาคของ Supabase pooler ปัจจุบัน โดยสถานที่ build เป็นอีกค่าหนึ่งที่แยกกัน
+- ข้ามการตรวจฐานข้อมูลที่ทำให้ startup ต้องรอเฉพาะบน Vercel ไม่รัน migrations ตอนเริ่มแอป การตรวจสุขภาพระบบและคำขอที่ยืนยันตัวตนยังใช้ฐานข้อมูลจริง
+- กำหนด `Cache-Control: no-store` ให้คำตอบ API ที่เป็นข้อมูลส่วนตัว ใช้แคช CDN ระยะยาวเฉพาะไฟล์เว็บ
+- ใช้ secure HttpOnly cookies และตรวจต้นทางแบบตรงตัว URL ของ deployment และ branch มาจากตัวแปรระบบ ยอมรับโดเมน Production แบบ `vercel.app` จาก `VERCEL_PROJECT_PRODUCTION_URL` เฉพาะเมื่อ `VERCEL_ENV=production` ส่วนโดเมนกำหนดเองใช้ `APP_ORIGIN`
+- ใช้ CLI deploy ตามขั้นตอนปัจจุบัน การขึ้น Production ต้องระบุ `deploy --prod` ส่วนการ deploy อัตโนมัติจาก Git ต้องตั้งค่าการเชื่อมต่อและสิทธิ์แยกต่างหาก
+- การออกเวอร์ชัน Docker/Compose และ Docker Hub ปกติแยกจากการ deploy บน Vercel
 
-## Consequences
+## ผลที่ตามมา
 
-Static pages load independently of API startup, but registration, login and data reads can still wait for a cold container.
-Services is Beta and subject to platform limits. The application's 20 MB file allowance does not override Vercel request-size limits.
-OCR cache is ephemeral under `/tmp`; language models may need downloading after container replacement.
-The PostgreSQL TLS verification exception is recorded in [ADR 0008](008-prisma-supabase.md).
+ไฟล์เว็บโหลดได้โดยไม่ต้องรอ API เริ่มทำงาน แต่การสมัคร เข้าสู่ระบบ และอ่านข้อมูลยังอาจต้องรอ container เริ่มใหม่หรือ cold start
+Services ยังเป็น Beta และมีข้อจำกัดของแพลตฟอร์ม ขนาดไฟล์ 20 MB ที่แอปอนุญาตไม่ได้เปลี่ยนข้อจำกัดขนาดคำขอของ Vercel
+แคช OCR อยู่ชั่วคราวใต้ `/tmp` จึงอาจต้องดาวน์โหลดโมเดลภาษาใหม่เมื่อเปลี่ยน container
+ข้อยกเว้นการตรวจ certificate ของ PostgreSQL บันทึกใน [ADR 0008](008-prisma-supabase.md)
 
-Production and Preview use different environment-variable targets. A working Preview does not prove Production credentials or `APP_ORIGIN` are configured.
-An origin-policy HTTP 403 is a configuration/authorization failure, not evidence of a failed database startup.
+Production และ Preview ใช้ environment variables คนละกลุ่ม การเปิด Preview ได้ไม่ได้ยืนยันว่าข้อมูลเชื่อมต่อหรือ `APP_ORIGIN` ของ Production ถูกต้อง
+HTTP 403 จากนโยบายตรวจต้นทางเป็นปัญหาการตั้งค่าหรือสิทธิ์ ไม่ใช่หลักฐานว่าการเริ่มฐานข้อมูลล้มเหลว
 
-## Alternatives considered
+## ทางเลือกที่พิจารณา
 
-- Entire SPA through the API container: rejected because static files then wait for container startup.
-- Vite-only deployment: insufficient because persistence, extraction and generation require an API.
-- Allow all `*.vercel.app` origins or arbitrary forwarded hosts: rejected because unrelated sites must not submit authenticated writes.
-- Migrate the database during cold start: rejected because startup must not change schema.
+- เสิร์ฟ SPA ทั้งหมดผ่าน API container: ไม่เลือก เพราะไฟล์เว็บจะต้องรอ container เริ่มทำงานด้วย
+- Deploy เฉพาะ Vite: ไม่เพียงพอ เพราะการบันทึกข้อมูล อ่านไฟล์ และสร้างการ์ดต้องมี API
+- อนุญาตทุกโดเมน `*.vercel.app` หรือเชื่อ header ระบุต้นทางที่ส่งต่อมาโดยไม่ตรวจสอบ: ไม่เลือก เพราะเว็บไซต์อื่นต้องไม่ส่งคำขอแก้ข้อมูลโดยใช้สิทธิ์ผู้ใช้ได้
+- รัน migrations ตอน cold start: ไม่เลือก เพราะการเริ่มแอปต้องไม่เปลี่ยน schema
 
-## References
+## เอกสารอ้างอิง
 
-- [Routing](../../../vercel.json)
-- [Container build](../../../Dockerfile.vercel)
-- [Origin policy](../../../src/backend/middleware/api-policy.js)
-- [Vercel guide](../../vercel.md)
-- [Docker guide](../../docker.md)
+- [การแบ่งเส้นทางคำขอ](../../../vercel.json)
+- [การ build container](../../../Dockerfile.vercel)
+- [นโยบายตรวจต้นทาง](../../../src/backend/middleware/api-policy.js)
+- [คู่มือ Vercel](../../vercel.md)
+- [คู่มือ Docker](../../docker.md)

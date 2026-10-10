@@ -1,39 +1,42 @@
 # ADR 0003: Modular Monolith สำหรับ Focus Flashcards
 
-## Status
+## สถานะ
 
-Accepted — 2026-08-26
+ยอมรับเมื่อ 2026-08-26
 
-Reviewed — 2026-10-10. เปลี่ยนเลขจาก 0001 เป็น 0003 เพื่อไม่ให้ซ้ำกับ ADR การเลือกเทคโนโลยีเดิม โดยเก็บเหตุผลและวันที่ตัดสินใจไว้
+ตรวจทานเมื่อ 2026-10-10 เปลี่ยนเลขจาก 0001 เป็น 0003 เพื่อไม่ให้ซ้ำกับ ADR การเลือกเทคโนโลยีเดิม โดยเก็บเหตุผลและวันที่ตัดสินใจไว้
 
-## Context
+## บริบทและปัญหา
 
-- ทีมพัฒนามีสมาชิก 4-5 คน ระยะเวลาพัฒนาในภาคการศึกษาจำกัด (8 สัปดาห์)
-- ระบบต้องการส่งมอบ Interactive Prototype และ Core Features (Upload $\rightarrow$ AI Extract $\rightarrow$ SRS Review $\rightarrow$ Dashboard) ภายใน Sprint 1 และ 2
-- ปริมาณการใช้งานในช่วงเริ่มต้นคาดการณ์อยู่ที่ระดับ ~100 Daily Active Users (ห้องเรียน/มหาวิทยาลัย)
-- ทีมไม่มี DevOps Engineer โดยเฉพาะ และต้องการลดความซับซ้อนในการตั้งค่า CI/CD, Network latency และ Distributed transaction
+- ข้อเสนอเดิมวางแผนสำหรับทีม 4–5 คน และเวลาพัฒนาในภาคการศึกษาจำกัด 8 สัปดาห์
+- ต้องส่งมอบต้นแบบที่โต้ตอบได้และฟีเจอร์หลัก: อัปโหลด → อ่านเนื้อหาและสร้างการ์ดด้วย AI → ทบทวนตาม SRS → ดูภาพรวม ภายใน Sprint 1 และ 2
+- ช่วงเริ่มต้นคาดการณ์ผู้ใช้ประจำวันประมาณ 100 คนในห้องเรียนหรือมหาวิทยาลัย
+- ทีมไม่มีผู้ดูแล DevOps โดยเฉพาะ จึงต้องลดความซับซ้อนของ CI/CD เวลารอเครือข่าย และธุรกรรมข้ามบริการ
 
-## Decision
+## การตัดสินใจ
 
-ทีมตัดสินใจเลือกใช้สถาปัตยกรรม **Modular Monolith** โดยรวม Backend API (Auth, Flashcard Management, SRS Engine, Statistics Analytics) ไว้ใน Service เดียวกันบน Node.js/Express แต่แบ่งโครงสร้างโค้ดภายในเป็นโมดูลชัดเจน (Controller-Service-Repository Pattern)
+ใช้ **Modular Monolith** โดยรวม API สำหรับยืนยันตัวตน จัดการการ์ด คำนวณ SRS และสถิติไว้ใน service เดียวบน Node.js/Express แต่แบ่งโค้ดภายในเป็นโมดูลตามบทบาทของ controller, service และ repository
 
-## Consequences
+## ผลที่ตามมา
 
-- **ข้อดี (Positive):**
-  - **พัฒนาและ Deploy ได้รวดเร็ว:** มี Deployment Pipeline เดียว ลดภาระการดูแล Infrastructure
-  - **Data Consistency สูง:** สามารถใช้ ACID Transactions บน PostgreSQL ได้โดยตรง ไม่เกิดปัญหา Data Inconsistency ข้าม Service
-  - **Debug และทำ Automated Test ง่าย:** ทดสอบระบบ End-to-end ได้ใน Single Runtime
-- **ข้อเสียและข้อจำกัด (Negative):**
-  - **Scalability แบบแยกส่วนทำไม่ได้ทันที:** หากฟังก์ชัน AI Processing ใช้ CPU/Memory สูง จะกระทบกับ API อื่นในระบบ
-  - **Tech Stack ผูกติดกัน:** ทุกโมดูลหลังบ้านต้องรันบน Node.js runtime เดียวกัน
+### ข้อดี
 
-## Alternatives Considered
+- พัฒนาและ deploy ได้เร็วขึ้นจากโครงสร้างการให้บริการที่เรียบง่าย ลดภาระดูแลโครงสร้างพื้นฐาน
+- ใช้ธุรกรรม ACID บน PostgreSQL ได้โดยตรง ลดปัญหาความสอดคล้องของข้อมูลข้ามบริการ
+- ตรวจข้อผิดพลาดและทำการทดสอบอัตโนมัติได้ง่าย เพราะฟีเจอร์ backend อยู่ใน runtime เดียว
 
-- **Microservices Architecture:** ถูกปฏิเสธเนื่องจากมี Overhead ในการจัดการ Service Discovery, Inter-service communication และ CI/CD ซับซ้อนเกินไปสำหรับขนาดทีมและเวลาที่มี
-- **Serverless Architecture (AWS Lambda):** ถูกปฏิเสธเนื่องจากปัญหา Cold Start อาจกระทบ User Experience ในช่วง Demo และจัดการ Local Development Environment ได้ยากกว่า
+### ข้อจำกัด
 
-## Current implementation
+- ยังขยายทรัพยากรแยกตามฟีเจอร์ไม่ได้ทันที งานประมวลผลที่ใช้ CPU หรือหน่วยความจำสูงอาจกระทบ API อื่น
+- โมดูล backend ผูกกับ Node.js runtime เดียวกัน
 
-Backend ยังคงเป็น Express service เดียว แยกโมดูลใน `src/backend/modules` ไม่ได้แยกแต่ละฟีเจอร์เป็น microservice
-การตัดสินใจเดิมเรื่อง deployment เดียวถูกปรับตาม [ADR 0009](0009-vercel-services.md): frontend เสิร์ฟบน CDN และ API อยู่ใน container โดยใช้ PostgreSQL บน Supabase ตาม [ADR 0008](008-prisma-supabase.md)
-Vercel API ยังมี cold start ได้ การปฏิเสธ AWS Lambda ในข้อเสนอเดิมจึงไม่ได้หมายความว่า deployment ปัจจุบันไม่มี cold start
+## ทางเลือกที่พิจารณา
+
+- Microservices: ไม่เลือก เพราะต้องจัดการการค้นหาบริการ การสื่อสารข้ามบริการ และ CI/CD ที่ซับซ้อนเกินขนาดทีมและเวลาที่มี
+- Serverless บน AWS Lambda: ไม่เลือกในข้อเสนอเดิม เพราะ cold start อาจกระทบการสาธิต และตั้งค่าสภาพแวดล้อมพัฒนาในเครื่องได้ยากกว่า
+
+## การใช้งานปัจจุบัน
+
+Backend ยังเป็น Express service เดียว แยกโมดูลใน `src/backend/modules` ไม่ได้แยกแต่ละฟีเจอร์เป็น microservice
+การตัดสินใจเดิมเรื่อง deployment เดียวปรับตาม [ADR 0009](0009-vercel-services.md): frontend เสิร์ฟบน CDN และ API อยู่ใน container โดยใช้ PostgreSQL บน Supabase ตาม [ADR 0008](008-prisma-supabase.md)
+API บน Vercel ยังมี cold start ได้ การไม่เลือก AWS Lambda ในข้อเสนอเดิมจึงไม่ได้หมายความว่าการ deploy ปัจจุบันไม่มี cold start

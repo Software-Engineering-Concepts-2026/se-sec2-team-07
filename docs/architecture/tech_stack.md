@@ -1,23 +1,23 @@
-# Architectural Tech Stack & Decision Rationale
+# เทคโนโลยีและเหตุผลในการเลือกสถาปัตยกรรม
 
-> Reviewed 2026-10-10 against the active implementation. See [all ADRs](README.md), [development guide](../development.md) and [user guide](../user_guide.md). The original Next.js/Firebase proposal is superseded; planning PNGs still show optional integrations that are not implemented.
+> ตรวจทานกับระบบปัจจุบันเมื่อ 2026-10-10 ดู [ดัชนี ADR](README.md), [คู่มือพัฒนา](../development.md) และ [คู่มือผู้ใช้](../user_guide.md) ข้อเสนอ Next.js/Firebase เดิมถูกแทนที่แล้ว ภาพ PNG ของแผนการออกแบบยังมีบริการเสริมที่ไม่ได้พัฒนาในระบบปัจจุบัน
 
-## Tech Stack Overview (6 Layers)
+## ภาพรวมเทคโนโลยี 6 ชั้น
 
-| Layer                            | Choice (เทคโนโลยีที่เลือก)                    | Rationale (เหตุผลเชิง Context)                                                                                                                                                                         | Alternative (ทางเลือกอื่นที่พิจารณา)          |
-| :------------------------------- | :-------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------- |
-| **1. Frontend Layer**            | React (Vite) + Plain CSS                      | • รอบ Sprint สั้น (8 สัปดาห์) ต้องการ Component-based UI ในการจัดการ State ของ Flashcard (SRS) และ Dashboard สถิติ<br>• Vite ให้เวลา Build/HMR ที่รวดเร็ว เหมาะกับนิสิตในทีม                           | Vanilla JS, Next.js, Vue.js                   |
-| **2. Backend / API Layer**       | Node.js + Express                             | • เหมาะสำหรับ I/O-intensive operations ในการรับ-ส่งไฟล์ PDF และการประมวลผลข้อความ<br>• เป็น JavaScript ecosystem เดียวกับ Frontend ทำให้ทีมแชร์ Data Schema และ Model interface ร่วมกันได้ง่าย         | Python (FastAPI), Go, NestJS                  |
-| **3. Database Layer**            | Supabase PostgreSQL + Prisma 7 / pg           | • Prisma สำหรับ CRUD และ parameterized SQL transactions สำหรับงานที่ต้องล็อกและรักษา snapshot<br>• Schema เปลี่ยนผ่าน Prisma Migrate แยกจาก startup; PostgreSQL ในเครื่องใช้ทดสอบเท่านั้น              | ORM ทั้งระบบ, Supabase client-side access     |
-| **4. AI Integration Layer**      | Configurable OpenAI-compatible HTTPS API      | • เลือก Responses หรือ Chat Completions ตาม provider ที่ตั้งค่า<br>• อ่านไฟล์ด้วย worker/OCR ก่อนสร้างการ์ด; เขียนเองและแยกข้อความไม่ต้องใช้ AI<br>• ยังไม่มี integration เฉพาะ Gemini                 | Mandatory AI, local model                     |
-| **5. Hosting / Deployment**      | Vercel Services: CDN frontend + API container | • ไฟล์ React/Vite บน CDN ไม่รอ API cold start<br>• API container ใน sin1 ใกล้ Supabase; Docker/Compose และ Docker Hub เป็นอีกเส้นทางที่แยกกัน<br>• CLI deploy; Git auto-deploy ต้องตั้งสิทธิ์เพิ่มเติม | Full website in one container, Render/Railway |
-| **6. Authentication & Security** | JWT (JSON Web Tokens) with HTTP-only Cookies  | • Stateless Authentication ช่วยลดภาระ Session State ฝั่ง Server<br>• สามารถตรวจสอบสิทธิ์การเข้าถึงข้อมูล Dashboard และชุดการ์ดของผู้ใช้ได้อย่างรวดเร็ว                                                 | Session-based (Redis), OAuth2 (Auth0)         |
+| ชั้นของระบบ                         | เทคโนโลยีที่เลือก                                 | เหตุผล                                                                                                                                                                                          | ทางเลือกที่พิจารณา                                      |
+| ----------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| **1. ส่วนแสดงผล**                   | React (Vite) + CSS                                | รอบ Sprint สั้น 8 สัปดาห์ จึงใช้ UI แบบ component เพื่อจัดการสถานะการ์ดและสถิติ; Vite ช่วยให้ build และปรับหน้าในระหว่างพัฒนาได้รวดเร็ว                                                         | JavaScript โดยไม่ใช้ framework, Next.js, Vue.js         |
+| **2. Backend / API**                | Node.js + Express                                 | เหมาะกับการรับส่งไฟล์และคำขอที่ต้องรอข้อมูล; frontend และ backend ใช้ JavaScript ร่วมกัน ทำให้จัดการรูปแบบข้อมูลและส่วนติดต่อได้ง่าย                                                            | Python (FastAPI), Go, NestJS                            |
+| **3. ฐานข้อมูล**                    | Supabase PostgreSQL + Prisma 7 / pg               | ใช้ Prisma สำหรับ CRUD และ SQL แบบกำหนดพารามิเตอร์สำหรับธุรกรรมที่ต้องล็อกหรือรักษา snapshot; เปลี่ยน schema ผ่าน Prisma Migrate แยกจาก startup; PostgreSQL ในเครื่องใช้ทดสอบเท่านั้น           | ใช้ ORM ทั้งระบบ, ให้เบราว์เซอร์เข้าถึง Supabase โดยตรง |
+| **4. การเชื่อม AI**                 | ผู้ให้บริการ HTTPS API ที่รองรับรูปแบบ OpenAI     | เลือก Responses หรือ Chat Completions ตามผู้ให้บริการ; อ่านไฟล์ผ่านโปรเซสแยก/OCR ก่อนสร้างการ์ด; เขียนเองและแยกข้อความไม่ต้องใช้ AI; ยังไม่มีการเชื่อมเฉพาะ Gemini                              | บังคับใช้ AI ทุกครั้ง, รันโมเดลในระบบเอง                |
+| **5. การให้บริการและ deploy**       | Vercel Services: ส่วนแสดงผลบน CDN + API container | ไฟล์ React/Vite บน CDN ไม่รอ API เริ่มทำงาน; API ใน sin1 อยู่ใกล้ Supabase; Docker/Compose และ Docker Hub เป็นอีกเส้นทางที่แยกกัน; deploy ผ่าน CLI ส่วน Git auto-deploy ต้องตั้งสิทธิ์เพิ่มเติม | รวมทั้งเว็บใน container เดียว, Render/Railway           |
+| **6. การยืนยันตัวตนและความปลอดภัย** | JWT ผ่าน HttpOnly cookies                         | ใช้ token ร่วมกับการตรวจผู้ใช้และเวอร์ชัน token ในฐานข้อมูล; API ตรวจเจ้าของทรัพยากรก่อนอ่านหรือแก้ข้อมูล                                                                                       | Session บน Redis, OAuth2 (Auth0)                        |
 
-## Storage, consistency and performance
+## การเก็บข้อมูล ความสอดคล้อง และประสิทธิภาพ
 
-- Document originals and extracted text are stored in PostgreSQL, not Firebase/Supabase Storage. Extracting into a card/note draft does not save the original file.
-- Courses link the same originals and review history. Owner checks, transactions and retry receipts protect shared edits and accounting.
-- API requests still check user/token version and resource ownership; authentication is not a client-only JWT check.
-- Private route snapshots live briefly in account-scoped browser memory. They are not persisted or cached publicly; review queues always load fresh.
-- Production uses HTTPS, secure cookies and exact origin checks. The current Vercel PostgreSQL certificate-verification exception and its consequence are recorded in [ADR 0008](adr/008-prisma-supabase.md).
-- Static caching reduces navigation waits but does not eliminate API cold starts, database latency or OCR startup. This SPA does not provide Next.js SSR or offline editing.
+- เก็บเอกสารต้นฉบับและข้อความที่อ่านได้ใน PostgreSQL ไม่ได้ใช้ Firebase/Supabase Storage การอ่านข้อความเข้าสู่ร่างการ์ดหรือโน้ตไม่บันทึกไฟล์ต้นฉบับ
+- รายวิชาเชื่อมต้นฉบับเดียวกันและใช้ประวัติทบทวนร่วมกัน การตรวจเจ้าของ ธุรกรรม และหลักฐานคำขอที่บันทึกไว้ช่วยป้องกันข้อมูลผิดพลาดเมื่อแก้พร้อมกันหรือส่งคำขอซ้ำ
+- API ยังตรวจผู้ใช้ เวอร์ชัน token และเจ้าของทรัพยากร ไม่ได้อาศัยเพียงการตรวจ JWT ในเบราว์เซอร์
+- เก็บ snapshot สำหรับข้อมูลอ่านช่วงสั้น ๆ ในหน่วยความจำของเบราว์เซอร์ แยกตามบัญชี ไม่บันทึกถาวรหรือแคชสาธารณะ และโหลดคิวทบทวนใหม่เสมอ
+- Production ใช้ HTTPS, secure cookies และตรวจต้นทางแบบตรงตัว ข้อยกเว้นการตรวจ certificate ของ PostgreSQL บน Vercel และผลที่ตามมาบันทึกใน [ADR 0008](adr/008-prisma-supabase.md)
+- แคชไฟล์เว็บช่วยลดเวลารอ แต่ไม่ได้ทำให้ API ไม่มี cold start หรือกำจัดเวลารอฐานข้อมูลและ OCR แอปเป็น SPA ไม่ได้ใช้ Next.js SSR และยังไม่มีการแก้ไขแบบออฟไลน์

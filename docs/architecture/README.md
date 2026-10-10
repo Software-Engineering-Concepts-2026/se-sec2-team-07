@@ -1,45 +1,45 @@
-# Project Architecture
+# สถาปัตยกรรมของ Focus Flashcards
 
-Current architecture and decision records for Focus Flashcards. Reviewed 2026-10-10.
+เอกสารสถาปัตยกรรมและบันทึกการตัดสินใจของระบบปัจจุบัน ตรวจทานเมื่อ 2026-10-10
 
-## Current implementation
+## ระบบที่ใช้งานปัจจุบัน
 
-The active application uses React/Vite, one Express modular-monolith API, custom JWT cookies and Supabase PostgreSQL with Prisma/pg. AI generation uses the configured OpenAI-compatible provider; manual/local creation remains available without AI credentials.
+ระบบใช้ React/Vite เป็นส่วนแสดงผล และ Express API แบบ Modular Monolith โดยแยกฟีเจอร์เป็นโมดูลภายใน API เดียว ยืนยันตัวตนด้วย JWT ผ่าน cookie และใช้ Supabase PostgreSQL ร่วมกับ Prisma/pg การสร้างการ์ดด้วย AI ใช้ผู้ให้บริการที่รองรับ API แบบ OpenAI ตามค่าที่ตั้งไว้ ส่วนการเขียนเองและแยกข้อความใช้ได้โดยไม่ต้องมีคีย์ AI
 
-Vercel serves static frontend files from its CDN and `/api` through a container in Singapore. The ordinary Docker build remains a separate deployment option. See [tech_stack.md](tech_stack.md), [development instructions](../development.md), [Vercel guide](../vercel.md), [Docker guide](../docker.md) and [user guide](../user_guide.md).
+Vercel เสิร์ฟไฟล์ส่วนแสดงผลจาก CDN และส่งคำขอ `/api` ไปยัง container ในสิงคโปร์ การรันด้วย Docker ปกติเป็นอีกทางเลือกหนึ่ง ดูรายละเอียดใน [เทคโนโลยีที่ใช้](tech_stack.md), [คู่มือพัฒนา](../development.md), [คู่มือ Vercel](../vercel.md), [คู่มือ Docker](../docker.md) และ [คู่มือผู้ใช้](../user_guide.md)
 
-The following diagram describes the current deployment. Authentication and business features remain modules in the same API; the web/API split is not a microservice per feature.
+แผนภาพต่อไปนี้แสดงรูปแบบ deployment ปัจจุบัน ระบบยืนยันตัวตนและฟีเจอร์ธุรกิจยังอยู่ใน API เดียว การแยกส่วนเว็บกับ API ไม่ใช่การแยกแต่ละฟีเจอร์เป็น microservice
 
 ```mermaid
 flowchart LR
-    User[User browser] -->|HTTPS static files| Web[React SPA on Vercel CDN]
-    User -->|Same-origin HTTPS /api| API[Express API container in sin1]
-    API -->|Prisma and parameterized SQL| DB[(Supabase PostgreSQL)]
-    API -->|Optional HTTPS generation| AI[Configured AI provider]
-    API --> Extract[Isolated extraction and OCR workers]
-    Extract --> Cache[Ephemeral OCR cache]
+    User["เบราว์เซอร์ของผู้ใช้"] -->|"ไฟล์เว็บผ่าน HTTPS"| Web["React SPA บน Vercel CDN"]
+    User -->|"HTTPS /api จากต้นทางเดียวกัน"| API["Express API container ใน sin1"]
+    API -->|"Prisma และ SQL แบบกำหนดพารามิเตอร์"| DB[("Supabase PostgreSQL")]
+    API -->|"สร้างการ์ดผ่าน HTTPS เมื่อเปิดใช้ AI"| AI["ผู้ให้บริการ AI ที่ตั้งค่าไว้"]
+    API --> Extract["โปรเซสแยกสำหรับอ่านข้อความและ OCR"]
+    Extract --> Cache["แคช OCR ชั่วคราว"]
 ```
 
-## Planning C4 diagrams
+## แผนภาพ C4 ของข้อเสนอการออกแบบ
 
-These existing PNGs preserve the design proposal. Gemini and cloud object storage shown in them are not implemented dependencies. Original document bytes currently live in PostgreSQL, and Vercel routing is described above. Read the diagrams together with the ADRs rather than treating every proposed integration as deployed.
+ภาพ PNG เดิมเก็บข้อเสนอการออกแบบไว้ การเชื่อม Gemini และบริการเก็บไฟล์บนคลาวด์ที่ปรากฏในภาพยังไม่ได้เป็นส่วนหนึ่งของระบบที่ใช้งานจริง ปัจจุบันไฟล์เอกสารต้นฉบับเก็บใน PostgreSQL และการแบ่งเส้นทางของ Vercel เป็นไปตามแผนภาพด้านบน จึงควรอ่านภาพเหล่านี้ร่วมกับ ADR เพื่อแยกส่วนที่เสนอไว้กับส่วนที่นำมาใช้แล้ว
 
-![System Context Diagram](diagrams/c4-context.png)
+![แผนภาพบริบทของระบบ](diagrams/c4-context.png)
 
-### Container diagram
+### แผนภาพส่วนประกอบระดับ Container
 
-![Container Diagram](diagrams/c4-container.png)
+![แผนภาพส่วนประกอบระดับ Container](diagrams/c4-container.png)
 
-## Architectural Decision Records (ADRs)
+## บันทึกการตัดสินใจทางสถาปัตยกรรม (ADR)
 
-| Record                                            | Status                               | Subject                                      |
-| ------------------------------------------------- | ------------------------------------ | -------------------------------------------- |
-| [0001](adr/0001-tech-stack-selection.md)          | Superseded                           | Original Next.js/Firebase proposal           |
-| [0002](adr/0002-implement-selected-tech-stack.md) | Accepted; refined by later records   | React/Vite, Express, JWT and generation      |
-| [0003](adr/0003-modular-monolith.md)              | Accepted; deployment refined by 0009 | Modular monolith; former duplicate ADR 0001  |
-| [0008](adr/008-prisma-supabase.md)                | Accepted and in use                  | Prisma/pg and Supabase PostgreSQL            |
-| [0009](adr/0009-vercel-services.md)               | Implemented                          | Vercel CDN/container split and exact origins |
-| [0010](adr/0010-shared-content-and-review.md)     | Implemented                          | Shared originals, SRS, archive and history   |
-| [0011](adr/0011-private-read-cache.md)            | Implemented                          | Account-scoped temporary read cache          |
+| หมายเลข                                           | สถานะ                                    | เรื่อง                                           |
+| ------------------------------------------------- | ---------------------------------------- | ------------------------------------------------ |
+| [0001](adr/0001-tech-stack-selection.md)          | ถูกแทนที่แล้ว                            | ข้อเสนอ Next.js/Firebase เดิม                    |
+| [0002](adr/0002-implement-selected-tech-stack.md) | ยอมรับแล้ว โดยมี ADR ถัดมาขยายรายละเอียด | React/Vite, Express, JWT และการสร้างการ์ด        |
+| [0003](adr/0003-modular-monolith.md)              | ยอมรับแล้ว โดยปรับ deployment ตาม 0009   | Modular Monolith; เปลี่ยนเลขจาก ADR 0001 ที่ซ้ำ  |
+| [0008](adr/008-prisma-supabase.md)                | ยอมรับและใช้งานแล้ว                      | Prisma/pg และ Supabase PostgreSQL                |
+| [0009](adr/0009-vercel-services.md)               | นำมาใช้แล้ว                              | ส่วนแสดงผลบน CDN, API container และการตรวจต้นทาง |
+| [0010](adr/0010-shared-content-and-review.md)     | นำมาใช้แล้ว                              | ต้นฉบับร่วมกัน, SRS, การจัดเก็บ และประวัติ       |
+| [0011](adr/0011-private-read-cache.md)            | นำมาใช้แล้ว                              | แคชข้อมูลอ่านชั่วคราวแยกตามบัญชี                 |
 
-Record numbers are unique; gaps do not imply undocumented features. The original decision dates remain in their records. [uml_models.md](uml_models.md) is still a template and is not a completed UML model.
+หมายเลข ADR ไม่ซ้ำกัน การเว้นหมายเลขไม่ได้หมายความว่ามีฟีเจอร์ที่ยังขาดเอกสาร แต่ละ ADR เก็บวันที่ตัดสินใจเดิมไว้ ส่วน [แบบจำลอง UML](uml_models.md) ยังเป็นแม่แบบ ไม่ใช่แผนภาพ UML ที่จัดทำเสร็จแล้ว

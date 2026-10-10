@@ -1,42 +1,41 @@
-# ADR 0001: Original Next.js and Firebase technology proposal
+# ADR 0001: ข้อเสนอเทคโนโลยี Next.js และ Firebase เดิม
 
-**Status:** Superseded for the active application by [ADR 0002](0002-implement-selected-tech-stack.md), following the user's explicit selection of `tech_stack.md` on 2026-09-11.
+**สถานะ:** ถูกแทนที่ด้วย [ADR 0002](0002-implement-selected-tech-stack.md) สำหรับระบบปัจจุบัน หลังเลือกใช้เทคโนโลยีใน `tech_stack.md` เมื่อ 2026-09-11
 
-## Context
+## บริบทและปัญหา
 
-Our project, Focus Flashcards, is an AI-powered web application designed to help university students and lifelong learners transform study materials into digital flashcards for efficient learning and exam preparation.
+Focus Flashcards เป็นเว็บแอปที่ช่วยนักศึกษาและผู้เรียนทั่วไปเปลี่ยนเนื้อหาการเรียนเป็นการ์ดดิจิทัล เพื่อทบทวนและเตรียมสอบ โดยมี AI เป็นตัวช่วยสร้างการ์ด
 
-The project is developed by Group 07 as part of a one-semester software engineering course. Our primary constraints include a limited development timeline, rapid prototyping, and ease of deployment. Our team has experience with HTML, CSS, JavaScript, React, Next.js, TypeScript, SQL, and Git/GitHub, making modern web technologies the most suitable choice for this project.
+โปรเจกต์ของกลุ่ม 07 พัฒนาภายในหนึ่งภาคการศึกษา ข้อจำกัดหลักคือเวลา การสร้างต้นแบบให้เร็ว และความสะดวกในการ deploy ทีมมีประสบการณ์ด้าน HTML, CSS, JavaScript, React, Next.js, TypeScript, SQL และ Git/GitHub จึงพิจารณาใช้เทคโนโลยีเว็บที่ต่อยอดจากทักษะเดิมได้
 
-## Decision
+## การตัดสินใจ
 
-We will use Next.js with React and TypeScript to build the web application, including both the frontend and backend through Next.js API Routes. Supabase (PostgreSQL) will be used as the primary relational database, while Firebase Authentication and Firebase Storage will handle user authentication and file storage. OpenAI API will provide AI-powered flashcard generation, and the application will be deployed on Vercel.
+ข้อเสนอเดิมเลือก Next.js ร่วมกับ React และ TypeScript เพื่อทำทั้ง frontend และ backend ผ่าน Next.js API Routes ใช้ Supabase PostgreSQL เป็นฐานข้อมูล Firebase Authentication สำหรับยืนยันตัวตน Firebase Storage สำหรับเก็บไฟล์ และ OpenAI API สำหรับสร้างการ์ดด้วย AI โดยเสนอให้ deploy บน Vercel
 
-## Consequences
+## ผลที่ตามมา
 
-- **Positive:**
+### ข้อดีที่คาดหวังในข้อเสนอเดิม
 
-* The selected technology stack aligns well with the team's existing skills, reducing the learning curve and accelerating development.
-* Next.js enables component-based development, improving code reusability and maintainability.
-* Using a single framework for both frontend and backend simplifies project architecture and deployment.
-* Supabase provides a robust PostgreSQL database with built-in APIs, making data management more efficient.
-* Firebase Authentication offers secure user authentication without implementing complex security mechanisms.
-* Firebase Storage efficiently manages uploaded study materials and integrates well with Firebase Authentication.
-* OpenAI API significantly reduces the time required to create high-quality flashcards from study materials.
-* Vercel provides fast, automated deployment directly from GitHub, supporting rapid iteration throughout the semester.
+- เทคโนโลยีสอดคล้องกับทักษะของทีม ช่วยลดเวลาเรียนรู้และพัฒนา
+- Next.js รองรับการแบ่ง UI เป็น component ทำให้ใช้ซ้ำและดูแลโค้ดได้ง่าย
+- การใช้ framework เดียวกับ frontend และ backend ลดความซับซ้อนของโครงสร้างและ deployment
+- Supabase มี PostgreSQL และ API ที่ช่วยจัดการข้อมูล
+- Firebase Authentication ลดภาระการพัฒนาระบบยืนยันตัวตนเอง
+- Firebase Storage รองรับการเก็บไฟล์เอกสารที่อัปโหลด
+- OpenAI API ช่วยลดเวลาสร้างการ์ดจากเนื้อหา
+- การเชื่อม Vercel กับ GitHub ช่วยให้ deploy อัตโนมัติได้เมื่อกำหนดการเชื่อมต่อและสิทธิ์แล้ว
 
-- **Negative:**
+### ข้อจำกัดที่พิจารณา
 
-* Relying on OpenAI API introduces additional operational costs and requires a stable internet connection.
+- การเรียก OpenAI API มีค่าใช้จ่ายและต้องใช้อินเทอร์เน็ต
+- ข้อจำกัดของแผนบริการ Firebase, Supabase และ Vercel อาจกระทบเมื่อมีผู้ใช้มากขึ้น
+- Next.js API Routes อาจดูแลยากขึ้นเมื่อ backend ขยายตัว
+- ระบบพึ่งพาบริการภายนอกหลายราย จึงอาจได้รับผลจากบริการหยุดทำงานหรือ API เปลี่ยน
+- การ์ดจาก AI อาจผิดหรือไม่ครบ ผู้ใช้ต้องตรวจและแก้ก่อนบันทึก
+- การเชื่อมหลายบริการทำให้การจัดการ environment variables และ API keys ซับซ้อนขึ้น
 
-* The free tiers of Firebase, Supabase, and Vercel include usage limits that may affect scalability during heavy usage.
-* Next.js API Routes are suitable for medium-sized applications but may become difficult to maintain if the backend grows significantly.
-* The system depends on several third-party cloud services, meaning outages or API changes may temporarily affect system functionality.
-* AI-generated flashcards may occasionally contain inaccurate or incomplete information, requiring users to review and edit the generated content.
-* Integrating multiple cloud services increases configuration complexity and requires careful management of environment variables and API keys.
+เอกสารนี้เก็บข้อเสนอเดิมไว้ ระบบปัจจุบันไม่ได้ใช้ Next.js, Firebase Authentication หรือ Firebase Storage ดูการตัดสินใจที่ใช้งานจริงใน [ดัชนีสถาปัตยกรรม](../README.md)
 
-This record preserves the original proposal. Next.js, Firebase Authentication and Firebase Storage are not used by the current application. See [the architecture index](../README.md) for current decisions.
+## ทางเลือกที่พิจารณา
 
-## Alternatives considered
-
-The original record did not document a comparative assessment of alternatives. The later implemented React/Vite and Express selection is recorded in [ADR 0002](0002-implement-selected-tech-stack.md); it supersedes this proposal rather than extending its Next.js/Firebase runtime.
+บันทึกเดิมไม่ได้ระบุการเปรียบเทียบทางเลือกอย่างละเอียด การเลือก React/Vite และ Express ที่นำมาใช้ภายหลังอยู่ใน [ADR 0002](0002-implement-selected-tech-stack.md) ซึ่งแทนที่ข้อเสนอเดิม ไม่ใช่การต่อยอด runtime ของ Next.js/Firebase

@@ -1,39 +1,39 @@
-# ADR 0010: Shared originals, one review history and explicit archive state
+# ADR 0010: ต้นฉบับร่วมกัน ประวัติทบทวนเดียว และการจัดเก็บตามคำสั่งผู้ใช้
 
-Status: Implemented; recorded 2026-10-10. Describes the current course and review model, not a new runtime change.
+สถานะ: นำมาใช้แล้ว บันทึกเมื่อ 2026-10-10 อธิบายรูปแบบรายวิชาและการทบทวนปัจจุบัน ไม่ใช่การเปลี่ยน runtime ใหม่
 
-## Context
+## บริบทและปัญหา
 
-Users reuse cards and notes across courses. Copying content would create diverging edits and duplicate review history.
-Study time is limited, and completed cards must leave the queue without losing their history.
+ผู้ใช้นำการ์ดและโน้ตเดิมไปใช้ในหลายรายวิชา หากคัดลอกเนื้อหาจะทำให้การแก้ไขแต่ละสำเนาไม่ตรงกันและประวัติทบทวนซ้ำ
+เวลาเรียนมีจำกัด และการนำการ์ดที่เรียนจบออกจากคิวต้องไม่ทำให้ประวัติหาย
 
-## Decision
+## การตัดสินใจ
 
-- Courses link the owner's existing cards and notes instead of copying them. Linking a deck skips existing links.
-- Course filtering changes the selected cards, not their identity, SRS schedule or history.
-- Editing shared content changes the original and every linked course. The UI requests confirmation and supports dialog editing on the course page.
-- Removing a link or deleting a course preserves originals. Linked originals cannot be deleted until their links are removed.
-- Store a review and scheduling changes atomically. Retry identifiers and locks prevent duplicate accounting and double spending of the daily allowance.
-- Build a bounded queue from SRS due dates and daily time remaining. Selecting a course/deck does not bring future cards forward.
-- Archive only on an explicit user action. Keep identity, links and history, but exclude archived cards from active queues and forecasts.
-- Use Bangkok day boundaries for statistics. Attempts and unique cards differ; accuracy measures `good`/`easy` attempts, not exam scores.
+- รายวิชาเชื่อมการ์ดและโน้ตต้นฉบับของเจ้าของแทนการคัดลอก การเชื่อมทั้งชุดไม่เพิ่มรายการที่เชื่อมไว้แล้วซ้ำ
+- การกรองตามรายวิชาเปลี่ยนเฉพาะการ์ดที่เลือก ไม่เปลี่ยน ID รอบ SRS หรือประวัติของการ์ด
+- การแก้เนื้อหาที่ใช้ร่วมกันมีผลต่อต้นฉบับและทุกวิชาที่เชื่อม UI ให้ยืนยันและรองรับการแก้ผ่านกล่อง popup ในหน้ารายวิชา
+- การนำออกจากรายวิชาหรือลบรายวิชาเก็บต้นฉบับไว้ และต้องเอาการเชื่อมออกทั้งหมดก่อนลบต้นฉบับ
+- บันทึกผลทบทวนและการเปลี่ยนรอบในธุรกรรมเดียว ตัวระบุคำขอซ้ำและการล็อกป้องกันการนับซ้ำหรือใช้เวลารายวันซ้ำสองครั้ง
+- สร้างคิวที่มีขนาดจำกัดจากกำหนด SRS และเวลาที่เหลือวันนี้ การเลือกชุดหรือรายวิชาไม่ดึงการ์ดที่ยังไม่ถึงกำหนดมาทบทวนก่อน
+- จัดเก็บการ์ดเมื่อผู้ใช้สั่งเท่านั้น คง ID การเชื่อมและประวัติ แต่ไม่นำการ์ดที่จัดเก็บไปใช้ในคิวปัจจุบันหรือแผนทบทวน
+- แบ่งวันตามเวลาไทยสำหรับสถิติ จำนวนครั้งกับจำนวนการ์ดไม่ซ้ำเป็นคนละค่า ความแม่นยำคิดจากผล `good`/`easy` ไม่ใช่คะแนนสอบ
 
-## Consequences
+## ผลที่ตามมา
 
-Edits propagate consistently, but users must understand the effect on every linked course.
-Archived cards return without duplication. Empty queues can mean nothing is due or the remaining budget cannot fit another card.
-Concurrency-sensitive operations retain SQL transactions alongside Prisma, as recorded in [ADR 0008](008-prisma-supabase.md).
+การแก้ไขสอดคล้องกันทุกวิชา แต่ผู้ใช้ต้องเข้าใจผลต่อรายวิชาที่เชื่อมทั้งหมด
+นำการ์ดที่จัดเก็บกลับได้โดยไม่สร้างสำเนา คิวว่างอาจหมายถึงยังไม่มีใบถึงกำหนด หรือเวลาที่เหลือไม่พอสำหรับอีกใบ
+ส่วนที่ต้องควบคุมการทำงานพร้อมกันยังใช้ธุรกรรม SQL ร่วมกับ Prisma ตาม [ADR 0008](008-prisma-supabase.md)
 
-## Alternatives considered
+## ทางเลือกที่พิจารณา
 
-- Duplicate cards per course: rejected because originals and schedules drift apart.
-- Delete completed cards: rejected because identity and history must remain recoverable.
-- Ignore due dates/budget: rejected because forecasts and daily accounting must stay consistent.
+- คัดลอกการ์ดให้แต่ละรายวิชา: ไม่เลือก เพราะเนื้อหาและรอบทบทวนจะต่างกันเมื่อมีการแก้ไข
+- ลบการ์ดที่เรียนจบ: ไม่เลือก เพราะต้องเก็บ ID และประวัติให้กู้กลับมาใช้ได้
+- ไม่ตรวจวันครบกำหนดหรือเวลาที่เหลือ: ไม่เลือก เพราะแผนทบทวนและการนับเวลารายวันต้องสอดคล้องกัน
 
-## References
+## เอกสารอ้างอิง
 
-- [Course implementation](../../../src/backend/modules/courses)
-- [Review implementation](../../../src/backend/modules/reviews)
-- [Archive verification](../../testing/issue-16.md)
-- [Concurrency verification](../../testing/issue-10.md)
-- [User guide](../../user_guide.md)
+- [โมดูลรายวิชา](../../../src/backend/modules/courses)
+- [โมดูลทบทวน](../../../src/backend/modules/reviews)
+- [ผลตรวจการจัดเก็บการ์ด](../../testing/issue-16.md)
+- [ผลตรวจการทำงานพร้อมกัน](../../testing/issue-10.md)
+- [คู่มือผู้ใช้](../../user_guide.md)

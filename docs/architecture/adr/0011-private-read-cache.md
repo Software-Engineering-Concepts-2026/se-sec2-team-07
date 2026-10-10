@@ -1,36 +1,36 @@
-# ADR 0011: Short-lived account-scoped read cache in browser memory
+# ADR 0011: แคชข้อมูลอ่านช่วงสั้นในหน่วยความจำ แยกตามบัญชี
 
-Status: Implemented; recorded 2026-10-10. Describes the current route-loading strategy, not a new runtime change.
+สถานะ: นำมาใช้แล้ว บันทึกเมื่อ 2026-10-10 อธิบายการโหลดหน้าปัจจุบัน ไม่ใช่การเปลี่ยน runtime ใหม่
 
-## Context
+## บริบทและปัญหา
 
-Repeated navigation waited for private data the account had just loaded. Faster navigation must not expose another user's data, overwrite drafts or review stale queues.
+การเปลี่ยนกลับไปหน้าที่เพิ่งเปิดต้องรอข้อมูลส่วนตัวเดิมอีกครั้ง การทำให้เปลี่ยนหน้าเร็วขึ้นต้องไม่เปิดเผยข้อมูลอีกบัญชี เขียนทับร่าง หรือใช้คิวทบทวนที่ล้าสมัย
 
-## Decision
+## การตัดสินใจ
 
-- Cache eligible read snapshots only in browser memory for the current account; no localStorage or IndexedDB persistence.
-- Limit snapshots to 60 seconds, 32 resources, 8 MB total and 2 MB per resource. Evict expired/least-recently-used entries.
-- Show a known snapshot while validating with the server. Copy values so drafts cannot mutate cached snapshots.
-- Invalidate after successful writes. Login, logout, account changes and 401 responses end the previous cache session.
-- Check session/mutation generations so an old response cannot restore data after an account change or successful write.
-- Never cache authentication checks or SRS review queues; due dates and daily budgets must remain authoritative.
-- Protect dirty drafts and uncertain saves from background replacement. Keep explicit reload and recovery behavior.
-- Combine overview reads and parallelize independent queries where consistency requirements permit it.
+- แคชเฉพาะ snapshot ของข้อมูลอ่านที่รองรับ ในหน่วยความจำเบราว์เซอร์ของบัญชีที่เข้าสู่ระบบ ไม่บันทึกลง localStorage หรือ IndexedDB
+- จำกัดอายุ 60 วินาที ไม่เกิน 32 รายการ รวมไม่เกิน 8 MB และแต่ละรายการไม่เกิน 2 MB นำรายการหมดอายุหรือไม่ได้ใช้นานที่สุดออก
+- แสดง snapshot ที่มีอยู่ระหว่างตรวจข้อมูลจากเซิร์ฟเวอร์ และคัดลอกข้อมูลก่อนใช้เพื่อไม่ให้การแก้ร่างเปลี่ยน snapshot ในแคช
+- ล้างแคชหลังแก้ข้อมูลสำเร็จ การเข้าสู่ระบบ ออกจากระบบ เปลี่ยนบัญชี หรือได้รับ HTTP 401 จะจบ session แคชเดิม
+- ตรวจเวอร์ชัน session และลำดับการเปลี่ยนข้อมูล เพื่อไม่ให้คำตอบเก่าที่มาช้าเติมแคชกลับหลังเปลี่ยนบัญชีหรือบันทึกสำเร็จ
+- ไม่แคชการตรวจยืนยันตัวตนหรือคิว SRS ต้องใช้วันครบกำหนดและเวลารายวันล่าสุดจากเซิร์ฟเวอร์เสมอ
+- ป้องกันการโหลดเบื้องหลังเขียนทับร่างที่แก้แล้วหรือรายการที่ยังไม่แน่ใจว่าบันทึกสำเร็จ โดยคงตัวเลือกโหลดใหม่และกู้คืนไว้
+- รวมคำขอสำหรับข้อมูลภาพรวม และอ่านข้อมูลอิสระพร้อมกันเมื่อเงื่อนไขความสอดคล้องของข้อมูลอนุญาต
 
-## Consequences
+## ผลที่ตามมา
 
-Revisits can show useful data sooner. First visits, refreshes and expired snapshots still require the network; this is not offline support or a guarantee against cold starts.
-Displayed data may be briefly older than server data. Private API responses stay outside CDN caches.
+การกลับมาหน้าเดิมแสดงข้อมูลที่ใช้ได้เร็วขึ้น แต่การเปิดครั้งแรก รีเฟรช หรือแคชหมดอายุยังต้องใช้อินเทอร์เน็ต แนวทางนี้ไม่ใช่โหมดออฟไลน์และไม่ได้รับประกันว่าไม่มี cold start
+ข้อมูลที่แสดงอาจเก่ากว่าเซิร์ฟเวอร์ช่วงสั้น ๆ และคำตอบ API ที่เป็นข้อมูลส่วนตัวยังไม่ถูกแคชบน CDN
 
-## Alternatives considered
+## ทางเลือกที่พิจารณา
 
-- Public CDN caching of private data: rejected because users' records must stay isolated.
-- Persist snapshots across logins: rejected because old account data must not enter a new session.
-- Cache review queues like ordinary lists: rejected because stale queues can ignore current due dates or time remaining.
+- แคชข้อมูลส่วนตัวแบบสาธารณะบน CDN: ไม่เลือก เพราะต้องแยกข้อมูลผู้ใช้แต่ละคน
+- บันทึก snapshot ไว้ข้ามการเข้าสู่ระบบ: ไม่เลือก เพราะข้อมูลบัญชีเดิมต้องไม่ปรากฏใน session ใหม่
+- แคชคิวทบทวนเหมือนรายการทั่วไป: ไม่เลือก เพราะคิวเก่าอาจไม่ตรงวันครบกำหนดหรือเวลาที่เหลือปัจจุบัน
 
-## References
+## เอกสารอ้างอิง
 
-- [Cache implementation](../../../src/frontend/src/hooks/readCache.js)
-- [Synchronization](../../../src/frontend/src/hooks/useRemoteSync.js)
-- [Regression tests](../../../tests/e2e/read-cache.spec.js)
-- [Performance verification](../../testing/loading-performance.md)
+- [โค้ดแคชข้อมูลอ่าน](../../../src/frontend/src/hooks/readCache.js)
+- [การซิงก์ข้อมูล](../../../src/frontend/src/hooks/useRemoteSync.js)
+- [ชุดทดสอบป้องกันปัญหาเดิม](../../../tests/e2e/read-cache.spec.js)
+- [ผลตรวจประสิทธิภาพ](../../testing/loading-performance.md)
