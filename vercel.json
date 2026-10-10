@@ -10,9 +10,7 @@
       "headers": [
         {
           "source": "/assets/(.*)",
-          "headers": [
-            { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
-          ]
+          "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
         },
         {
           "source": "/(.*)",
@@ -30,8 +28,14 @@
     },
     "api": {
       "root": ".",
-      "runtime": "container",
-      "entrypoint": "Dockerfile.vercel"
+      "framework": "express",
+      "entrypoint": "src/backend/vercel.js",
+      "functions": {
+        "src/backend/vercel.js": {
+          "maxDuration": 300,
+          "includeFiles": "{src/backend/modules/generation/**,node_modules/@napi-rs/canvas*/**,node_modules/pdf-parse/**,node_modules/pdfjs-dist/**,node_modules/tesseract.js*/**}"
+        }
+      }
     }
   },
   "rewrites": [

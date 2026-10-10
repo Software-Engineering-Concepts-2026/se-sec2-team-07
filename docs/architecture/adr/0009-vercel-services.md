@@ -1,6 +1,6 @@
 # ADR 0009: ส่วนแสดงผลบน CDN และ API container บน Vercel
 
-สถานะ: นำมาใช้แล้ว บันทึกเมื่อ 2026-10-10 อธิบาย deployment ใน `vercel.json` ปัจจุบัน ไม่ใช่การเปลี่ยน runtime ใหม่
+สถานะ: นำมาใช้ใน Production เมื่อ 2026-10-10; การทดลองเปลี่ยน API บน Preview เป็น Node.js บันทึกใน [ADR 0010](0010-vercel-node-api.md)
 
 ## บริบทและปัญหา
 
