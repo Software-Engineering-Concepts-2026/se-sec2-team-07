@@ -93,6 +93,36 @@ Deploying a Preview alone does not update the Production domain. After deploying
 `/api/health`, then registration/login through the Production URL. A rejected Origin
 requires checking APP_ORIGIN/system variables and redeploying; do not disable the policy.
 
+## Automatic deployment from GitHub Actions
+
+`.github/workflows/ci.yml` runs all current application tests and enforces 60%
+line coverage overall, on the backend and on the frontend. The deploy job depends
+on that job and runs only for pushes, never pull requests. A push to `main`
+builds a staged Production deployment; other branches, including `develop`,
+deploy Preview. The Production domain is promoted only after live checks pass.
+Production therefore follows the repository's normal reviewed merge process.
+
+The workflow is linked to the existing `focus-flashcards` project using its
+non-secret project/team IDs. Store its owner's deployment token as the
+`VERCEL_TOKEN` repository secret in GitHub Settings → Secrets and variables →
+Actions. Do not put the token in source, a variable, `.env` or a chat message.
+The project's existing Vercel environment variables remain on Vercel.
+
+The pinned Vercel CLI uploads the tested source for a remote build because the
+API service requires Vercel's container builder. It does not use `--prebuilt`.
+After deployment, `scripts/check-deployment.js` checks public React HTML, built
+assets, `/api/health`, protected API responses and same-origin login validation.
+Desktop/mobile Playwright tests then check that the login page actually renders
+and invalid credentials produce a normal error. These checks never create or
+change cloud accounts, cards, notes or courses.
+
+Each successful run links its deployed URL and commit in the Actions summary.
+The `application-coverage` artifact contains the coverage report. A failed check
+or missing secret makes the workflow fail; it never reports an unchecked deploy
+as successful. Existing Git auto-deployment, if enabled in Vercel, should not
+duplicate this pipeline. Preview Deployment Protection must allow the verification
+runner to access the site; do not disable application authentication.
+
 ## Checks before production
 
 - Confirm database connectivity and existing schema. Startup does not run migrations.
@@ -119,3 +149,5 @@ References:
 - https://vercel.com/docs/functions/limitations
 - https://vercel.com/docs/deployments/vercel-ignore
 - https://vercel.com/docs/projects/deploy-from-cli
+- https://vercel.com/docs/cli/deploy
+- https://vercel.com/docs/cli/promote

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './helpers/coverage.js';
 import { navigateTo } from './helpers/navigation.js';
 
 const deck = (name) => ({
