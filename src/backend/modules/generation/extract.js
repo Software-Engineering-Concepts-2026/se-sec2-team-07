@@ -1,6 +1,8 @@
 import { fork } from 'node:child_process';
+import { createRequire } from 'node:module';
 import { HttpError } from '../../shared/errors.js';
 
+const require = createRequire(import.meta.url);
 let active = 0;
 export function extractDocument(input, { detailed = false } = {}) {
   if (active >= 4)
@@ -8,7 +10,8 @@ export function extractDocument(input, { detailed = false } = {}) {
   active++;
   return new Promise((resolve, reject) => {
     // A process also isolates native PDF parser failures from the API server.
-    const worker = fork(new URL('./extract-worker.js', import.meta.url), {
+    // A resolvable module path lets Vercel trace the worker's PDF/OCR dependencies.
+    const worker = fork(require.resolve('./extract-worker.js'), {
       execArgv: ['--max-old-space-size=256'],
       stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
       windowsHide: true,

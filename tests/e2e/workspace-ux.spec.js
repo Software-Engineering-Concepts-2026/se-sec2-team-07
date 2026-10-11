@@ -1,7 +1,7 @@
 import { navigateTo } from './helpers/navigation.js';
 import { assertTestDatabase } from '../../src/backend/db/targets.js';
 assertTestDatabase();
-import { test, expect } from '@playwright/test';
+import { test, expect } from './helpers/coverage.js';
 import pg from 'pg';
 import { randomUUID } from 'node:crypto';
 
