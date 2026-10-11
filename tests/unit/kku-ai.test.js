@@ -5,7 +5,7 @@ import { generate } from '../../src/backend/modules/generation/service.js';
 const config = readAiConfig({
   OPENAI_BASE_URL: 'https://gen.ai.kku.ac.th/upacth/api/v1/',
   OPENAI_API_KEY: 'test',
-  OPENAI_MODEL: 'claude-sonnet-5',
+  OPENAI_MODEL: 'gpt-6-sol-pro',
 });
 const input = { mode: 'ai', text: 'Stack: LIFO', count: 1, language: 'Thai' };
 
@@ -32,13 +32,13 @@ test('vocabulary fronts contain the term while other questions stay intact', asy
     output[2],
   ]);
 });
-test('KKU Claude Sonnet uses chat contract and validates JSON including fenced output', async () => {
+test('KKU GPT uses chat contract and validates JSON including fenced output', async () => {
   for (const fenced of [false, true]) {
     const cards = await generate(input, config, async (url, options) => {
       assert.equal(url, 'https://gen.ai.kku.ac.th/upacth/api/v1/chat/completions');
       const body = JSON.parse(options.body);
       assert.equal(body.stream, false);
-      assert.equal(body.model, 'claude-sonnet-5');
+      assert.equal(body.model, 'gpt-6-sol-pro');
       assert.equal(body.messages[1].content, input.text);
       assert.equal(body.response_format, undefined);
       assert.equal(options.redirect, 'error');

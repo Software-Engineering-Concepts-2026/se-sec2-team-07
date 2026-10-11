@@ -42,7 +42,7 @@ Set these in Vercel Settings → Environment Variables for the appropriate envir
 | DATABASE_SSL_VERIFY   | `false` in the selected certificate opt-out mode                              |
 | OPENAI_BASE_URL       | Your AI provider's HTTPS endpoint                                             |
 | OPENAI_API_MODE       | `chat` or `responses`, as configured for your provider                        |
-| OPENAI_MODEL          | `claude-sonnet-5` for the current KKU configuration                            |
+| OPENAI_MODEL          | `gpt-6-sol-pro` for the current KKU configuration                              |
 | OPENAI_API_KEY        | Your provider secret                                                          |
 
 Do not upload `.env`, put secrets in build arguments, or prefix secrets with `VITE_`.
