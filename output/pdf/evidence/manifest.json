@@ -1,0 +1,91 @@
+{
+  "purpose": "Submission evidence - coverage, automatic deployment and response time",
+  "pdfPages": 4,
+  "files": [
+    {
+      "path": "focus-submission-evidence.pdf",
+      "bytes": 314481,
+      "sha256": "9deee2b0c5c96121c796d9ea4f7a096f47b2b77e1d6a553a8cf1f41ea7a33a84"
+    },
+    {
+      "path": "README-evidence.md",
+      "bytes": 5297,
+      "sha256": "8ea91d1f30ed3995a9d82fe11253a80786b0f186257185f97aa40556d34228ff"
+    },
+    {
+      "path": "evidence/github-coverage-artifact.zip",
+      "bytes": 410657,
+      "sha256": "4769f74ebe6bb5e858b4a99fbc94bb8fc2eff2578ebf694b19d79a4c0f7048b1"
+    },
+    {
+      "path": "evidence/measure-response.mjs",
+      "bytes": 4325,
+      "sha256": "fae8cdc45ae0ebd2fa1211175a137628a0c9c47398e8de462ad020d79b6d75de"
+    },
+    {
+      "path": "evidence/raw/ci-coverage.json",
+      "bytes": 1745,
+      "sha256": "9f231fa8a60cdd6b4ead71e42dfdab5646a2b218ad811447d22d2c3095c139f7"
+    },
+    {
+      "path": "evidence/raw/ci-run.json",
+      "bytes": 5764,
+      "sha256": "0b131321219f596a47cde49d90fcc6e3e07f5d26a11b9e3406e84f9f3f8c7d8f"
+    },
+    {
+      "path": "evidence/raw/live-site-check.txt",
+      "bytes": 308,
+      "sha256": "4587c543876e36d0714ebaf4c9718cfccf6bfcab8a30b705fe41d299c5b23d63"
+    },
+    {
+      "path": "evidence/raw/node-local-coverage.json",
+      "bytes": 1742,
+      "sha256": "29184252dd7b1b714214b10215e6c41279c340d56b96f7b7c0b0ae1f889770a7"
+    },
+    {
+      "path": "evidence/raw/node-preview-65s-response.json",
+      "bytes": 6124,
+      "sha256": "66380273fd821e5c7d17239b3be098e9a8f69797921d5d7bee69d11b5e55ecea"
+    },
+    {
+      "path": "evidence/raw/node-preview-features.json",
+      "bytes": 1948,
+      "sha256": "dca81060176b840cc557d1a3a4aaf14dd64252f6325d9a96d89aecf11e06f0c8"
+    },
+    {
+      "path": "evidence/raw/node-preview-response.json",
+      "bytes": 8409,
+      "sha256": "e43f332d605bd221f0a34bbe43c23ae1ca3c4d2bfba5175a8108216e2340a824"
+    },
+    {
+      "path": "evidence/raw/production-response.json",
+      "bytes": 8306,
+      "sha256": "3a274377b1f7d4cb570e6744479759180e63e7e940af422ce78e35a87eb070d5"
+    },
+    {
+      "path": "evidence/screenshots/ci-success.jpg",
+      "bytes": 65788,
+      "sha256": "43d4f77068d2b43066854a9f8d5a2b1a318f5c1cea5c729a3ef4249a746c6dc2"
+    },
+    {
+      "path": "evidence/screenshots/coverage-summary.jpg",
+      "bytes": 63871,
+      "sha256": "ec2a9179672a1ebeeb325fdd94c17c1bcbef5d1138b93ee9a2d65275b00afb41"
+    },
+    {
+      "path": "evidence/screenshots/coverage-table.jpg",
+      "bytes": 34642,
+      "sha256": "99e744cccae57b8ae34d37bcbf796ac14da853e890c99d52f4bc184b0e78a284"
+    },
+    {
+      "path": "evidence/screenshots/live-ci-website.jpg",
+      "bytes": 57953,
+      "sha256": "af476ab03d6652f2f88e64bf0b73aaebf782c3bb1cd5db648691d1eb2c0dc830"
+    },
+    {
+      "path": "evidence/screenshots/verified-deployment.jpg",
+      "bytes": 72296,
+      "sha256": "9e390672febdb551ca1a9fe18c1ab113b764ec917709639d5092d152033f0729"
+    }
+  ]
+}

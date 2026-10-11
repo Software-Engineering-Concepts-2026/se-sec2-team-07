@@ -1,6 +1,6 @@
 import { assertTestDatabase } from '../../src/backend/db/targets.js';
 assertTestDatabase();
-import { test, expect } from '@playwright/test';
+import { test, expect } from './helpers/coverage.js';
 import pg from 'pg';
 import { randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';

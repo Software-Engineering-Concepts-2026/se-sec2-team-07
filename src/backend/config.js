@@ -37,8 +37,13 @@ export function readConfig(env = process.env) {
     databaseSslVerify: env.DATABASE_SSL_VERIFY !== 'false',
     port: Number(env.PORT || 8000),
     host: env.HOST || '127.0.0.1',
-    origin: env.APP_ORIGIN,
-    deploymentOrigins: [env.VERCEL_URL, env.VERCEL_BRANCH_URL]
+    origin: env.APP_ORIGIN?.trim().replace(/\/+$/, ''),
+    deploymentOrigins: [
+      env.VERCEL_URL,
+      env.VERCEL_BRANCH_URL,
+      // The stable production alias differs from the generated deployment URL.
+      env.VERCEL_ENV === 'production' ? env.VERCEL_PROJECT_PRODUCTION_URL : undefined,
+    ]
       .filter((host) => typeof host === 'string' && /^[a-z0-9-]+\.vercel\.app$/i.test(host))
       .map((host) => `https://${host.toLowerCase()}`),
     trustProxy: Number(env.TRUST_PROXY || 0),

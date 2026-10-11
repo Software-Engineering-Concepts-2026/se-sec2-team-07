@@ -1,0 +1,107 @@
+{
+  "target": "https://focus-flashcards-i7xudqra7-nattapon-aonsris-projects.vercel.app",
+  "results": [
+    {
+      "path": "/api/register",
+      "method": "POST",
+      "status": 201,
+      "totalMs": 1295
+    },
+    {
+      "path": "/api/me",
+      "method": "GET",
+      "status": 200,
+      "totalMs": 612
+    },
+    {
+      "path": "/api/login",
+      "method": "POST",
+      "status": 200,
+      "totalMs": 614
+    },
+    {
+      "path": "/api/decks",
+      "method": "GET",
+      "status": 200,
+      "totalMs": 355
+    },
+    {
+      "path": "/api/notes",
+      "method": "GET",
+      "status": 200,
+      "totalMs": 363
+    },
+    {
+      "path": "/api/courses",
+      "method": "GET",
+      "status": 200,
+      "totalMs": 349
+    },
+    {
+      "path": "/api/documents",
+      "method": "GET",
+      "status": 200,
+      "totalMs": 120
+    },
+    {
+      "path": "/api/review",
+      "method": "GET",
+      "status": 200,
+      "totalMs": 135
+    },
+    {
+      "path": "/api/stats/overview",
+      "method": "GET",
+      "status": 200,
+      "totalMs": 117
+    },
+    {
+      "path": "/api/extract",
+      "method": "POST",
+      "status": 200,
+      "totalMs": 246
+    },
+    {
+      "path": "/api/extract",
+      "method": "POST",
+      "status": 200,
+      "totalMs": 212
+    },
+    {
+      "path": "/api/extract",
+      "method": "POST",
+      "status": 200,
+      "totalMs": 220
+    },
+    {
+      "path": "/api/extract",
+      "method": "POST",
+      "status": 200,
+      "totalMs": 742
+    },
+    {
+      "path": "/api/extract",
+      "method": "POST",
+      "status": 200,
+      "totalMs": 3431
+    },
+    {
+      "path": "/api/generate",
+      "method": "POST",
+      "status": 200,
+      "totalMs": 109
+    },
+    {
+      "path": "/api/logout",
+      "method": "POST",
+      "status": 200,
+      "totalMs": 119
+    },
+    {
+      "path": "/api/me",
+      "method": "GET",
+      "status": 401,
+      "totalMs": 286
+    }
+  ]
+}

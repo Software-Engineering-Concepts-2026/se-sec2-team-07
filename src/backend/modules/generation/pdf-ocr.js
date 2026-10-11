@@ -7,7 +7,8 @@ export function needsOcr(text) {
 
 async function createOcr() {
   const { createWorker } = await import('tesseract.js');
-  const cachePath = resolve('.local/ocr');
+  // Vercel's application bundle is read-only; workers may write only under /tmp.
+  const cachePath = resolve(process.env.VERCEL ? '/tmp/focus-flashcards/ocr' : '.local/ocr');
   await mkdir(cachePath, { recursive: true });
   return createWorker('tha+eng', 1, { cachePath });
 }

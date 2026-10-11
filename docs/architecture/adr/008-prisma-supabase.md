@@ -1,23 +1,43 @@
-# ADR 008: Prisma with Supabase PostgreSQL
+# ADR 0008: Prisma ร่วมกับ Supabase PostgreSQL
 
-Date: 2026-10-03. Status: implemented locally; Supabase deployment pending verified connection settings.
+วันที่ตัดสินใจ: 2026-10-03 สถานะ: ยอมรับและใช้งานกับ Supabase PostgreSQL แล้ว ตรวจทานเมื่อ 2026-10-10
 
-## Decision
+## บริบทและปัญหา
 
-Use Prisma 7 with the PostgreSQL driver adapter and the existing pg connection pool. Prisma models map to existing snake_case tables/columns without changing IDs, timestamps, password hashes or foreign keys. Prisma handles authentication reads/writes, document CRUD and archived/active card listing. It is part of the production request path, not only a schema generator.
+ระบบต้องการ PostgreSQL ที่ให้บริการบนคลาวด์และโค้ด CRUD ที่ดูแลง่าย โดยยังรักษาการล็อกธุรกรรม snapshot และพฤติกรรมคำขอซ้ำที่ทดสอบไว้ การเปลี่ยน schema ต้องแยกจากการเริ่มแอป
 
-Keep the existing parameterized SQL transactions for deck/note saves, course links, review accounting, archive mutations and export snapshots. Their FOR UPDATE/advisory locks, repeatable-read snapshots and durable retry receipts must stay on one checked-out connection. Do not mix root Prisma calls into a pg transaction. All operations share the same pool but transactions retain their own connection. A future ORM conversion must preserve this locking contract and concurrency tests.
+## การตัดสินใจ
 
-Prisma Migrate owns future schema changes. The initial migration preserves all six legacy SQL migrations, including CHECK constraints not represented in Prisma schema. Fresh databases also enable RLS on application tables with no public policies: Express keeps custom JWT authentication and owner checks. Use a server-only owner/BYPASSRLS database role; Supabase anon/authenticated access is not the app's authorization mechanism. Do not expose database credentials in Vite.
+ใช้ Prisma 7 กับ PostgreSQL driver adapter และ connection pool ของ pg เดิม โมเดล Prisma เชื่อมกับตารางและคอลัมน์แบบ snake_case โดยไม่เปลี่ยน ID เวลา hash รหัสผ่าน หรือ foreign key ใช้ Prisma สำหรับ CRUD ของการยืนยันตัวตน เอกสาร และรายการการ์ดที่จัดเก็บหรือยังใช้งาน ส่วนการตรวจ session ทุกคำขออ่านเวอร์ชัน token ของผู้ใช้ผ่าน SQL แบบกำหนดพารามิเตอร์ ทั้งสองแนวทางทำงานจริงใน Production
 
-Runtime and migration credentials are separate. Supabase destinations must match an explicitly configured project ref; migrations require direct/session mode port 5432. Startup only checks database readiness and never migrates. Local legacy baselining compares the schema before marking the initial migration applied; it does not recreate tables or transfer data. Existing local RLS settings are preserved when baselining.
+คงธุรกรรม SQL แบบกำหนดพารามิเตอร์สำหรับบันทึกชุดการ์ด/โน้ต เชื่อมรายวิชา บันทึกการทบทวน จัดเก็บการ์ด และสร้าง snapshot ส่งออก การใช้ `FOR UPDATE`, advisory locks, snapshot แบบ repeatable-read และหลักฐานสำหรับคำขอซ้ำต้องอยู่บน connection ที่จองไว้เดียวกัน ห้ามนำคำสั่ง Prisma ระดับหลักที่อยู่นอกธุรกรรมมาแทรกในธุรกรรม pg แม้ใช้ pool เดียวกัน แต่แต่ละธุรกรรมยังต้องใช้ connection ของตนเอง หากย้ายไปใช้ ORM เพิ่มเติมต้องรักษาเงื่อนไขการล็อกและผลทดสอบการทำงานพร้อมกัน
 
-## Consequences
+ใช้ Prisma Migrate สำหรับการเปลี่ยน schema ต่อไป migration เริ่มต้นรักษา SQL migrations เดิมทั้ง 6 ฉบับ รวม `CHECK` constraints ที่ไม่ได้แสดงใน Prisma schema ฐานข้อมูลใหม่เปิด RLS บนตารางแอปโดยไม่มี policy สาธารณะ ส่วน Express ยังคงยืนยันตัวตนด้วย JWT และตรวจเจ้าของข้อมูล ใช้บทบาทฐานข้อมูลของเซิร์ฟเวอร์ที่เป็นเจ้าของหรือมี `BYPASSRLS` สิทธิ์ `anon/authenticated` ของ Supabase ไม่ใช่กลไกกำหนดสิทธิ์ของแอป และไม่ส่งข้อมูลเชื่อมต่อฐานข้อมูลไปยัง Vite
 
-- Same PostgreSQL data model and custom authentication remain usable locally and on Supabase.
-- Existing local data stays local; cloud data transfer needs a separate reviewed backup/restore procedure and is not implied by creating empty cloud tables.
-- Test suites refuse non-local databases and the application database before cleanup hooks can run.
-- Prisma generate runs after install. Docker generates the client in the build stage; deploy schema separately before starting runtime.
-- Raw SQL remains intentionally in concurrency-sensitive paths. Prisma does not replace Supabase Auth or provide automatic user-level RLS for the custom JWT.
+แยกข้อมูลเชื่อมต่อสำหรับ runtime กับ migrations ปลายทาง Supabase ต้องตรงกับ project ref ที่กำหนด และ migrations ใช้ direct/session mode ที่พอร์ต 5432 Runtime นอกชุดทดสอบเลือก Supabase เสมอ การเริ่มแอปปกติตรวจความพร้อมฐานข้อมูล ส่วน Vercel ข้ามการตรวจที่ทำให้ startup ต้องรอตาม [ADR 0009](0009-vercel-services.md) ทั้งสองแบบไม่รัน migrations ตอนเริ่มแอป `/api/health` และคำขอที่ยืนยันตัวตนยังใช้ฐานข้อมูลจริง การตั้งฐานอ้างอิงให้ข้อมูลรุ่นเดิมเคยใช้การเปรียบเทียบ schema โดยไม่สร้างตารางใหม่หรือย้ายข้อมูล
 
-References: https://supabase.com/docs/guides/database/prisma and https://supabase.com/docs/guides/database/connecting-to-postgres
+เก็บไฟล์เอกสารต้นฉบับใน `documents.content` และข้อความใน `documents.body` ซึ่งต่างจากการอ่านข้อความเข้าสู่ร่างการ์ด/โน้ตที่ยังไม่บันทึก โดยไม่ได้ใช้ Supabase Storage
+
+ค่าเริ่มต้นเปิดการตรวจ certificate แต่ Dockerfile ของ Vercel ปัจจุบันตั้ง `DATABASE_SSL_VERIFY=false` ตามคำขอของผู้ใช้ การรับส่งข้อมูล PostgreSQL ยังเข้ารหัส แต่ไม่ได้ตรวจสอบตัวตนของเซิร์ฟเวอร์ ข้อยกเว้นนี้ไม่ปิดการตรวจ HTTPS เมื่อเรียก AI ขั้นตอนเปิดการตรวจกลับอยู่ใน [คู่มือ Vercel](../../vercel.md)
+
+## ทางเลือกที่พิจารณา
+
+- ย้ายทุกคำสั่งไปใช้ Prisma: ไม่เลือก เพราะธุรกรรมที่จอง connection ไว้ต้องรักษาการล็อกและ snapshot เดิม
+- ใช้ Supabase Auth หรือให้เบราว์เซอร์เข้าถึงฐานข้อมูลโดยตรง: ไม่เลือก เพราะ Express ยังคงใช้ JWT ของแอปและตรวจเจ้าของทรัพยากร
+- ใช้ฐานข้อมูลในเครื่องเป็นตัวสำรองของ runtime: นำออก เพื่อไม่ให้การตั้งค่าผิดทำให้แอปเขียนข้อมูลไปอีกฐานหนึ่งโดยไม่รู้ตัว
+
+## ผลที่ตามมา
+
+- การพัฒนาและเว็บที่ deploy ใช้ Supabase ส่วนชุดทดสอบใช้ PostgreSQL ในเครื่องที่แยกต่างหาก ไม่ใช้ข้อมูลแอปเก่าในเครื่องเป็น runtime สำรอง
+- ข้อมูลเดิมในเครื่องยังอยู่ในเครื่อง การย้ายขึ้นคลาวด์ต้องมีขั้นตอนสำรอง/กู้คืนที่ตรวจทานแยกต่างหาก การสร้างตารางเปล่าบนคลาวด์ไม่ได้ย้ายข้อมูลให้
+- ชุดทดสอบปฏิเสธฐานข้อมูลนอกเครื่องและฐานข้อมูลแอปก่อนเริ่มขั้นตอนล้างข้อมูล
+- รัน Prisma generate หลังติดตั้ง dependencies และสร้าง client ในขั้นตอน build ของ Docker โดยต้อง deploy schema แยกก่อนเริ่ม runtime
+- ยังคงใช้ SQL โดยตรงในส่วนที่ต้องควบคุมการทำงานพร้อมกัน Prisma ไม่ได้แทน Supabase Auth หรือสร้าง RLS รายผู้ใช้ให้อัตโนมัติสำหรับ JWT ของแอป
+
+## เอกสารอ้างอิง
+
+- [เอกสาร Prisma ของ Supabase](https://supabase.com/docs/guides/database/prisma)
+- [การเชื่อม PostgreSQL ของ Supabase](https://supabase.com/docs/guides/database/connecting-to-postgres)
+- [Schema](../../../prisma/schema.prisma)
+- [การตั้งค่าฐานข้อมูล](../../../src/backend/config.js)
+- [คู่มือพัฒนา](../../development.md)

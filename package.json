@@ -24,7 +24,8 @@
     "db:migrate:test": "node --env-file-if-exists=.env scripts/migrate.js --test",
     "db:test:local": "node scripts/test-postgres.js",
     "format": "prettier --write \"src/**/*.{js,jsx,css,html}\" \"scripts/**/*.js\" \"tests/**/*.js\" \"*.{js,ts,json,yaml}\"",
-    "format:check": "prettier --check \"src/**/*.{js,jsx,css,html}\" \"scripts/**/*.js\" \"tests/**/*.js\" \"*.{js,ts,json,yaml}\""
+    "format:check": "prettier --check \"src/**/*.{js,jsx,css,html}\" \"scripts/**/*.js\" \"tests/**/*.js\" \"*.{js,ts,json,yaml}\"",
+    "test:coverage": "node --env-file-if-exists=.env scripts/test-coverage.js"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",
@@ -52,8 +53,13 @@
   "devDependencies": {
     "@playwright/test": "^1.58.0",
     "@vitejs/plugin-react": "^5.1.0",
+    "c8": "^12.0.0",
     "concurrently": "^9.2.0",
     "embedded-postgres": "^18.4.0-beta.17",
+    "istanbul-lib-coverage": "^3.2.2",
+    "istanbul-lib-instrument": "^6.0.3",
+    "istanbul-lib-report": "^3.0.1",
+    "istanbul-reports": "^3.2.0",
     "lighthouse": "^13.5.0",
     "prettier": "^3.9.9",
     "prisma": "^7.10.0",

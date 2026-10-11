@@ -1,4 +1,4 @@
-# Upload only container build inputs.
+# Upload only application build inputs for the Vite and Node.js services.
 *
 !Dockerfile.vercel
 !.dockerignore

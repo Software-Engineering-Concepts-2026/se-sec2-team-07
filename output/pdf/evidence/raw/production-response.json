@@ -1,0 +1,398 @@
+{
+  "target": "https://focus-flashcards.vercel.app",
+  "started": "2026-10-10T20:19:49.288Z",
+  "http": [
+    {
+      "label": "repeat HTML 1",
+      "path": "/",
+      "status": 200,
+      "headersMs": 362,
+      "totalMs": 372,
+      "bytes": 2308,
+      "cache": "HIT",
+      "region": "sin1",
+      "assets": [
+        "/assets/index-DKRr6Z9H.js",
+        "/assets/index-B9-fp2-u.css"
+      ]
+    },
+    {
+      "label": "repeat database health 1",
+      "path": "/api/health",
+      "status": 200,
+      "headersMs": 5076,
+      "totalMs": 5076,
+      "bytes": 11,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "repeat anonymous session 1",
+      "path": "/api/me",
+      "status": 401,
+      "headersMs": 84,
+      "totalMs": 84,
+      "bytes": 84,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "repeat HTML 2",
+      "path": "/",
+      "status": 200,
+      "headersMs": 74,
+      "totalMs": 75,
+      "bytes": 2308,
+      "cache": "HIT",
+      "region": "sin1",
+      "assets": [
+        "/assets/index-DKRr6Z9H.js",
+        "/assets/index-B9-fp2-u.css"
+      ]
+    },
+    {
+      "label": "repeat database health 2",
+      "path": "/api/health",
+      "status": 200,
+      "headersMs": 91,
+      "totalMs": 91,
+      "bytes": 11,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "repeat anonymous session 2",
+      "path": "/api/me",
+      "status": 401,
+      "headersMs": 81,
+      "totalMs": 81,
+      "bytes": 84,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "repeat HTML 3",
+      "path": "/",
+      "status": 200,
+      "headersMs": 72,
+      "totalMs": 72,
+      "bytes": 2308,
+      "cache": "HIT",
+      "region": "sin1",
+      "assets": [
+        "/assets/index-DKRr6Z9H.js",
+        "/assets/index-B9-fp2-u.css"
+      ]
+    },
+    {
+      "label": "repeat database health 3",
+      "path": "/api/health",
+      "status": 200,
+      "headersMs": 84,
+      "totalMs": 84,
+      "bytes": 11,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "repeat anonymous session 3",
+      "path": "/api/me",
+      "status": 401,
+      "headersMs": 93,
+      "totalMs": 93,
+      "bytes": 84,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "repeat HTML 4",
+      "path": "/",
+      "status": 200,
+      "headersMs": 77,
+      "totalMs": 78,
+      "bytes": 2308,
+      "cache": "HIT",
+      "region": "sin1",
+      "assets": [
+        "/assets/index-DKRr6Z9H.js",
+        "/assets/index-B9-fp2-u.css"
+      ]
+    },
+    {
+      "label": "repeat database health 4",
+      "path": "/api/health",
+      "status": 200,
+      "headersMs": 81,
+      "totalMs": 81,
+      "bytes": 11,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "repeat anonymous session 4",
+      "path": "/api/me",
+      "status": 401,
+      "headersMs": 79,
+      "totalMs": 79,
+      "bytes": 84,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "repeat HTML 5",
+      "path": "/",
+      "status": 200,
+      "headersMs": 107,
+      "totalMs": 107,
+      "bytes": 2308,
+      "cache": "HIT",
+      "region": "sin1",
+      "assets": [
+        "/assets/index-DKRr6Z9H.js",
+        "/assets/index-B9-fp2-u.css"
+      ]
+    },
+    {
+      "label": "repeat database health 5",
+      "path": "/api/health",
+      "status": 200,
+      "headersMs": 80,
+      "totalMs": 80,
+      "bytes": 11,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "repeat anonymous session 5",
+      "path": "/api/me",
+      "status": 401,
+      "headersMs": 79,
+      "totalMs": 79,
+      "bytes": 84,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "database health after idle browser opening",
+      "path": "/api/health",
+      "status": 200,
+      "headersMs": 5275,
+      "totalMs": 5278,
+      "bytes": 11,
+      "cache": "MISS",
+      "region": "sin1"
+    }
+  ],
+  "browser": [
+    {
+      "device": "desktop",
+      "label": "first opening; preceding traffic unknown",
+      "status": 200,
+      "readyMs": 713,
+      "errors": [],
+      "navigation": [
+        {
+          "ttfbMs": 272,
+          "domContentLoadedMs": 545
+        }
+      ],
+      "api": [
+        {
+          "path": "/api/me",
+          "durationMs": 90
+        }
+      ],
+      "assets": [
+        "/assets/index-DKRr6Z9H.js",
+        "/_vercel/speed-insights/script.js"
+      ]
+    },
+    {
+      "device": "desktop",
+      "label": "repeat desktop 1",
+      "status": 200,
+      "readyMs": 5438,
+      "errors": [],
+      "navigation": [
+        {
+          "ttfbMs": 248,
+          "domContentLoadedMs": 484
+        }
+      ],
+      "api": [
+        {
+          "path": "/api/me",
+          "durationMs": 4726
+        }
+      ],
+      "assets": [
+        "/assets/index-DKRr6Z9H.js",
+        "/_vercel/speed-insights/script.js"
+      ]
+    },
+    {
+      "device": "mobile",
+      "label": "repeat mobile 1",
+      "status": 200,
+      "readyMs": 662,
+      "errors": [],
+      "navigation": [
+        {
+          "ttfbMs": 260,
+          "domContentLoadedMs": 516
+        }
+      ],
+      "api": [
+        {
+          "path": "/api/me",
+          "durationMs": 81
+        }
+      ],
+      "assets": [
+        "/assets/index-DKRr6Z9H.js",
+        "/_vercel/speed-insights/script.js"
+      ]
+    },
+    {
+      "device": "desktop",
+      "label": "repeat desktop 2",
+      "status": 200,
+      "readyMs": 5406,
+      "errors": [],
+      "navigation": [
+        {
+          "ttfbMs": 246,
+          "domContentLoadedMs": 494
+        }
+      ],
+      "api": [
+        {
+          "path": "/api/me",
+          "durationMs": 4541
+        }
+      ],
+      "assets": [
+        "/assets/index-DKRr6Z9H.js",
+        "/_vercel/speed-insights/script.js"
+      ]
+    },
+    {
+      "device": "mobile",
+      "label": "repeat mobile 2",
+      "status": 200,
+      "readyMs": 790,
+      "errors": [],
+      "navigation": [
+        {
+          "ttfbMs": 279,
+          "domContentLoadedMs": 555
+        }
+      ],
+      "api": [
+        {
+          "path": "/api/me",
+          "durationMs": 101
+        }
+      ],
+      "assets": [
+        "/assets/index-DKRr6Z9H.js",
+        "/_vercel/speed-insights/script.js"
+      ]
+    },
+    {
+      "device": "desktop",
+      "label": "repeat desktop 3",
+      "status": 200,
+      "readyMs": 743,
+      "errors": [],
+      "navigation": [
+        {
+          "ttfbMs": 250,
+          "domContentLoadedMs": 488
+        }
+      ],
+      "api": [
+        {
+          "path": "/api/me",
+          "durationMs": 177
+        }
+      ],
+      "assets": [
+        "/assets/index-DKRr6Z9H.js",
+        "/_vercel/speed-insights/script.js"
+      ]
+    },
+    {
+      "device": "mobile",
+      "label": "repeat mobile 3",
+      "status": 200,
+      "readyMs": 831,
+      "errors": [],
+      "navigation": [
+        {
+          "ttfbMs": 290,
+          "domContentLoadedMs": 591
+        }
+      ],
+      "api": [
+        {
+          "path": "/api/me",
+          "durationMs": 149
+        }
+      ],
+      "assets": [
+        "/assets/index-DKRr6Z9H.js",
+        "/_vercel/speed-insights/script.js"
+      ]
+    },
+    {
+      "device": "desktop",
+      "label": "opening after 342 seconds without test requests",
+      "status": 200,
+      "readyMs": 5547,
+      "errors": [],
+      "navigation": [
+        {
+          "ttfbMs": 284,
+          "domContentLoadedMs": 550
+        }
+      ],
+      "api": [
+        {
+          "path": "/api/me",
+          "durationMs": 4555
+        }
+      ],
+      "assets": [
+        "/assets/index-DKRr6Z9H.js",
+        "/_vercel/speed-insights/script.js"
+      ]
+    },
+    {
+      "device": "desktop",
+      "label": "immediate reopening after idle opening",
+      "status": 200,
+      "readyMs": 736,
+      "errors": [],
+      "navigation": [
+        {
+          "ttfbMs": 253,
+          "domContentLoadedMs": 503
+        }
+      ],
+      "api": [
+        {
+          "path": "/api/me",
+          "durationMs": 114
+        }
+      ],
+      "assets": [
+        "/assets/index-DKRr6Z9H.js",
+        "/_vercel/speed-insights/script.js"
+      ]
+    }
+  ],
+  "quietStarted": "2026-10-10T20:20:12.177Z",
+  "testIdleSeconds": 342,
+  "completed": "2026-10-10T20:26:06.599Z"
+}

@@ -1,28 +1,45 @@
-# ADR 0002: Implement the stack in tech_stack.md
+# ADR 0002: React/Vite, Express และการยืนยันตัวตนด้วย JWT
 
-Status: Accepted for the current implementation — 2026-09-11
+สถานะ: ยอมรับสำหรับ frontend, backend และการยืนยันตัวตนเมื่อ 2026-09-11
+ตรวจทาน: 2026-10-10 รายละเอียดฐานข้อมูลและ deployment ขยายเพิ่มเติมใน ADR 0008 และ ADR 0009
 
-## Context
+## บริบทและปัญหา
 
-The user explicitly requested `docs/architecture/tech_stack.md`. Historical ADR 0001 selected Next.js/Firebase while the Tech Stack and Mermaid C4 documents selected React/Vite, Express, PostgreSQL and JWT. An interim local implementation used Python/SQLite.
+[ADR 0001](0001-tech-stack-selection.md) เดิมเสนอ Next.js/Firebase แต่เทคโนโลยีที่เลือกใช้จริงคือ React/Vite, Express, PostgreSQL และ JWT เพื่อรองรับการแก้ร่างการ์ด ทบทวนตาม SRS อ่านเอกสาร และใช้ JavaScript ร่วมกันทั้งสองฝั่ง การใช้ Python/SQLite สำหรับเว็บในช่วงต้นไม่ใช่ runtime ปัจจุบัน
 
-## Decision
+## การตัดสินใจ
 
-Use `tech_stack.md` as the source of truth:
+ใช้ [สรุปเทคโนโลยี](../tech_stack.md) เป็นภาพรวมของระบบปัจจุบัน:
 
-- React + Vite + plain CSS; pages, components, hooks and API client.
-- Express modular monolith: authentication, decks, reviews, statistics and generation.
-- PostgreSQL: parameterized queries, connection pool, transactions, SQL migrations and JSONB metadata.
-- JWT in HttpOnly/SameSite cookies, 30-minute inactivity expiry and token-version revocation.
-- OpenAI Responses REST API; optional local/manual creation without a key.
-- Multi-stage Docker build and non-root Node runtime; PostgreSQL via Compose or hosted database on Render/Railway.
+- React + Vite + CSS ใช้ hash routing โดยไม่ได้ใช้การสร้างหน้าเว็บบนเซิร์ฟเวอร์แบบ Next.js
+- Express แบบ [Modular Monolith](0003-modular-monolith.md) มีโมดูลยืนยันตัวตน ชุดการ์ด ทบทวน สถิติ รายวิชา โน้ต เอกสาร และการสร้างการ์ด
+- Supabase PostgreSQL ร่วมกับ Prisma/pg และ migrations ที่สั่งแยกจาก startup ตาม [ADR 0008](008-prisma-supabase.md)
+- JWT ของแอปผ่าน HttpOnly/SameSite cookies หมดอายุเมื่อไม่ใช้งาน 30 นาที และเพิกถอนได้ด้วยเวอร์ชัน token ไม่ใช้ Firebase/Supabase Auth โดย API ยังตรวจเจ้าของข้อมูล
+- ตั้งค่าผู้ให้บริการ HTTPS ที่รองรับ API รูปแบบ OpenAI โดยเลือก Responses หรือ Chat Completions ได้ ยังไม่มีการเชื่อมเฉพาะ Gemini และเก็บคีย์ AI เฉพาะฝั่งเซิร์ฟเวอร์
+- เขียนการ์ดเองและแยกข้อความตามกฎได้โดยไม่ใช้คีย์ AI ผลจาก AI เป็นร่างให้ผู้ใช้ตรวจก่อนบันทึก
+- อ่านไฟล์ในโปรเซสแยก และใช้ OCR เป็นทางเลือกสำรองสำหรับ PDF ตาม [ข้อจำกัดและขั้นตอนตรวจข้อความ](../../pdf-ocr.md)
+- ใช้ Docker build หลายขั้นตอนและรัน Node ด้วยผู้ใช้ที่ไม่ใช่ root การ deploy ปัจจุบันบน Vercel แยก CDN กับ API container ตาม [ADR 0009](0009-vercel-services.md)
 
-Modules with business algorithms separate services from SQL repositories and HTTP controllers. Deck CRUD keeps transaction orchestration in its repository because it has no separate business algorithm.
+โมดูลที่มีอัลกอริทึมธุรกิจแยก service ออกจาก repository และ HTTP controller ส่วนการสร้าง อ่าน แก้ และลบชุดการ์ดจัดการธุรกรรมใน repository เพราะไม่มีอัลกอริทึมธุรกิจอีกชั้นให้แยก
 
-## Consequences
+## ผลที่ตามมา
 
-Frontend and backend now share JavaScript. PostgreSQL must run alongside the app. The optional development helper starts isolated real PostgreSQL, not an alternative database engine. A read-only SQLite import preserves user data and password hashes; users sign in again.
+Frontend และ backend ใช้ JavaScript และรูปแบบข้อมูล JSON ร่วมกัน ฟีเจอร์ที่ต้องยืนยันตัวตนยังต้องใช้ API และฐานข้อมูล แม้ไฟล์เว็บเปิดได้แล้ว การมี cookie อย่างเดียวไม่ได้ยืนยันสิทธิ์ในข้อมูล
 
-Earlier Sprint 1 prototypes are preserved. Historical PNG diagrams remain historical references. Current implementation uses the Mermaid C4 documents and this ADR. External object storage shown in planning diagrams is not implemented yet; uploaded files are extracted in memory.
+Runtime ของแอปเลือก Supabase ส่วน PostgreSQL ในเครื่องใช้กับชุดทดสอบแยกต่างหาก ข้อเสนอเดิมเรื่องฐานข้อมูลใน Compose และการ deploy บน Render/Railway ไม่ใช่การตั้งค่าปัจจุบัน ไฟล์ Python ที่เก็บไว้เป็นแบบฝึกหัดในวิชา ไม่ใช่ backend เว็บอีกชุด
 
-This ADR supersedes the Next.js/Firebase/Vercel decision in `0001-tech-stack-selection.md` for the active application. It does not imply cloud deployment or the availability of real AI credentials.
+การอ่านข้อความจากไฟล์เข้าสู่ร่างการ์ดหรือโน้ตไม่ได้บันทึกไฟล์ต้นฉบับ คลังเอกสารแยกต่างหากเก็บไฟล์และข้อความใน PostgreSQL พร้อมตรวจเจ้าของข้อมูล บริการเก็บไฟล์ภายนอกที่อยู่ในภาพข้อเสนอยังเป็นแนวทางสำหรับอนาคต
+
+รายวิชาใช้ต้นฉบับและประวัติทบทวนร่วมกันตาม [ADR 0010](0010-shared-content-and-review.md) ส่วน snapshot ของข้อมูลอ่านเก็บช่วงสั้น ๆ ในหน่วยความจำแยกตามบัญชีตาม [ADR 0011](0011-private-read-cache.md) ไม่ใช่การบันทึกออฟไลน์ และร่างต้องกดบันทึกเอง
+
+## ทางเลือกที่พิจารณา
+
+- Next.js/Firebase: เก็บเหตุผลเดิมใน ADR 0001 และแทนที่ด้วยการเลือก React/Express
+- Python/SQLite สำหรับเว็บ: ไม่เก็บเป็น runtime อีกชุด แอปและ migrations ปัจจุบันใช้ PostgreSQL
+- บังคับสร้างด้วย AI: ไม่เลือก เพราะผู้ใช้ต้องสร้างเองหรือแยกข้อความได้เมื่อไม่มีคีย์หรือผู้ให้บริการขัดข้อง
+
+## เอกสารอ้างอิง
+
+- [ดัชนีสถาปัตยกรรม](../README.md)
+- [คู่มือพัฒนา](../../development.md)
+- [คู่มือผู้ใช้](../../user_guide.md)
