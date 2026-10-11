@@ -29,21 +29,21 @@ The existing Dockerfile and Docker Hub release are independent.
 
 Set these in Vercel Settings → Environment Variables for the appropriate environment:
 
-| Variable              | Value                                                                         |
-| --------------------- | ----------------------------------------------------------------------------- |
+| Variable              | Value                                                                          |
+| --------------------- | ------------------------------------------------------------------------------ |
 | PORT                  | Not required for the exported Node.js app; `8000` only for the Docker fallback |
-| NODE_ENV              | `production`                                                                  |
+| NODE_ENV              | `production`                                                                   |
 | HOST                  | Not required for the exported Node.js app; `0.0.0.0` for Docker                |
-| COOKIE_SECURE         | `true`                                                                        |
-| APP_ORIGIN            | Exact HTTPS origin used to open this deployment, without a trailing slash     |
-| SUPABASE_PROJECT_REF  | Your existing database project reference                                      |
-| SUPABASE_DATABASE_URL | Verified Supabase connection URL; use a separate database for preview testing |
-| JWT_SECRET            | A strong random secret of at least 32 characters                              |
-| DATABASE_SSL_VERIFY   | `false` in the selected certificate opt-out mode                              |
-| OPENAI_BASE_URL       | Your AI provider's HTTPS endpoint                                             |
-| OPENAI_API_MODE       | `chat` or `responses`, as configured for your provider                        |
-| OPENAI_MODEL          | `gpt-6-sol-pro` for the current KKU configuration                              |
-| OPENAI_API_KEY        | Your provider secret                                                          |
+| COOKIE_SECURE         | `true`                                                                         |
+| APP_ORIGIN            | Exact HTTPS origin used to open this deployment, without a trailing slash      |
+| SUPABASE_PROJECT_REF  | Your existing database project reference                                       |
+| SUPABASE_DATABASE_URL | Verified Supabase connection URL; use a separate database for preview testing  |
+| JWT_SECRET            | A strong random secret of at least 32 characters                               |
+| DATABASE_SSL_VERIFY   | `false` in the selected certificate opt-out mode                               |
+| OPENAI_BASE_URL       | Your AI provider's HTTPS endpoint                                              |
+| OPENAI_API_MODE       | `chat` or `responses`, as configured for your provider                         |
+| OPENAI_MODEL          | `gpt-5.4-mini` for the current KKU configuration                               |
+| OPENAI_API_KEY        | Your provider secret                                                           |
 
 Do not upload `.env`, put secrets in build arguments, or prefix secrets with `VITE_`.
 Do not copy Windows NODE_EXTRA_CA_CERTS paths into Vercel.
