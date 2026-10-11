@@ -1,0 +1,191 @@
+{
+  "checkedAt": "2026-10-11T07:12:15.436Z",
+  "repository": "Software-Engineering-Concepts-2026/se-sec2-team-07",
+  "run": {
+    "id": 38080796632,
+    "title": "ci: enforce application coverage and verify automatic Vercel deploys",
+    "url": "https://github.com/Software-Engineering-Concepts-2026/se-sec2-team-07/actions/runs/38080796632",
+    "branch": "feat/coverage-auto-deploy",
+    "commit": "3013bf78c2b67b8ddcb58b6970d7ef38859f5935",
+    "status": "completed",
+    "conclusion": "success",
+    "event": "push",
+    "createdAt": "2026-10-10T19:41:26Z",
+    "updatedAt": "2026-10-10T19:51:26Z"
+  },
+  "jobs": [
+    {
+      "id": 114297111520,
+      "name": "test",
+      "conclusion": "success",
+      "url": "https://github.com/Software-Engineering-Concepts-2026/se-sec2-team-07/actions/runs/38080796632/job/114297111520",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Initialize containers",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx playwright install --with-deps chrome",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Unit, integration and browser tests with coverage",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Publish coverage summary",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Stop containers",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 114298382264,
+      "name": "Deploy and verify Vercel",
+      "conclusion": "success",
+      "url": "https://github.com/Software-Engineering-Concepts-2026/se-sec2-team-07/actions/runs/38080796632/job/114298382264",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check deployment credentials",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install pinned Vercel CLI",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Deploy the tested commit",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify live website and database",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install browser test dependencies",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify deployed React login page",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Promote verified production deployment",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Publish deployment evidence",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "coverageArtifact": {
+    "id": 11680158776,
+    "name": "application-coverage",
+    "expired": false,
+    "digest": "sha256:4769f74ebe6bb5e858b4a99fbc94bb8fc2eff2578ebf694b19d79a4c0f7048b1",
+    "downloadedZipSha256": "4769f74ebe6bb5e858b4a99fbc94bb8fc2eff2578ebf694b19d79a4c0f7048b1",
+    "url": "https://github.com/Software-Engineering-Concepts-2026/se-sec2-team-07/actions/runs/38080796632/artifacts/11680158776"
+  },
+  "automaticDeployment": "https://focus-flashcards-i0hxsu23z-nattapon-aonsris-projects.vercel.app",
+  "localNodeCommit": "ffafe55",
+  "localBranch": "perf/vercel-node-api",
+  "localNodePreview": "https://focus-flashcards-i7xudqra7-nattapon-aonsris-projects.vercel.app"
+}

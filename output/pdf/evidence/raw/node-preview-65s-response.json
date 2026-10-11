@@ -1,0 +1,303 @@
+{
+  "target": "https://focus-flashcards-i7xudqra7-nattapon-aonsris-projects.vercel.app",
+  "started": "2026-10-10T20:39:09.020Z",
+  "http": [
+    {
+      "label": "first HTML",
+      "path": "/",
+      "status": 200,
+      "headersMs": 959,
+      "totalMs": 981,
+      "bytes": 2471,
+      "cache": "MISS",
+      "region": "sin1:sin1:sin1"
+    },
+    {
+      "label": "first API after idle (database health)",
+      "path": "/api/health",
+      "status": 200,
+      "headersMs": 114,
+      "totalMs": 115,
+      "bytes": 11,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "warm HTML 1",
+      "path": "/",
+      "status": 200,
+      "headersMs": 517,
+      "totalMs": 522,
+      "bytes": 2471,
+      "cache": "HIT",
+      "region": "sin1:sin1:sin1"
+    },
+    {
+      "label": "warm database health 1",
+      "path": "/api/health",
+      "status": 200,
+      "headersMs": 111,
+      "totalMs": 112,
+      "bytes": 11,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "warm session check 1",
+      "path": "/api/me",
+      "status": 401,
+      "headersMs": 113,
+      "totalMs": 113,
+      "bytes": 84,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "warm HTML 2",
+      "path": "/",
+      "status": 200,
+      "headersMs": 96,
+      "totalMs": 98,
+      "bytes": 2471,
+      "cache": "HIT",
+      "region": "sin1:sin1:sin1"
+    },
+    {
+      "label": "warm database health 2",
+      "path": "/api/health",
+      "status": 200,
+      "headersMs": 100,
+      "totalMs": 100,
+      "bytes": 11,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "warm session check 2",
+      "path": "/api/me",
+      "status": 401,
+      "headersMs": 114,
+      "totalMs": 114,
+      "bytes": 84,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "warm HTML 3",
+      "path": "/",
+      "status": 200,
+      "headersMs": 152,
+      "totalMs": 159,
+      "bytes": 2471,
+      "cache": "HIT",
+      "region": "sin1:sin1:sin1"
+    },
+    {
+      "label": "warm database health 3",
+      "path": "/api/health",
+      "status": 200,
+      "headersMs": 99,
+      "totalMs": 100,
+      "bytes": 11,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "warm session check 3",
+      "path": "/api/me",
+      "status": 401,
+      "headersMs": 107,
+      "totalMs": 107,
+      "bytes": 84,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "warm HTML 4",
+      "path": "/",
+      "status": 200,
+      "headersMs": 391,
+      "totalMs": 392,
+      "bytes": 2471,
+      "cache": "HIT",
+      "region": "sin1:sin1:sin1"
+    },
+    {
+      "label": "warm database health 4",
+      "path": "/api/health",
+      "status": 200,
+      "headersMs": 104,
+      "totalMs": 105,
+      "bytes": 11,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "warm session check 4",
+      "path": "/api/me",
+      "status": 401,
+      "headersMs": 113,
+      "totalMs": 113,
+      "bytes": 84,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "warm HTML 5",
+      "path": "/",
+      "status": 200,
+      "headersMs": 152,
+      "totalMs": 156,
+      "bytes": 2471,
+      "cache": "HIT",
+      "region": "sin1:sin1:sin1"
+    },
+    {
+      "label": "warm database health 5",
+      "path": "/api/health",
+      "status": 200,
+      "headersMs": 125,
+      "totalMs": 126,
+      "bytes": 11,
+      "cache": "MISS",
+      "region": "sin1"
+    },
+    {
+      "label": "warm session check 5",
+      "path": "/api/me",
+      "status": 401,
+      "headersMs": 102,
+      "totalMs": 102,
+      "bytes": 84,
+      "cache": "MISS",
+      "region": "sin1"
+    }
+  ],
+  "browser": [
+    {
+      "device": "desktop",
+      "round": 1,
+      "cache": "fresh browser context; warm API",
+      "readyMs": 1085,
+      "errors": [],
+      "navigation": [
+        {
+          "ttfbMs": 262,
+          "domContentLoadedMs": 845
+        }
+      ],
+      "api": [
+        {
+          "path": "/api/me",
+          "durationMs": 94
+        }
+      ]
+    },
+    {
+      "device": "desktop",
+      "round": 2,
+      "cache": "fresh browser context; warm API",
+      "readyMs": 826,
+      "errors": [],
+      "navigation": [
+        {
+          "ttfbMs": 267,
+          "domContentLoadedMs": 571
+        }
+      ],
+      "api": [
+        {
+          "path": "/api/me",
+          "durationMs": 99
+        }
+      ]
+    },
+    {
+      "device": "desktop",
+      "round": 3,
+      "cache": "fresh browser context; warm API",
+      "readyMs": 839,
+      "errors": [],
+      "navigation": [
+        {
+          "ttfbMs": 251,
+          "domContentLoadedMs": 538
+        }
+      ],
+      "api": [
+        {
+          "path": "/api/me",
+          "durationMs": 125
+        }
+      ]
+    },
+    {
+      "device": "mobile",
+      "round": 1,
+      "cache": "fresh browser context; warm API",
+      "readyMs": 838,
+      "errors": [],
+      "navigation": [
+        {
+          "ttfbMs": 298,
+          "domContentLoadedMs": 589
+        }
+      ],
+      "api": [
+        {
+          "path": "/api/me",
+          "durationMs": 98
+        }
+      ]
+    },
+    {
+      "device": "mobile",
+      "round": 2,
+      "cache": "fresh browser context; warm API",
+      "readyMs": 813,
+      "errors": [],
+      "navigation": [
+        {
+          "ttfbMs": 269,
+          "domContentLoadedMs": 577
+        }
+      ],
+      "api": [
+        {
+          "path": "/api/me",
+          "durationMs": 114
+        }
+      ]
+    },
+    {
+      "device": "mobile",
+      "round": 3,
+      "cache": "fresh browser context; warm API",
+      "readyMs": 816,
+      "errors": [],
+      "navigation": [
+        {
+          "ttfbMs": 257,
+          "domContentLoadedMs": 578
+        }
+      ],
+      "api": [
+        {
+          "path": "/api/me",
+          "durationMs": 91
+        }
+      ]
+    },
+    {
+      "device": "desktop",
+      "cache": "fresh browser after 65 seconds idle",
+      "readyMs": 728,
+      "api": [
+        {
+          "path": "/api/me",
+          "durationMs": 99
+        }
+      ]
+    }
+  ]
+}

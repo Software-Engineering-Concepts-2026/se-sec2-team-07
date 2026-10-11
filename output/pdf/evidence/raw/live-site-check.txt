@@ -1,0 +1,6 @@
+Checked at: 2026-10-11T07:14:11.691Z
+Target: https://focus-flashcards-i0hxsu23z-nattapon-aonsris-projects.vercel.app
+Exit code: 0
+
+Deployment verified: https://focus-flashcards-i0hxsu23z-nattapon-aonsris-projects.vercel.app
+Passed: React HTML, static assets, database health, protected API and login Origin.
