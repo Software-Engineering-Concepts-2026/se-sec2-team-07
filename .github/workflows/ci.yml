@@ -6,7 +6,100 @@ concurrency:
   group: checks-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
-  test:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+
+  unit:
+    name: Unit tests (Node.js)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run test:coverage:unit
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-input-unit
+          path: coverage/
+          if-no-files-found: error
+          retention-days: 1
+
+  integration:
+    name: Integration tests (PostgreSQL)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17-bookworm
+        env:
+          POSTGRES_USER: focus
+          POSTGRES_PASSWORD: test-password
+          POSTGRES_DB: focus_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U focus -d focus_test"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql://focus:test-password@localhost:5432/focus_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run test:coverage:integration
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-input-integration
+          path: coverage/
+          if-no-files-found: error
+          retention-days: 1
+
+  build:
+    name: Build & smoke-test stack
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17-bookworm
+        env:
+          POSTGRES_USER: focus
+          POSTGRES_PASSWORD: test-password
+          POSTGRES_DB: focus_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U focus -d focus_test"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql://focus:test-password@localhost:5432/focus_test
+      VITE_COVERAGE: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run test:smoke
+
+  e2e:
+    name: E2E tests (browser)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
@@ -30,8 +123,37 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chrome
-      - name: Unit, integration and browser tests with coverage
-        run: npm run test:coverage
+      - run: npm run test:coverage:browser
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-input-browser
+          path: coverage/
+          if-no-files-found: error
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-test-results
+          path: test-results/
+
+  coverage:
+    name: Coverage
+    needs: [unit, integration, e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-input-*
+          path: coverage/
+          merge-multiple: true
+      - run: npm run test:coverage:report
       - name: Publish coverage summary
         if: always()
         run: |
@@ -45,18 +167,14 @@ jobs:
           path: |
             coverage/
             !coverage/v8/
+            !coverage/v8-merged/
             !coverage/browser/
             !coverage/backend/coverage-final.json
           if-no-files-found: warn
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: browser-test-results
-          path: test-results/
 
   deploy:
     name: Deploy and verify Vercel
-    needs: test
+    needs: [lint, unit, integration, build, e2e, coverage]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -66,6 +184,7 @@ jobs:
     env:
       VERCEL_ORG_ID: team_CyNzPYGbZujCFa58aJ339zlf
       VERCEL_PROJECT_ID: prj_5v1MMGpEfPUPrxPO5xJBaU7YeKLk
+      VERCEL_SCOPE: nattapon-aonsris-projects
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -87,7 +206,7 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          args=(--yes --token="$VERCEL_TOKEN")
+          args=(--yes --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN")
           if [ "$GITHUB_REF_NAME" = "main" ]; then
             args+=(--prod --skip-domain)
           fi
@@ -110,7 +229,7 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           DEPLOYMENT_URL: ${{ steps.deployment.outputs.url }}
-        run: vercel promote "$DEPLOYMENT_URL" --yes --token="$VERCEL_TOKEN"
+        run: vercel promote "$DEPLOYMENT_URL" --yes --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN"
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

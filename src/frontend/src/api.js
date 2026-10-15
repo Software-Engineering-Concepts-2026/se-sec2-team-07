@@ -12,7 +12,7 @@ export async function api(path, method = 'GET', body, signal) {
     });
   } catch (e) {
     if (e.name === 'AbortError') throw e;
-    throw new Error('เชื่อมต่อไม่ได้ กรุณาตรวจอินเทอร์เน็ตแล้วลองอีกครั้ง');
+    throw new Error('เชื่อมต่อไม่ได้ กรุณาตรวจอินเทอร์เน็ตแล้วลองอีกครั้ง', { cause: e });
   }
   if (response.status === 401) resetReadCacheSession();
   if (response.ok && !['GET', 'HEAD'].includes(method.toUpperCase())) {
