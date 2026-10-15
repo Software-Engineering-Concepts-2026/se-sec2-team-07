@@ -57,7 +57,7 @@ TOTAL              12      1    92%
 - `Build & smoke-test stack`: production build พร้อมตรวจหน้าเว็บ, assets และ API กับฐานข้อมูลทดสอบในเครื่อง
 - `E2E tests (browser)`: Playwright desktop/mobile
 - `Coverage`: line coverage ต้องไม่น้อยกว่า 60% ทั้งรวม, frontend และ backend
-- **Branch Protection:** เลือกชื่อ checks จริงทั้งหกด้านบนใน GitHub หลัง workflow ใหม่รัน พร้อมบังคับ PR/review; ไม่เลือกงาน deploy ซึ่งรันเฉพาะ push และต้องนำชื่อ `test` เก่าออกหากเคยบังคับไว้
+- **Branch Protection:** เลือกชื่อ checks จริงทั้งหกด้านบนใน GitHub หลัง workflow ใหม่รัน พร้อมบังคับ PR/review; นำชื่อ `test` เก่าหรือ `Deploy and verify Vercel` ออกหากเคยบังคับไว้ เพราะ Actions ปัจจุบันทำเฉพาะ CI ส่วน Vercel deploy จาก main โดยตรง
 - **รายละเอียด:** [coverage และ CI/CD](testing/coverage-ci-cd.md)
 - **หลักฐาน:**ภาพหน้า PR ตอนขึ้น "Merging is blocked" (แนบในคอมเมนต์ PR)
 

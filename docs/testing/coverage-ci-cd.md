@@ -54,9 +54,19 @@ also passed. The merged report includes all 79 current application JS/JSX files:
 
 The runner also rejected an incomplete report with missing browser stage input,
 and rejected an unknown stage. Workflow parsing, shell syntax, npm script names,
-dependency gates and explicit Vercel team scope were checked locally. No live
-deployment or promotion was performed; the next new Actions run must confirm
-cloud deployment permissions and promotion.
+dependency gates and the then-current Vercel team scope were checked locally.
+No live deployment or promotion was performed in that verification. Deployment
+has since moved to Vercel Git integration as described below.
+
+## Git deployment configuration verified on 2026-10-16
+
+YAML/JSON parsing, ESLint and shell syntax checks passed. Comparison against
+the previous workflow confirmed that all six CI jobs and their triggers are
+unchanged; only the deploy job was removed. Branch-rule checks enable `main`
+and disable `develop`, simple and nested feature/fix branches. Runtime services,
+rewrites, regions and headers are unchanged. This configuration change did not
+rerun the application suites or perform a live deployment; Vercel connection
+and GitHub Branch Protection must be configured separately.
 
 ## CI/CD behavior
 
@@ -75,7 +85,8 @@ Database jobs each use their own temporary PostgreSQL service, with no productio
 database secrets. Unit tests do not require a database or browser. The three suites
 upload stage-specific V8 data and completion markers; the coverage job downloads
 them and refuses a missing or incomplete suite. Test, lint, build/smoke failures or
-coverage below 60% block deployment. No test suite is rerun just to produce coverage.
+coverage below 60% must block merging through main's required status checks.
+No test suite is rerun just to produce coverage.
 
 Local equivalents (database commands require an isolated local `TEST_DATABASE_URL`):
 
@@ -96,29 +107,36 @@ the built application against the test database without creating user accounts.
 
 Select the six real check names above in main's Branch Protection after the new
 workflow runs. Replace the old required `test` check if it was configured. Do not
-require `Deploy and verify Vercel` on PRs because it is a push-only job. Branch
-Protection settings must be saved in GitHub; changing YAML does not configure them.
+require `Deploy and verify Vercel`: this job has been removed. Branch Protection
+settings must be saved in GitHub; changing YAML does not configure them.
 
-For successful pushes, the existing Vercel `focus-flashcards` project receives
-the tested commit automatically. Feature branches and `develop` go to Preview.
-`main` uses Production environment variables and a staged deployment; only after
-live checks pass is it promoted to the Production domain.
+The existing Vercel `focus-flashcards` project must be connected to this GitHub
+repository with Production Branch `main`. GitHub Actions runs only CI; it no
+longer installs Vercel CLI, deploys, promotes or uses `VERCEL_TOKEN`.
+`vercel.json` disables all Git branch deployments with `**: false` and enables
+only `main: true`. `develop`, feature branches and PRs run CI without Git
+deployments once they contain this configuration. Manual CLI deployment is
+still available when an explicit Preview is needed.
 
-Both Vercel CLI commands explicitly use `--scope=nattapon-aonsris-projects`.
-Deploy uses the linked project IDs, while promote also needs the correct team
-context rather than relying on a default user lookup. If access still fails,
-check that the Actions `VERCEL_TOKEN` is valid for this team/project. Git
-auto-deploy is disabled in `vercel.json`, so it does not bypass these checks.
-Re-running an old Actions run uses its old workflow; validate fixes with a new
-push/PR containing the updated workflow.
+After an approved PR with passing required checks is merged into `main`, Vercel
+builds and publishes Production using its existing environment variables.
+Vercel reacts to main pushes independently of Actions, so Branch Protection is
+the gate before deployment; do not bypass it or push directly to main. These
+code changes do not connect the Vercel project or configure GitHub protection.
 
-Live verification checks public React HTML, JavaScript/CSS assets, database
-health, unauthenticated API protection and same-origin login validation. Separate
-desktop/mobile browser checks exercise the deployed login UI and rejected
-credentials. They do not create accounts or change cloud learning data.
+The read-only live checks remain available manually:
+
+```sh
+node scripts/check-deployment.js https://focus-flashcards.vercel.app
+```
+
+The optional desktop/mobile live check uses `tests/deployment.config.js` with
+an HTTPS `DEPLOYMENT_URL`. Neither live check is run automatically by CI now.
+They do not create accounts or change cloud learning data.
 
 See [Actions runs](https://github.com/Software-Engineering-Concepts-2026/se-sec2-team-07/actions/workflows/ci.yml)
-for the latest cloud result, downloadable coverage and verified deployment URL.
+for the latest CI result and downloadable coverage. Use Vercel Deployments for
+the deployed commit, build result and Production URL.
 Local results above are evidence for the local run; each cloud run records its
 own coverage and deployment result rather than assuming the local result.
 

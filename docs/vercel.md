@@ -95,35 +95,41 @@ Deploying a Preview alone does not update the Production domain. After deploying
 `/api/health`, then registration/login through the Production URL. A rejected Origin
 requires checking APP_ORIGIN/system variables and redeploying; do not disable the policy.
 
-## Automatic deployment from GitHub Actions
+## Automatic deployment through Vercel Git integration
 
-`.github/workflows/ci.yml` runs all current application tests and enforces 60%
-line coverage overall, on the backend and on the frontend. The deploy job depends
-on that job and runs only for pushes, never pull requests. A push to `main`
-builds a staged Production deployment; other branches, including `develop`,
-deploy Preview. The Production domain is promoted only after live checks pass.
-Production therefore follows the repository's normal reviewed merge process.
+GitHub Actions runs the six checks listed in
+[the workflow guide](../.github/workflows/readme.md), including the 60% line
+coverage gates for the whole application, frontend and backend. Actions does
+not deploy or promote, and does not need a `VERCEL_TOKEN` secret.
 
-The workflow is linked to the existing `focus-flashcards` project using its
-non-secret project/team IDs. Store its owner's deployment token as the
-`VERCEL_TOKEN` repository secret in GitHub Settings → Secrets and variables →
-Actions. Do not put the token in source, a variable, `.env` or a chat message.
-The project's existing Vercel environment variables remain on Vercel.
+Connect the existing project rather than creating a second one:
 
-The pinned Vercel CLI uploads the tested source for a remote build of the Vite and
-Express services. It does not use `--prebuilt`.
-After deployment, `scripts/check-deployment.js` checks public React HTML, built
-assets, `/api/health`, protected API responses and same-origin login validation.
-Desktop/mobile Playwright tests then check that the login page actually renders
-and invalid credentials produce a normal error. These checks never create or
-change cloud accounts, cards, notes or courses.
+1. Open Vercel → `focus-flashcards` → Settings → Git.
+2. Connect `Software-Engineering-Concepts-2026/se-sec2-team-07`.
+3. Set Production Branch to `main` and use the repository root as Root Directory.
+4. Keep the existing Production environment variables in Vercel. Leave build/output
+   overrides unset so the Services settings in `vercel.json` apply.
+5. Configure GitHub Branch Protection to require a PR, at least one approval,
+   all six CI checks and an up-to-date branch before merging into main.
 
-Each successful run links its deployed URL and commit in the Actions summary.
-The `application-coverage` artifact contains the coverage report. A failed check
-or missing secret makes the workflow fail; it never reports an unchecked deploy
-as successful. Existing Git auto-deployment, if enabled in Vercel, should not
-duplicate this pipeline. Preview Deployment Protection must allow the verification
-runner to access the site; do not disable application authentication.
+`git.deploymentEnabled` in `vercel.json` sets `**: false` and `main: true`.
+Vercel deploys Git pushes to main only; develop, feature branches and PRs run
+CI without automatic Preview deployments once they include this configuration.
+Explicit manual Preview deployment through the CLI remains available.
+
+After the reviewed PR is merged, Vercel builds the Vite/Express services and
+publishes Production. Vercel starts on the main push independently of Actions;
+required PR checks are the gate before merge. Do not bypass protection or push
+directly to main. The coverage artifact remains available in Actions, while
+deployment logs and URLs are shown in Vercel.
+
+Live verification is manual in this setup. Run
+`node scripts/check-deployment.js https://focus-flashcards.vercel.app` to check
+React HTML, assets, database health, protected APIs and login Origin validation.
+The desktop/mobile login checks in `tests/deployment.config.js` can also be run
+manually with an HTTPS `DEPLOYMENT_URL`. They do not create cloud accounts or
+change learning data. The ordinary build/smoke and browser CI checks still run
+against an isolated local test database before merge.
 
 ## Checks before production
 
@@ -142,8 +148,8 @@ runner to access the site; do not disable application authentication.
 - Rate limits held in process memory are per instance, not shared across autoscaled instances.
 - Review function logs, resource limits and costs before enabling production traffic.
 
-The Node.js runtime is a Preview experiment until explicitly deployed/promoted to
-Production. Changing this file or creating a Preview does not update Production.
+Documentation changes alone do not update Production. With the Git integration
+configured, merging into main triggers the production build and deployment.
 
 ## Worker packaging and Docker fallback
 
@@ -167,4 +173,5 @@ References:
 - https://vercel.com/docs/deployments/vercel-ignore
 - https://vercel.com/docs/projects/deploy-from-cli
 - https://vercel.com/docs/cli/deploy
-- https://vercel.com/docs/cli/promote
+- https://vercel.com/docs/git/vercel-for-github
+- https://vercel.com/docs/project-configuration/git-configuration
