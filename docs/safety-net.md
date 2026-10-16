@@ -50,9 +50,15 @@ TOTAL              12      1    92%
 
 ## 4. CI block อะไรบ้าง
 
-- `lint` (`ruff`): ตรวจสอบรูปแบบและคุณภาพของโค้ด เช่น unused import หรือข้อผิดพลาดตามกฎของ Ruff
-- `test` (`pytest`): รัน Unit Tests และตรวจสอบ Coverage
-- **Branch Protection:** branch `main` ต้องผ่าน CI checks ที่กำหนดก่อนจึงจะสามารถ merge Pull Request ได้
+- หลักฐาน Python ด้านบนเป็น Safety Net ของ Lab เดิม ส่วนเว็บปัจจุบันใช้ Node.js/React/PostgreSQL และ workflow `Application checks`
+- `lint`: ESLint ตรวจ JavaScript/JSX
+- `Unit tests (Node.js)`: unit tests ของแอป รวมโมดูลสถิติและ SRS
+- `Integration tests (PostgreSQL)`: PostgreSQL จริง, Prisma migrations และ API
+- `Build & smoke-test stack`: production build พร้อมตรวจหน้าเว็บ, assets และ API กับฐานข้อมูลทดสอบในเครื่อง
+- `E2E tests (browser)`: Playwright desktop/mobile
+- `Coverage`: line coverage ต้องไม่น้อยกว่า 60% ทั้งรวม, frontend และ backend
+- **Branch Protection:** เลือกชื่อ checks จริงทั้งหกด้านบนใน GitHub หลัง workflow ใหม่รัน พร้อมบังคับ PR/review; นำชื่อ `test` เก่าหรือ `Deploy and verify Vercel` ออกหากเคยบังคับไว้ เพราะ Actions ปัจจุบันทำเฉพาะ CI ส่วน Vercel deploy จาก main โดยตรง
+- **รายละเอียด:** [coverage และ CI/CD](testing/coverage-ci-cd.md)
 - **หลักฐาน:**ภาพหน้า PR ตอนขึ้น "Merging is blocked" (แนบในคอมเมนต์ PR)
 
 ## 5. บทเรียนที่ได้
